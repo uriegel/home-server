@@ -17,14 +17,10 @@ extern int signal(int pid, Callback handleSignal)
 
 let stopping = new ManualResetEvent false
 
-let homePageRequest = 
-    Static.useStatic "/home/uwe/webroot" "/" 
-
-let filmRequest = 
-    Static.useStatic "home/uwe/" "/Starbuzz"
-
+let videoRequest = Static.useStatic "/media/uwe/Volume" "/video"
+let homePageRequest = Static.useStatic "/home/uwe/webroot" "/" 
+let filmRequest = Static.useStatic "home/uwe/" "/Starbuzz"
 let favicon = Static.useFavicon "/home/uwe/webroot/Uwe.jpg"
-
 let fritzProxy = useReverseProxyByHost "fritz.uriegel.de" "http://fritz.box"
 let testProxy = useReverseProxyByHost "familie.uriegel.de" "http://queensbridge"
 
@@ -52,7 +48,7 @@ let configuration = Configuration.create {
     Configuration.createEmpty() with 
         DomainName = "uriegel.de"
         UseLetsEncrypt = true
-        Requests = [ fritzProxy; testProxy; videoFiles; filmRequest; homePageRequest; favicon ]
+        Requests = [ fritzProxy; testProxy; videoFiles; videoRequest; filmRequest; homePageRequest; favicon ]
 }
 
 try 
