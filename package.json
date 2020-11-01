@@ -1,0 +1,19 @@
+{
+  "name": "homeserver",
+  "version": "1.0.0",
+  "description": "Home server for my raspberry pi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uriegel/HomeServer.git"
+  },
+  "author": "Uwe Riegel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uriegel/HomeServer/issues"
+  },
+  "homepage": "https://github.com/uriegel/HomeServer#readme"
+}
