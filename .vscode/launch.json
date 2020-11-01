@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch via NPM",
             "type": "node",
             "request": "launch",
-            "name": "Programm starten",
-            "skipFiles": [
-                "<node_internals>/**"
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script", "run"
             ],
-            "program": "${workspaceFolder}/dist/index.js",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
+            "env": {"NODE_ENV": "development"},
+            "port": 5858
         }
     ]
 }
