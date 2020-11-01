@@ -10,11 +10,12 @@ router.get('/videos', async (req, res) => {
     res.send(JSON.stringify({ files }))
 })
 
-router.get('/video', async (req, res) => {
-    const path = '/media/Speicher/video/Boing Boing.mp4';
+router.get('/video/*', async (req, res) => {
+    const url = req.url.substr(7)
+    const filePath = `${path}/${decodeURI(url)}`
 
     try {
-        const stat = await fs.stat(path)
+        const stat = await fs.stat(filePath)
         
         const fileSize = stat.size
         const range = req.headers.range
@@ -27,7 +28,7 @@ router.get('/video', async (req, res) => {
             const end = parts[1] ? parseInt(parts[1], 10) : fileSize-1;
             
             const chunksize = (end-start)+1;
-            const file = fsAll.createReadStream(path, {start, end});
+            const file = fsAll.createReadStream(filePath, {start, end});
             const head = {
                 'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                 'Accept-Ranges': 'bytes',
@@ -44,7 +45,7 @@ router.get('/video', async (req, res) => {
             }
     
             res.writeHead(200, head);
-            fsAll.createReadStream(path).pipe(res);
+            fsAll.createReadStream(filePath).pipe(res);
         }
     }
     catch (err) {
