@@ -2,17 +2,19 @@ import * as express from 'express'
 import * as fsAll from "fs"
 import * as fs from "fs/promises"
 
+const PORT = process.env.PORT || 9865
+const PATH = process.env.MEDIA_PATH || '/media/'
+
 const router = express.Router()
-const path = '/media/Speicher/video'
 
 router.get('/videos', async (req, res) => {
-    const files = await fs.readdir(path)  
+    const files = await fs.readdir(PATH)  
     res.send(JSON.stringify({ files }))
 })
 
 router.get('/video/*', async (req, res) => {
     const url = req.url.substr(7)
-    const filePath = `${path}/${decodeURI(url)}`
+    const filePath = `${PATH}/${decodeURI(url)}`
 
     try {
         const stat = await fs.stat(filePath)
@@ -58,7 +60,5 @@ router.get('/video/*', async (req, res) => {
 
 const app = express()
 app.use(router)
-
-const PORT = process.env.PORT || 9865
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`))
