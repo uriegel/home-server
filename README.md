@@ -45,10 +45,13 @@ UUID=04F20EEDF20EE332   /media/video    ntfs    defaults,nofail 0       0
 Send external disk to sleep after 10 min:
 
 Install ```tlp```:
+
 ```
 sudo apt install tlp
 ```
-get disk ID for tlp:
+
+Get disk ID for tlp:
+
 ```
 sudo tlp diskid
 ```
@@ -84,9 +87,26 @@ systemctl start tlp
 ```
 ## Install Home Server
 ### Node.js
+Update your system package list:
+
 ```
-sudo apt install nodejs
-sudo apt install npm
+pi@w3demopi:~ $ sudo apt-get update
+```
+Upgrade all your installed packages to their latest version:
+
+```
+pi@w3demopi:~ $ sudo apt-get dist-upgrade
+```
+
+To download and install newest version of Node.js, use the following command:
+```
+pi@w3demopi:~ $ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+```
+
+Now install it by running:
+
+```
+pi@w3demopi:~ $ sudo apt-get install -y nodejs
 ```
 
 // TODO: /etc/nginx/sites-available/default:
