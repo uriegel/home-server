@@ -100,7 +100,7 @@ pi@w3demopi:~ $ sudo apt-get dist-upgrade
 
 To download and install newest version of Node.js, use the following command:
 ```
-pi@w3demopi:~ $ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+pi@w3demopi:~ $ curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -
 ```
 
 Now install it by running:
