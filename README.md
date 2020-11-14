@@ -1,7 +1,6 @@
 # Home Server
 a home server for my Raspberry Pi 3
 
-```https://github.com/uriegel/FirePlayer```
 ## Setup
 ### Ubuntu 20.10 Server
 ```
