@@ -14,7 +14,7 @@ router.get('/videos', async (req, res) => {
 
 router.get('/video/*', async (req, res) => {
     const url = req.url.substr(7)
-    const filePath = `${PATH}/${decodeURI(url)}`
+    const filePath = `${PATH}/${Buffer.from(url, 'base64').toString('binary')}`
 
     try {
         const stat = await fs.stat(filePath)
