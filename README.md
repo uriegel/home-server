@@ -1,8 +1,6 @@
 # Home Server
 a home server for my Raspberry Pi 3
 
-This server woks together with FirePlayer, a Media Player for AMAZON Firestick:
-```https://github.com/uriegel/FirePlayer```
 ## Setup
 ### Ubuntu 20.10 Server
 ```
