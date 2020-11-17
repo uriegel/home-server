@@ -112,8 +112,8 @@ DISK_SPINDOWN_TIMEOUT_ON_AC="120"
 DISK_SPINDOWN_TIMEOUT_ON_BAT="120"
 ```
 ```
-systemctl enable tlp
-systemctl start tlp
+sudo systemctl enable tlp
+sudo systemctl start tlp
 ```
 
 ## Install Home Server
@@ -145,14 +145,14 @@ npm i in directory HomeServer
 export MEDIA_PATH=/media/video/videos
 node .
 
-http://roxy:9865/videos
+http://roxy:9865/&lt;path&gt;...
 
 // TODO: /etc/nginx/sites-available/default:
 // Items redirecting to nodejs
 // Install node.js as service
 
-location /video {
-		proxy_pass http://localhost:9865/video;
+location &lt;path&gt; {
+		proxy_pass http://localhost:9865/&lt;path&gt;
 	}
 
 	location / {
