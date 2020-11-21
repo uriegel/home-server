@@ -16,7 +16,7 @@
             "env": {
                 "NODE_ENV": "development",
                 "PORT": "9865",
-                "MEDIA_PATH": "/media/uwe/Videos/videos"
+                "MEDIA_PATH": "/media/Speicher/video"
             },
             "port": 5858
         }

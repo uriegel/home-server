@@ -7,16 +7,16 @@ const PATH = process.env.MEDIA_PATH || '/media/'
 
 const router = express.Router()
 
-router.get('/videos', async (req, res) => {
+router.get('/video/list', async (req, res) => {
     const files = await fs.readdir(PATH)  
     res.send(JSON.stringify({ files }))
 })
 
 router.get('/video/*', async (req, res) => {
     const url = req.url.substr(7)
-    const filePath = `${PATH}/${Buffer.from(url, 'base64').toString('binary')}`
-
+    const file = `${PATH}/${decodeURI(url)}`.replace(/\+/gi, " ")
     try {
+        const filePath = fsAll.existsSync(file + ".mp4") ? file + ".mp4" : file + ".mkv"
         const stat = await fs.stat(filePath)
         
         const fileSize = stat.size
@@ -35,7 +35,7 @@ router.get('/video/*', async (req, res) => {
                 'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                 'Accept-Ranges': 'bytes',
                 'Content-Length': chunksize,
-                'Content-Type': 'video/mp4',
+                'Content-Type': 'video/mkv',
             }
             
             res.writeHead(206, head);
@@ -43,7 +43,7 @@ router.get('/video/*', async (req, res) => {
         } else {
             const head = {
                 'Content-Length': fileSize,
-                'Content-Type': 'video/mp4',
+                'Content-Type': 'video/mkv',
             }
     
             res.writeHead(200, head);

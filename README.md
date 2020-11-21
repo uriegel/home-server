@@ -140,19 +140,61 @@ Now install it by running:
 pi@w3demopi:~ $ sudo apt-get install -y nodejs
 ```
 
-// TODO:
+### Compile on raspberry
+
+Copy all files of this project tothe target directory on the raspberry.
+
+```
 npm i in directory HomeServer
 export MEDIA_PATH=/media/video/videos
 node .
+```
 
-http://roxy:9865/&lt;path&gt;...
+Run by 
+
+```
+http://raspberrypi:9865<path>...
+```
+
+### Install as service
+
+```
+sudo nano /lib/systemd/system/home_server.service
+```
+
+```
+[Unit]
+Description=Home Server for serving videos to AMAZON FirePlayer
+Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
+After=network.target
+
+[Service]
+Environment=MEDIA_PATH=/media/video/videos
+Type=simple
+User=uwe
+ExecStart=/usr/bin/node /home/uwe/HomeServer
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable home_server.service
+sudo systemctl start home_server
+```
+
 
 // TODO: /etc/nginx/sites-available/default:
 // Items redirecting to nodejs
 // Install node.js as service
 
-location &lt;path&gt; {
-		proxy_pass http://localhost:9865/&lt;path&gt;
-	}
+```
+location <path>; {
+	proxy_pass http://localhost:9865/<path>;
+}
 
-	location / {
+location / {
+```
