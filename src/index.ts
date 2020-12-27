@@ -3,19 +3,20 @@ import * as fsAll from "fs"
 import * as fs from "fs/promises"
 
 const PORT = process.env.PORT || 9865
-const PATH = process.env.MEDIA_PATH || '/media/'
+const VIDEO_PATH = process.env.VIDEO_PATH || '/video'
+const MUSIC_PATH = process.env.MUSIC_PATH || '/music'
 const RELATIVE_URL = process.env.RELATIVE_URL || '/media'
 
 const router = express.Router()
 
-router.get(`${RELATIVE_URL}/list`, async (req, res) => {
-    const files = await fs.readdir(PATH)  
+router.get(`${RELATIVE_URL}/video/list`, async (req, res) => {
+    const files = await fs.readdir(VIDEO_PATH)  
     res.send(JSON.stringify({ files }))
 })
 
-router.get(`${RELATIVE_URL}/*`, async (req, res) => {
-    const url = req.url.substr(7)
-    const file = `${PATH}/${decodeURI(url)}`.replace(/\+/gi, " ")
+router.get(`${RELATIVE_URL}/video/*`, async (req, res) => {
+    const url = req.url.substr(RELATIVE_URL.length + 7)
+    const file = `${VIDEO_PATH}/${decodeURI(url)}`.replace(/\+/gi, " ")
     try {
         const filePath = fsAll.existsSync(file + ".mp4") ? file + ".mp4" : file + ".mkv"
         const contentType = filePath.endsWith(".mkv") ? 'video/mkv' : 'video/mp4'
@@ -59,6 +60,16 @@ router.get(`${RELATIVE_URL}/*`, async (req, res) => {
         }
     }
 })
+
+async function serveMusic(req: express.Request, res: express.Response) {
+    const url = req.url.substr(RELATIVE_URL.length + 7)
+    const directory = `${MUSIC_PATH}/${decodeURI(url)}`.replace(/\+/gi, " ")
+    const files = await fs.readdir(directory)  
+    res.send(JSON.stringify({ files }))
+}
+
+router.route(`${RELATIVE_URL}/music`).get(serveMusic)
+router.route(`${RELATIVE_URL}/music/*`).get(serveMusic)
 
 const app = express()
 app.use(router)

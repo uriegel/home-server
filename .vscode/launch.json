@@ -16,8 +16,9 @@
             "env": {
                 "NODE_ENV": "development",
                 "PORT": "9865",
-                "MEDIA_PATH": "/media/Speicher/video",
-                "RELATIVE_URL": "/video"
+                "VIDEO_PATH": "/home/uwe/Videos",
+                "MUSIC_PATH": "/run/media/uwe/Daten/Musik",
+                "RELATIVE_URL": "/media"
             },
             "port": 5858
         }
