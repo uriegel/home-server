@@ -169,7 +169,9 @@ Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=MEDIA_PATH=/media/video/videos
+Environment=VIDEO_PATH=/media/videos
+Environment=MUSIC_PATH=/media/music
+Environment=RELATIVE_URL=/media
 Type=simple
 User=uwe
 ExecStart=/usr/bin/node /home/uwe/HomeServer
