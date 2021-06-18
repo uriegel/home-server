@@ -5,22 +5,41 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch via NPM",
-            "type": "node",
+            "type": "lldb",
             "request": "launch",
-            "cwd": "${workspaceRoot}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "run-script", "run"
-            ],
-            "env": {
-                "NODE_ENV": "development",
-                "PORT": "9865",
-                "VIDEO_PATH": "/home/uwe/Videos",
-                "MUSIC_PATH": "/run/media/uwe/Daten/Musik",
-                "RELATIVE_URL": "/media"
+            "name": "Debug executable 'home-server'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=home-server",
+                    "--package=home-server"
+                ],
+                "filter": {
+                    "name": "home-server",
+                    "kind": "bin"
+                }
             },
-            "port": 5858
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'home-server'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=home-server",
+                    "--package=home-server"
+                ],
+                "filter": {
+                    "name": "home-server",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
