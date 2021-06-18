@@ -142,6 +142,8 @@ pi@w3demopi:~ $ sudo apt-get install -y nodejs
 
 ### Compile on raspberry
 
+cargo build --target armv7-unknown-linux-gnueabihf
+
 Copy all files of this project tothe target directory on the raspberry.
 
 ```
