@@ -1,8 +1,7 @@
 use std::env;
-
 use warp::Filter;
 
-use crate::requests::get_video_list;
+use crate::requests::{get_video, get_video_list};
 
 mod requests;
 
@@ -32,15 +31,23 @@ async fn main() {
     println!("video path: {}", video_path);
     println!("music path: {}", music_path);
     
+    let video_path_clone = video_path.clone();
     let route_get_video_list = 
         warp::path("video")
         .and(warp::path("list"))
         .and(warp::path::end())
-        .and(warp::query::query())
-        .and(warp::any().map(move || { video_path.to_string() }))
+        .and(warp::any().map(move || { video_path_clone.to_string() }))
         .and_then(get_video_list);
 
-    let routes = route_get_video_list;
+    let route_get_video = 
+        warp::path("video")
+        .and(warp::path::param())
+        .and(warp::any().map(move || { video_path.to_string() }))
+        .and_then(get_video);
+
+    let routes = 
+        route_get_video_list
+        .or(route_get_video);
 
     warp::serve(routes)
         .run(([127, 0, 0, 1], port))

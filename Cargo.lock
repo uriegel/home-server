@@ -257,6 +257,7 @@ version = "0.1.0"
 dependencies = [
  "hyper",
  "lexical-sort",
+ "percent-encoding",
  "serde",
  "serde_json",
  "tokio",
