@@ -1,7 +1,8 @@
 use std::env;
 use warp::Filter;
+use warp_range::{filter_range, with_partial_content_status};
 
-use crate::requests::{get_video, get_video_list};
+use crate::requests::{get_video, get_video_list, get_video_range};
 
 mod requests;
 
@@ -39,14 +40,24 @@ async fn main() {
         .and(warp::any().map(move || { video_path_clone.to_string() }))
         .and_then(get_video_list);
 
+    let video_path_clone = video_path.clone();
     let route_get_video = 
         warp::path("video")
         .and(warp::path::param())
-        .and(warp::any().map(move || { video_path.to_string() }))
+        .and(warp::any().map(move || { video_path_clone.to_string() }))
         .and_then(get_video);
+
+    let route_get_video_range = 
+        warp::path("video")
+        .and(warp::path::param())
+        .and(warp::any().map(move || { video_path.to_string() }))
+        .and(filter_range())
+        .and_then(get_video_range)
+        .map(with_partial_content_status);
 
     let routes = 
         route_get_video_list
+        .or(route_get_video_range)
         .or(route_get_video);
 
     warp::serve(routes)
