@@ -19,24 +19,8 @@
                     "kind": "bin"
                 }
             },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'home-server'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=home-server",
-                    "--package=home-server"
-                ],
-                "filter": {
-                    "name": "home-server",
-                    "kind": "bin"
-                }
+            "env": {
+                "VIDEO_PATH": "/home/uwe/Videos"
             },
             "args": [],
             "cwd": "${workspaceFolder}"
