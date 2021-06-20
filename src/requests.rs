@@ -2,7 +2,7 @@ use hyper::{Body, Response};
 use lexical_sort::natural_lexical_cmp;
 use serde::{Serialize};
 use std::{fs, path::Path};
-use warp::Reply;
+use warp::{Reply, path::Tail};
 use warp_range::get_range;
 
 struct VideoFile {
@@ -50,6 +50,11 @@ pub async fn get_video(file: String, path: String) -> Result<impl warp::Reply, w
 
 pub async fn get_video_range(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {
     get_video_range_impl(file, path, range_header).await
+}
+
+pub async fn get_music(url_path: Tail, path: String) -> Result<impl warp::Reply, warp::Rejection> {
+    println!("Pfad {}", url_path.as_str());
+    get_video_range_impl("file".to_string(), path, "".to_string()).await
 }
 
 async fn get_video_range_impl(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {

@@ -20,7 +20,8 @@
                 }
             },
             "env": {
-                "VIDEO_PATH": "/home/uwe/Videos"
+                "VIDEO_PATH": "/home/uwe/Videos",
+                "MUSIC_PATH": "/run/media/uwe/Daten/Musik"
             },
             "args": [],
             "cwd": "${workspaceFolder}"
