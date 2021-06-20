@@ -12,11 +12,11 @@ struct VideoFile {
 }
 
 #[derive(Serialize)]
-pub struct VideoList {
+pub struct DirectoryList {
     files: Vec<String>
 }
 
-impl Reply for VideoList {
+impl Reply for DirectoryList {
     fn into_response(self) -> Response<Body> { 
         let reply = warp::reply::json(&self);
         reply.into_response()
@@ -28,7 +28,19 @@ fn reject(err: std::io::Error)->warp::Rejection {
     warp::reject()
 }
 
-pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
+pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
+    let entries = fs::read_dir(&(root_path + "/" + &path)).map_err(reject)?;
+    let mut files: Vec<String> = entries.filter_map(|n| {
+        n.ok()
+            .and_then(|n| { Some(n.file_name().to_str()?.to_string())})
+    })
+    .collect();
+    files.sort_by(|a, b|natural_lexical_cmp(a, b));
+    Ok(DirectoryList{ files })
+}
+
+
+pub async fn get_video_list(path: String)->Result<DirectoryList, warp::Rejection> {
     let entries = fs::read_dir(&path).map_err(reject)?;
     let mut files: Vec<String> = entries.filter_map(|n| {
         n.ok()
@@ -41,7 +53,7 @@ pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
     })
     .collect();
     files.sort_by(|a, b|natural_lexical_cmp(a, b));
-    Ok(VideoList{ files })
+    Ok(DirectoryList{ files })
 }
 
 pub async fn get_video(file: String, path: String) -> Result<impl warp::Reply, warp::Rejection> {
@@ -53,8 +65,12 @@ pub async fn get_video_range(file: String, path: String, range_header: String) -
 }
 
 pub async fn get_music(url_path: Tail, path: String) -> Result<impl warp::Reply, warp::Rejection> {
-    println!("Pfad {}", url_path.as_str());
-    get_video_range_impl("file".to_string(), path, "".to_string()).await
+    let url_path = url_path.as_str();
+    if url_path.ends_with(".mp3") {
+        get_video_range_impl("file".to_string(), path, "".to_string()).await    
+    } else {
+        get_video_range_impl("file".to_string(), path, "".to_string()).await
+    }
 }
 
 async fn get_video_range_impl(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {
@@ -65,12 +81,8 @@ async fn get_video_range_impl(file: String, path: String, range_header: String) 
 fn get_video_file(path: &str, file: String)->VideoFile {
     fn combine_path(path: &str, file: String, ext: &str)->Option<String> {
         let file_with_ext = file + ext;
-        println!("Hä {} {}", path, file_with_ext);
         let file = percent_encoding::percent_decode(file_with_ext.as_bytes()).decode_utf8().unwrap();
         let path = Path::new(&path).join(file.to_string());
-
-        println!("Feile {}", file);
-
         if path.exists() { Some(path.to_string_lossy().to_string())} else { None }
     }
     
@@ -86,4 +98,6 @@ fn get_video_file(path: &str, file: String)->VideoFile {
     }
 }
 
+fn get_albums() {
 
+}
