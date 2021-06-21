@@ -29,6 +29,7 @@ fn reject(err: std::io::Error)->warp::Rejection {
 }
 
 pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
+    let path = percent_encoding::percent_decode(path.as_bytes()).decode_utf8().unwrap().replace("+", " ");
     let path = &(root_path + "/" + &path);
     if path.ends_with("mp3") {
         Err(warp::reject())
