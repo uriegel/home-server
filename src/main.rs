@@ -55,19 +55,27 @@ async fn main() {
         .and_then(get_video_range)
         .map(with_partial_content_status);
 
+    let music_path_clone = music_path.clone();        
+    let route_music_directories =
+        warp::path("music")
+        .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
+        .and(warp::any().map(move || { music_path_clone.to_string() }))
+        .and_then(get_directory);
+
     let route_music =
         warp::path("music")
         .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
         .and(warp::any().map(move || { music_path.to_string() }))
-        .and_then(get_directory);
+        .and_then(get_music);
 
     let routes = 
         route_get_video_list
         .or(route_get_video_range)
         .or(route_get_video)
+        .or(route_music_directories)
         .or(route_music);
 
     warp::serve(routes)
-        .run(([127, 0, 0, 1], port))
+        .run(([0, 0, 0, 0], port))
         .await;        
 }
