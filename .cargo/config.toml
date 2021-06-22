@@ -1,2 +1,2 @@
 [target.armv7-unknown-linux-gnueabihf]
-linker = "/home/uwe/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc"
+linker = "/home/uwe/Projekte/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc"

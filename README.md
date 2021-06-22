@@ -117,46 +117,12 @@ sudo systemctl start tlp
 ```
 
 ## Install Home Server
-### Node.js
-Update your system package list:
-
-```
-pi@w3demopi:~ $ sudo apt-get update
-```
-Upgrade all your installed packages to their latest version:
-
-```
-pi@w3demopi:~ $ sudo apt-get dist-upgrade
-```
-
-To download and install newest version of Node.js, use the following command:
-```
-pi@w3demopi:~ $ curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -
-```
-
-Now install it by running:
-
-```
-pi@w3demopi:~ $ sudo apt-get install -y nodejs
-```
-
 ### Compile on raspberry
 
-cargo build --target armv7-unknown-linux-gnueabihf
+cargo build --target armv7-unknown-linux-gnueabihf --release
 
-Copy all files of this project tothe target directory on the raspberry.
 
-```
-npm i in directory HomeServer
-export MEDIA_PATH=/media/video/videos
-node .
-```
-
-Run by 
-
-```
-http://raspberrypi:9865<path>...
-```
+export VIDEO_PATH=/media/video/videos
 
 ### Install as service
 
@@ -171,12 +137,11 @@ Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=VIDEO_PATH=/media/videos
-Environment=MUSIC_PATH=/media/music
-Environment=RELATIVE_URL=/media
+Environment=VIDEO_PATH=/media/video/videos
+Environment=MUSIC_PATH=/media/video/Musik
 Type=simple
 User=uwe
-ExecStart=/usr/bin/node /home/uwe/HomeServer
+ExecStart=/home/uwe/home_server
 Restart=on-failure
 
 [Install]
