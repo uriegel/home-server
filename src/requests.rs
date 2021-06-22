@@ -1,8 +1,8 @@
 use hyper::{Body, Response};
 use lexical_sort::natural_lexical_cmp;
-use serde::{Serialize};
+use serde::Serialize;
 use std::{fs, path::Path};
-use warp::{Reply, path::Tail};
+use warp::Reply;
 use warp_range::get_range;
 
 struct RangeFile {
@@ -57,6 +57,12 @@ pub async fn get_music(path: String, root_path: String)->Result<impl warp::Reply
     }
 }
 
+pub async fn get_music_range(path: String, root_path: String, range_header: String)->Result<impl warp::Reply, warp::Rejection> {
+    let path = &(root_path.clone() + "/" + &path);
+    let range_file = get_music_range_file(&root_path, path.clone());
+    get_range(range_header, &range_file.path, &range_file.media_type).await
+}
+
 pub async fn get_video_list(path: String)->Result<DirectoryList, warp::Rejection> {
     let entries = fs::read_dir(&path).map_err(reject)?;
     let mut files: Vec<String> = entries.filter_map(|n| {
@@ -86,12 +92,6 @@ async fn get_video_range_impl(file: String, path: String, range_header: String) 
     get_range(range_header, &video.path, &video.media_type).await
 }
 
-async fn get_music_range(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {
-    let video = get_range_file(&path, file);
-    get_range(range_header, &video.path, &video.media_type).await
-}
-
-
 fn get_range_file(path: &str, file: String)->RangeFile {
     fn combine_path(path: &str, file: String, ext: &str)->Option<String> {
         let file_with_ext = file + ext;
@@ -113,12 +113,12 @@ fn get_range_file(path: &str, file: String)->RangeFile {
 }
 
 fn get_music_range_file(path: &str, file: String)->RangeFile {
-    let file = percent_encoding::percent_decode(file.as_bytes()).decode_utf8().unwrap();
+    let file = percent_encoding::percent_decode(file.as_bytes())
+        .decode_utf8()
+        .unwrap()
+        .replace("+", " ");
     let path = Path::new(&path).join(file.to_string());
     let path = path.to_string_lossy().to_string();
     RangeFile{ path, media_type: "audio/mp3".to_string() }
 }
 
-fn get_albums() {
-
-}

@@ -2,7 +2,9 @@ use std::env;
 use warp::{Filter, path::Tail};
 use warp_range::{filter_range, with_partial_content_status};
 
-use crate::requests::{get_directory, get_music, get_video, get_video_list, get_video_range};
+use crate::requests::{
+    get_directory, get_music, get_music_range, get_video, get_video_list, get_video_range
+};
 
 mod requests;
 
@@ -62,17 +64,27 @@ async fn main() {
         .and(warp::any().map(move || { music_path_clone.to_string() }))
         .and_then(get_directory);
 
+    let music_path_clone = music_path.clone();                
     let route_music =
         warp::path("music")
         .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
-        .and(warp::any().map(move || { music_path.to_string() }))
+        .and(warp::any().map(move || { music_path_clone.to_string() }))
         .and_then(get_music);
+
+    let route_music_range =
+        warp::path("music")
+        .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
+        .and(warp::any().map(move || { music_path.to_string() }))
+        .and(filter_range())
+        .and_then(get_music_range)
+        .map(with_partial_content_status);
 
     let routes = 
         route_get_video_list
         .or(route_get_video_range)
         .or(route_get_video)
         .or(route_music_directories)
+        .or(route_music_range)
         .or(route_music);
 
     warp::serve(routes)
