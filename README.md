@@ -54,6 +54,11 @@ sudo nano /etc/fstab
 UUID=04F20EEDF20EE332   /media/video    ext4    defaults,nofail 0       1
 ```
 
+or use disk label:
+```
+LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
+```
+
 Then enter
 
 ```
@@ -141,7 +146,7 @@ Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Type=simple
 User=uwe
-ExecStart=/home/uwe/home_server
+ExecStart=/home/uwe/home-server/home-server
 Restart=on-failure
 
 [Install]
@@ -151,10 +156,11 @@ WantedBy=multi-user.target
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable home_server.service
-sudo systemctl start home_server
+sudo systemctl enable home-server.service
+sudo systemctl start home-server
 ```
 
+### NginX redirection
 
 // TODO: /etc/nginx/sites-available/default:
 // Items redirecting to nodejs
