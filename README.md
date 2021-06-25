@@ -132,7 +132,7 @@ export VIDEO_PATH=/media/video/videos
 ### Install as service
 
 ```
-sudo nano /lib/systemd/system/home_server.service
+sudo nano /lib/systemd/system/home-server.service
 ```
 
 ```
