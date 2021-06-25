@@ -71,55 +71,12 @@ mount drive:
 sudo mount -a
 ```
 
-```
-cd /media
-ll
-sudo chmod 777 /media/video
-```
+Send external disk to sleep after some time (20s):
 
-Send external disk to sleep after 10 min:
-
-Install ```tlp```:
-
-```
-sudo apt install tlp
-```
-
-Get disk ID for tlp:
-
-```
-sudo tlp diskid
-```
-
-```
-sudo nano /etc/tlp.conf
-```
-```
-# Disk devices; separate multiple devices with spaces (default: sda).
-# Devices can be specified by disk ID also (lookup with: tlp diskid).
-DISK_DEVICES="ata-TOSHIBA_MQ01ABD100_238MSIE4S"
-
-# Disk advanced power management level: 1..254, 255 (max saving, min, off).
-# Levels 1..127 may spin down the disk; 255 allowable on most drives.
-# Separate values for multiple disks with spaces. Use the special value 'keep'
-# to keep the hardware default for the particular disk.
-DISK_APM_LEVEL_ON_AC="127"
-DISK_APM_LEVEL_ON_BAT="127"
-
-# Hard disk spin down timeout:
-#   0:        spin down disabled
-#   1..240:   timeouts from 5s to 20min (in units of 5s)
-#   241..251: timeouts from 30min to 5.5 hours (in units of 30min)
-# See 'man hdparm' for details.
-# Separate values for multiple disks with spaces. Use the special value 'keep'
-# to keep the hardware default for the particular disk.
-DISK_SPINDOWN_TIMEOUT_ON_AC="120"
-DISK_SPINDOWN_TIMEOUT_ON_BAT="120"
-```
-```
-sudo systemctl enable tlp
-sudo systemctl start tlp
-```
+/dev/disk/by-label/Videos {
+        apm = 3
+        spindown_time = 60
+}
 
 ## Install Home Server
 ### Compile on raspberry
@@ -173,3 +130,58 @@ location <path>; {
 
 location / {
 ```
+
+## Deprecated
+
+Send external disk to sleep after 10 min (deprecated, because tlp prevents booting):
+
+Install ```tlp```:
+
+```
+sudo apt install tlp
+```
+
+Get disk ID for tlp:
+
+```
+sudo tlp diskid
+```
+
+```
+sudo nano /etc/tlp.conf
+```
+```
+# Disk devices; separate multiple devices with spaces (default: sda).
+# Devices can be specified by disk ID also (lookup with: tlp diskid).
+DISK_DEVICES="ata-TOSHIBA_MQ01ABD100_238MSIE4S"
+
+# Disk advanced power management level: 1..254, 255 (max saving, min, off).
+# Levels 1..127 may spin down the disk; 255 allowable on most drives.
+# Separate values for multiple disks with spaces. Use the special value 'keep'
+# to keep the hardware default for the particular disk.
+DISK_APM_LEVEL_ON_AC="127"
+DISK_APM_LEVEL_ON_BAT="127"
+
+# Hard disk spin down timeout:
+#   0:        spin down disabled
+#   1..240:   timeouts from 5s to 20min (in units of 5s)
+#   241..251: timeouts from 30min to 5.5 hours (in units of 30min)
+# See 'man hdparm' for details.
+# Separate values for multiple disks with spaces. Use the special value 'keep'
+# to keep the hardware default for the particular disk.
+DISK_SPINDOWN_TIMEOUT_ON_AC="120"
+DISK_SPINDOWN_TIMEOUT_ON_BAT="120"
+```
+```
+sudo systemctl enable tlp
+sudo systemctl start tlp
+```
+
+Not mandatory:
+
+```
+cd /media
+ll
+sudo chmod 777 /media/video
+```
+
