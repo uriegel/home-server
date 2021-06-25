@@ -73,10 +73,18 @@ sudo mount -a
 
 Send external disk to sleep after some time (20s):
 
+```
+sudo nano /etc/hdparm.conf
+```
+
+then edit this conf file:
+
+```
 /dev/disk/by-label/Videos {
         apm = 3
         spindown_time = 60
 }
+```
 
 ## Install Home Server
 ### Compile on raspberry
