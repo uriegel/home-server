@@ -16,7 +16,7 @@ sudo ufw app list
 sudo ufw status
 systemctl status nginx
 ```
-### Lets Encrypt-Certificats
+### Lets Encrypt-Certificates
 call http://raspberrypi call http://domain
 ```
 sudo snap install --classic certbot
