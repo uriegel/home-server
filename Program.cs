@@ -62,3 +62,8 @@ class VideoServer : Route
 
     readonly string videoPath;
 }
+
+// TODO: music
+// TODO: Upload web site to an upload folder
+// TODO: basic authentication
+// TODO: lets encrypt
