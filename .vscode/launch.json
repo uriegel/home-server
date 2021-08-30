@@ -12,6 +12,9 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/bin/Debug/net5.0/HomeServer.dll",
             "args": [],
+            "env": {
+                "VIDEO_PATH": "/home/uwe/Videos"
+            },
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",

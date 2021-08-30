@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using UwebServer;
 using UwebServer.Routes;
 
-var videoPath = "/home/uwe/Videos";
+var videoPath = Environment.GetEnvironmentVariable("VIDEO_PATH");
+Console.WriteLine($"Using video path: {videoPath}");
 
 var routeVideoList = new JsonRest("/media/video/list", _ =>
 {
