@@ -9,6 +9,10 @@ using UwebServer.Routes;
 var videoPath = Environment.GetEnvironmentVariable("VIDEO_PATH");
 Console.WriteLine($"Using video path: {videoPath}");
 
+var port = Environment.GetEnvironmentVariable("SERVER_PORT");
+var serverPort = int.TryParse(port, out var val) ? val : 9865;
+Console.WriteLine($"Using server port: {serverPort}");
+
 var routeVideoList = new JsonRest("/media/video/list", _ =>
 {
     var di = new DirectoryInfo(videoPath);
@@ -22,7 +26,7 @@ var routeVideoServer = new VideoServer(videoPath);
 
 var server = new Server(new Settings()
 {
-    Port = 9865,
+    Port = serverPort,
     Routes = new Route[]
     {
         routeVideoList,
