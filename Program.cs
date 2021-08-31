@@ -11,6 +11,9 @@ using UwebServer.Routes;
 var videoPath = Environment.GetEnvironmentVariable("VIDEO_PATH");
 Console.WriteLine($"Using video path: {videoPath}");
 
+var musicPath = Environment.GetEnvironmentVariable("MUSIC_PATH");
+Console.WriteLine($"Using music path: {musicPath}");
+
 var port = Environment.GetEnvironmentVariable("SERVER_PORT");
 var serverPort = int.TryParse(port, out var val) ? val : 9865;
 Console.WriteLine($"Using server port: {serverPort}");
@@ -24,7 +27,30 @@ var routeVideoList = new JsonRest("/media/video/list", _ =>
     return Task.FromResult<object>(new DirectoryList(files));
 });
 
-var routeVideoServer = new VideoServer(videoPath);
+var routeMusicList = new JsonRest("/media/music", input =>
+{
+    var path = input?.Path != null ? Path.Combine(musicPath, Uri.UnescapeDataString(input?.Path.Replace('+', ' '))) : musicPath;
+    var di = new DirectoryInfo(path);
+    var dirs = di.Exists 
+        ? (from n in di.EnumerateDirectories()
+           orderby n.Name
+           select n.Name).ToArray()
+        : null;
+    var files = di.Exists 
+        ? from n in di.EnumerateFiles()
+          orderby n.Name
+          select n.Name
+        : null;
+    if (dirs?.Length > 0)
+        return Task.FromResult<object>(new DirectoryList(dirs));
+    else if (files != null) 
+        return Task.FromResult<object>(new DirectoryList(files));
+    else
+        return Task.FromResult<object>(null);
+});
+
+var routeVideoServer = new MediaServer("/media/video", videoPath, false);
+var routeMusicServer = new MediaServer("/media/music", musicPath, true);
 
 var server = new Server(new Settings()
 {
@@ -32,7 +58,9 @@ var server = new Server(new Settings()
     Routes = new Route[]
     {
         routeVideoList,
-        routeVideoServer
+        routeVideoServer,
+        routeMusicList,
+        routeMusicServer
     } 
 });
 
@@ -54,31 +82,38 @@ server.Stop();
 
 record DirectoryList(IEnumerable<string> Files);
 
-class VideoServer : Route
+class MediaServer : Route
 {
-    public VideoServer(string videoPath)
+    public MediaServer(string path, string filePath, bool music)
     {
-        Path = "/media/video";
-        this.videoPath = videoPath;
+        Path = path;
+        this.filePath = filePath;
+        this.music = music;
     }
 
-    public override async Task ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
+    public override async Task<bool> ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
     {
-        var path = headers.Url[(Path.Length+1)..];
+        var path = headers.Url.Length > Path.Length+1 ? headers.Url[(Path.Length+1)..] : null;
         var query = new UrlComponents(path);
-        var file = Uri.UnescapeDataString(query.Path);
-        var mp4 = System.IO.Path.Combine(videoPath, file + ".mp4");
-        if (File.Exists(mp4))
-            await response.SendFileAsync(mp4);
+        var file = Uri.UnescapeDataString(query.Path.Replace('+', ' '));
+        if (music)
+            await response.SendFileAsync(System.IO.Path.Combine(filePath, file));
         else
         {
-            var mkv = System.IO.Path.Combine(videoPath, file + ".mkv");
-            await response.SendFileAsync(mkv);
+            var mp4 = System.IO.Path.Combine(filePath, file + ".mp4");
+            if (File.Exists(mp4))
+                await response.SendFileAsync(mp4);
+            else
+            {
+                var mkv = System.IO.Path.Combine(filePath, file + ".mkv");
+                await response.SendFileAsync(mkv);
+            }
         }
-
+        return true;
     }
 
-    readonly string videoPath;
+    readonly string filePath;
+    readonly bool music;
 }
 
 class Native
@@ -91,7 +126,6 @@ class Native
 }
 
 
-// TODO: music
 // TODO: Upload web site to an upload folder
 // TODO: basic authentication
 // TODO: lets encrypt
