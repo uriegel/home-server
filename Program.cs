@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using UwebServer;
 using UwebServer.Routes;
@@ -34,8 +36,20 @@ var server = new Server(new Settings()
     } 
 });
 
+var stopEvent = new ManualResetEvent(false);
+Native.signal(2, _ => 
+{
+    Console.WriteLine("Interrupt");
+    stopEvent.Set();
+});
+Native.signal(15, _ => 
+{
+    Console.WriteLine("Terminate");
+    stopEvent.Set();
+});
+
 server.Start();
-Console.ReadLine();
+stopEvent.WaitOne();
 server.Stop();
 
 record DirectoryList(IEnumerable<string> Files);
@@ -66,6 +80,16 @@ class VideoServer : Route
 
     readonly string videoPath;
 }
+
+class Native
+{
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet=CharSet.Auto)]
+    public delegate void Callback(int code);
+
+    [DllImport("libc", SetLastError = true)]
+    public extern static int signal(int pid, Callback callback);
+}
+
 
 // TODO: music
 // TODO: Upload web site to an upload folder

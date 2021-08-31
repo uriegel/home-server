@@ -8,34 +8,6 @@ sudo apt update
 sudo apt upgrade
 ```
 
-### NginX
-
-```
-sudo apt install nginx
-sudo ufw app list
-sudo ufw status
-systemctl status nginx
-```
-### Lets Encrypt-Certificates
-call http://raspberrypi call http://domain
-```
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
-sudo certbot --nginx
-sudo certbot renew --dry-run
-```
-### NginX configuration
-```
-cd /etc/nginx/sites-available
-$ sudo nano default
-sudo systemctl stop nginx
-sudo systemctl start nginx
-sudo systemctl restart nginx
-```
-If you want to reload configuration:
-```
-sudo systemctl reload nginx
-```
 ### External USB disk
 
 Get the UUID of the disk:
@@ -86,18 +58,10 @@ then edit this conf file:
 }
 ```
 
-## Install Home Server
-### Compile on raspberry
-
-cargo build --target armv7-unknown-linux-gnueabihf --release
-
-
-export VIDEO_PATH=/media/video/videos
-
 ### Install as service
 
 ```
-sudo nano /lib/systemd/system/home-server.service
+sudo nano /lib/systemd/system/homeserver.service
 ```
 
 ```
@@ -111,32 +75,20 @@ Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Type=simple
 User=uwe
-ExecStart=/home/uwe/home-server/home-server
+ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/HomeServer/HomeServer.dll
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 
+
 ```
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable home-server.service
-sudo systemctl start home-server
-```
-
-### NginX redirection
-
-// TODO: /etc/nginx/sites-available/default:
-// Items redirecting to nodejs
-// Install node.js as service
-
-```
-location <path>; {
-	proxy_pass http://localhost:9865/<path>;
-}
-
-location / {
+sudo systemctl enable homeserver.service
+sudo systemctl start homeserver
+sudo systemctl status homeserver
 ```
 
 ## Deprecated
@@ -193,3 +145,53 @@ ll
 sudo chmod 777 /media/video
 ```
 
+### NginX
+
+```
+sudo apt install nginx
+sudo ufw app list
+sudo ufw status
+systemctl status nginx
+```
+### Lets Encrypt-Certificates
+call http://raspberrypi call http://domain
+```
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo certbot --nginx
+sudo certbot renew --dry-run
+```
+### NginX configuration
+```
+cd /etc/nginx/sites-available
+$ sudo nano default
+sudo systemctl stop nginx
+sudo systemctl start nginx
+sudo systemctl restart nginx
+```
+If you want to reload configuration:
+```
+sudo systemctl reload nginx
+```
+
+## Install Home Server
+### Compile on raspberry
+
+cargo build --target armv7-unknown-linux-gnueabihf --release
+
+
+export VIDEO_PATH=/media/video/videos
+
+### NginX redirection
+
+// TODO: /etc/nginx/sites-available/default:
+// Items redirecting to nodejs
+// Install node.js as service
+
+```
+location <path>; {
+	proxy_pass http://localhost:9865/<path>;
+}
+
+location / {
+```
