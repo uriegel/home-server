@@ -14,6 +14,12 @@ Console.WriteLine($"Using video path: {videoPath}");
 var musicPath = Environment.GetEnvironmentVariable("MUSIC_PATH");
 Console.WriteLine($"Using music path: {musicPath}");
 
+var uploadVideoPath = Environment.GetEnvironmentVariable("UPLOAD_VIDEO_PATH");
+Console.WriteLine($"Using video upload path: {uploadVideoPath}");
+
+var uploadPath = Environment.GetEnvironmentVariable("UPLOAD_PATH");
+Console.WriteLine($"Using upload path: {uploadPath}");
+
 var port = Environment.GetEnvironmentVariable("SERVER_PORT");
 var serverPort = int.TryParse(port, out var val) ? val : 9865;
 Console.WriteLine($"Using server port: {serverPort}");
@@ -51,6 +57,9 @@ var routeMusicList = new JsonRest("/media/music", input =>
 
 var routeVideoServer = new MediaServer("/media/video", videoPath, false);
 var routeMusicServer = new MediaServer("/media/music", musicPath, true);
+var routeUpload = new UploadRoute("/upload", uploadPath);
+var routeVideoUpload = new UploadRoute("/uploadvideo", uploadVideoPath);
+var routeStatic = new Static() { FilePath = "webroot" };
 
 var server = new Server(new Settings()
 {
@@ -60,7 +69,10 @@ var server = new Server(new Settings()
         routeVideoList,
         routeVideoServer,
         routeMusicList,
-        routeMusicServer
+        routeMusicServer,
+        routeVideoUpload,
+        routeUpload,
+        routeStatic
     } 
 });
 

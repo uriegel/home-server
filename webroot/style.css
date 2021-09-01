@@ -1,0 +1,23 @@
+body {
+    font-family: sans-serif;
+}
+
+#drop {
+    height: 50px;
+    margin-top: 10px;
+    position: relative;
+    background-color: rgb(197, 255, 197);
+}
+
+#drop.drop {
+    background-color: lightyellow;
+}
+
+#drop>div {
+    position: absolute;
+}
+
+#progressBar {
+    height: 100%;
+    background-color: greenyellow;
+}

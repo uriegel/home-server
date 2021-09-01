@@ -73,6 +73,8 @@ After=network.target
 [Service]
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
+Environment=UPLOAD_PATH=/home/uwe/upload
+Environment=UPLOAD_VIDEO_PATH=/media/video/videos
 Type=simple
 User=uwe
 ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/HomeServer/HomeServer.dll
