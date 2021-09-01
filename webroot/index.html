@@ -10,12 +10,17 @@
 <body>
     <h1>Upload</h1>
 
-    <div id=drop ondrop="dropHandler(event)" 
+    <div class="dropcontainer" ondrop="drop(event)" 
         ondragover="dragOver(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
         <div id=progressBar></div>
         <div>Dateien und/oder Ordner hierher ziehen...</div>
     </div>
 
+    <div class="dropcontainer" ondrop="dropVideo(event)" 
+        ondragover="dragOver(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
+        <div id=progressBarVideo></div>
+        <div>Video-Datei hierher ziehen...</div>
+    </div>
     
     <script src="script.js"></script>
 </body> 

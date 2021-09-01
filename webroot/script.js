@@ -2,38 +2,39 @@ function dragOver(ev) {
     ev.preventDefault();
 }
 
-const drop = document.getElementById("drop")
-
 function dragEnter(ev) {
-    drop.classList.add("drop")
+    ev.target.classList.add("drop")
 }
 
 function dragLeave(ev) {
-    drop.classList.remove("drop")
+    ev.target.classList.remove("drop")
 }       
 
-async function dropHandler(ev) {
-    drop.classList.remove("drop")
+async function drop(ev) {
+    await dropFiles(ev, progressBarFiles, "upload")
+}
+
+async function dropVideo(ev) {
+    await dropFiles(ev, progressBarVideo, "uploadvideo")
+}
+        
+async function dropFiles(ev, progressBar, url) {
+    ev.target.classList.remove("drop")
     ev.preventDefault()
   
     if (ev.dataTransfer.items) {
         for (var i = 0; i < ev.dataTransfer.items.length; i++) {
             if (ev.dataTransfer.items[i].kind === 'file') {
-                var file = ev.dataTransfer.items[i].getAsFile();
-                console.log('... file[' + i + '].name = ' + file.name);
                 var entry = ev.dataTransfer.items[i].webkitGetAsEntry();
                 var items = traverseFileTree(entry)
                 while (true) {
                     entry = await items.next();
                     if (entry.done)
                         break
-                    await uploadFile(entry.value.path, await getFile(entry.value.item))
+                    await uploadFile(progressBar, url, entry.value.path, await getFile(entry.value.item))
                 }
             }
         }
-    }   else {
-        for (var i = 0; i < ev.dataTransfer.files.length; i++) 
-            console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
     }
 }
 
@@ -65,13 +66,14 @@ async function* traverseFileTree(item, path) {
     }
 }
 
-const progressBar = document.getElementById("progressBar")
+var progressBarFiles = document.getElementById("progressBar")
+var progressBarVideo = document.getElementById("progressBarVideo")
 
-async function uploadFile(path, file) {
+async function uploadFile(progressBar, url, path, file) {
     return new Promise(res => {
         path = path ? `/${path}` : ""
         let request = new XMLHttpRequest()
-        request.open('POST', `/upload${path}?file=${file.name}`)
+        request.open('POST', `/${url}${path}?file=${file.name}`)
         
         request.upload.addEventListener('progress', e => {
             const progress = e.loaded / e.total * 100
