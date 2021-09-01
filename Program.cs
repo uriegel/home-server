@@ -93,8 +93,7 @@ class MediaServer : Route
 
     public override async Task<bool> ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
     {
-        var path = headers.Url.Length > Path.Length+1 ? headers.Url[(Path.Length+1)..] : null;
-        var query = new UrlComponents(path);
+        var query = new UrlComponents(headers.Url, Path);
         var file = Uri.UnescapeDataString(query.Path.Replace('+', ' '));
         if (music)
             await response.SendFileAsync(System.IO.Path.Combine(filePath, file));
