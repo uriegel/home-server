@@ -93,6 +93,14 @@ sudo systemctl start homeserver
 sudo systemctl status homeserver
 ```
 
+Port 80 and port 443 on Linux:
+
+```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
+
+Now the program is not debuggable any more. To remove:
+
+```setcap -r /home/uwe/.dotnet/dotnet```
+
 ## Deprecated
 
 Send external disk to sleep after 10 min (deprecated, because tlp prevents booting):
