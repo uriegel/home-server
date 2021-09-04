@@ -24,6 +24,10 @@ var port = Environment.GetEnvironmentVariable("SERVER_PORT");
 var serverPort = int.TryParse(port, out var val) ? val : 80;
 Console.WriteLine($"Using server port: {serverPort}");
 
+var tlsPort = Environment.GetEnvironmentVariable("SERVER_TLS_PORT");
+var serverTlsPort = int.TryParse(tlsPort, out var tlsval) ? tlsval : 443;
+Console.WriteLine($"Using tls server port: {serverTlsPort}");
+
 var routeVideoList = new JsonRest("/media/video/list", _ =>
 {
     var di = new DirectoryInfo(videoPath);
@@ -65,6 +69,8 @@ var routeStatic = new Static() { FilePath = "webroot" };
 var server = new Server(new Settings()
 {
     Port = serverPort,
+    TlsPort = serverTlsPort,
+    IsTlsEnabled = true,
     Routes = new Route[]
     {
         routeVideoList,
