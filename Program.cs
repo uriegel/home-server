@@ -61,10 +61,28 @@ var routeMusicList = new JsonRest("/media/music", input =>
 
 var routeVideoServer = new MediaServer("/media/video", videoPath, false);
 var routeMusicServer = new MediaServer("/media/music", musicPath, true);
-var routeUpload = new UploadRoute("/upload", uploadPath);
-var routeVideoUpload = new UploadRoute("/uploadvideo", uploadVideoPath);
-var routeLetsEncrypt = new LetsEncrypt();
-var routeStatic = new Static() { FilePath = "webroot" };
+var routeUpload = new UploadRoute("/upload", uploadPath)
+{
+    Host = "roxy"
+};
+var routeVideoUpload = new UploadRoute("/uploadvideo", uploadVideoPath)
+{
+    Host = "roxy"
+};
+var routeLetsEncrypt = new LetsEncrypt()
+{
+    Tls = false
+};
+var routeStatic = new Static() 
+{ 
+    FilePath = "webroot",
+    Host = "roxy"
+};
+var routeFritz = new ReverseProxy("http://fritz.box")
+{
+    Tls = true,
+    Host = "fritz.uriegel.de",
+};
 
 var server = new Server(new Settings()
 {
@@ -80,7 +98,8 @@ var server = new Server(new Settings()
         routeVideoUpload,
         routeUpload,
         routeLetsEncrypt,
-        routeStatic
+        routeStatic,
+        routeFritz
     } 
 });
 
