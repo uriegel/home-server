@@ -69,10 +69,7 @@ var routeVideoUpload = new UploadRoute("/uploadvideo", uploadVideoPath)
 {
     Host = "roxy"
 };
-var routeLetsEncrypt = new LetsEncrypt()
-{
-    Tls = false
-};
+var routeLetsEncrypt = new LetsEncrypt();
 var routeStatic = new Static() 
 { 
     FilePath = "webroot",
