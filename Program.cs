@@ -28,57 +28,95 @@ var tlsPort = Environment.GetEnvironmentVariable("SERVER_TLS_PORT");
 var serverTlsPort = int.TryParse(tlsPort, out var tlsval) ? tlsval : 443;
 Console.WriteLine($"Using tls server port: {serverTlsPort}");
 
-var routeVideoList = new JsonRest("/media/video/list", _ =>
-{
-    var di = new DirectoryInfo(videoPath);
-    var files = from n in di.EnumerateFiles()
-                orderby n.Name
-                select n.Name;
-    return Task.FromResult<object>(new DirectoryList(files));
-});
+var authName = Environment.GetEnvironmentVariable("AUTH_NAME");
+var authPw = Environment.GetEnvironmentVariable("AUTH_PW");
 
-var routeMusicList = new JsonRest("/media/music", input =>
+var fritzHost = Environment.GetEnvironmentVariable("FRITZ_HOST");
+
+var intranetHost = Environment.GetEnvironmentVariable("INTRANET_HOST");
+
+var basicAuthentication = new BasicAuthentication
 {
-    var path = input?.Path != null ? Path.Combine(musicPath, Uri.UnescapeDataString(input?.Path.Replace('+', ' '))) : musicPath;
-    var di = new DirectoryInfo(path);
-    var dirs = di.Exists 
-        ? (from n in di.EnumerateDirectories()
-           orderby n.Name
-           select n.Name).ToArray()
-        : null;
-    var files = di.Exists 
-        ? from n in di.EnumerateFiles()
-          orderby n.Name
-          select n.Name
-        : null;
-    if (dirs?.Length > 0)
-        return Task.FromResult<object>(new DirectoryList(dirs));
-    else if (files != null) 
+    Realm = "Home Media Server",
+    Name = authName,
+    Password = authPw
+};
+
+JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecure)
+    => new JsonRest("/media/video/list", _ =>
+    {
+        var di = new DirectoryInfo(videoPath);
+        var files = from n in di.EnumerateFiles()
+                    orderby n.Name
+                    select n.Name;
         return Task.FromResult<object>(new DirectoryList(files));
-    else
-        return Task.FromResult<object>(null);
-});
+    })
+    {
+        Host = host,
+        Tls = isSecure ? true : null,
+        BasicAuthentication = auth    
+    };
 
-var routeVideoServer = new MediaServer("/media/video", videoPath, false);
-var routeMusicServer = new MediaServer("/media/music", musicPath, true);
-var routeUpload = new UploadRoute("/upload", uploadPath)
-{
-    Host = "roxy"
-};
-var routeVideoUpload = new UploadRoute("/uploadvideo", uploadVideoPath)
-{
-    Host = "roxy"
-};
-var routeLetsEncrypt = new LetsEncrypt();
+JsonRest createRouteMusicList(string host, BasicAuthentication auth, bool isSecure)
+    => new JsonRest("/media/music", input =>
+    {
+        var path = input?.Path != null ? Path.Combine(musicPath, Uri.UnescapeDataString(input?.Path.Replace('+', ' '))) : musicPath;
+        var di = new DirectoryInfo(path);
+        var dirs = di.Exists 
+            ? (from n in di.EnumerateDirectories()
+            orderby n.Name
+            select n.Name).ToArray()
+            : null;
+        var files = di.Exists 
+            ? from n in di.EnumerateFiles()
+            orderby n.Name
+            select n.Name
+            : null;
+        if (dirs?.Length > 0)
+            return Task.FromResult<object>(new DirectoryList(dirs));
+        else if (files != null) 
+            return Task.FromResult<object>(new DirectoryList(files));
+        else
+            return Task.FromResult<object>(null);
+    })
+    {
+        Host = host,
+        Tls = isSecure ? true : null,
+        BasicAuthentication = auth
+    };
+
+var routeVideoList = createRouteVideoList(intranetHost, null, false);
+
+var routeMusicList = createRouteMusicList(intranetHost, null, false);
+
+var routeVideoServer = new MediaServer("/media/video", videoPath, false, intranetHost, null, false);
+
+var routeMusicServer = new MediaServer("/media/music", musicPath, true, intranetHost, null, false);
+
+var routeUpload = new UploadRoute("/upload", uploadPath) { Host = intranetHost };
+
+var routeVideoUpload = new UploadRoute("/uploadvideo", uploadVideoPath) { Host = intranetHost };
+
 var routeStatic = new Static() 
 { 
     FilePath = "webroot",
-    Host = "roxy"
+    Host = intranetHost
 };
+
+var routeVideoListInternet = createRouteVideoList(null, basicAuthentication, true);
+
+var routeMusicListInternet = createRouteMusicList(null, basicAuthentication, true);
+
+var routeVideoServerInternet = new MediaServer("/media/video", videoPath, false, null, basicAuthentication, true);
+
+var routeMusicServerInternet = new MediaServer("/media/music", musicPath, true, null, basicAuthentication, true);
+
+var routeLetsEncrypt = new LetsEncrypt();
+
 var routeFritz = new ReverseProxy("http://fritz.box")
 {
     Tls = true,
-    Host = "fritz.uriegel.de",
+    Host = fritzHost
 };
 
 var server = new Server(new Settings()
@@ -95,6 +133,10 @@ var server = new Server(new Settings()
         routeVideoUpload,
         routeUpload,
         routeLetsEncrypt,
+        routeMusicListInternet,
+        routeMusicServerInternet,
+        routeVideoListInternet,
+        routeVideoServerInternet,
         routeStatic,
         routeFritz
     } 
@@ -120,11 +162,14 @@ record DirectoryList(IEnumerable<string> Files);
 
 class MediaServer : Route
 {
-    public MediaServer(string path, string filePath, bool music)
+    public MediaServer(string path, string filePath, bool music, string host, BasicAuthentication auth, bool isSecure)
     {
         Path = path;
         this.filePath = filePath;
         this.music = music;
+        Host = host;
+        Tls = isSecure ? true : null;
+        BasicAuthentication = auth;
     }
 
     public override async Task<bool> ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
