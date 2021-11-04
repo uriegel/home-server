@@ -111,8 +111,6 @@ var routeVideoServerInternet = new MediaServer("/media/video", videoPath, false,
 
 var routeMusicServerInternet = new MediaServer("/media/music", musicPath, true, null, basicAuthentication, true);
 
-var routeLetsEncrypt = new LetsEncrypt();
-
 var routeFritz = new ReverseProxy("http://fritz.box")
 {
     Tls = true,
@@ -124,6 +122,7 @@ var server = new Server(new Settings()
     Port = serverPort,
     TlsPort = serverTlsPort,
     IsTlsEnabled = true,
+    UseLetsEncrypt = true,
     Routes = new Route[]
     {
         routeVideoList,
@@ -132,7 +131,6 @@ var server = new Server(new Settings()
         routeMusicServer,
         routeVideoUpload,
         routeUpload,
-        routeLetsEncrypt,
         routeMusicListInternet,
         routeMusicServerInternet,
         routeVideoListInternet,

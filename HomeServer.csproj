@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="URiegel.WebServer" Version="0.5.1" />
+    <PackageReference Include="URiegel.WebServer" Version="0.6.0" />
   </ItemGroup>
 
 </Project>
