@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UwebServer;
 using UwebServer.Routes;
-Affe
 
 var videoPath = Environment.GetEnvironmentVariable("VIDEO_PATH");
 Console.WriteLine($"Using video path: {videoPath}");
