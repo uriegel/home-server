@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;dfgfdgfdg
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,14 +49,25 @@ JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecu
     => new JsonRest("/media/video/list", _ =>
     {
         // TODO usb port configurable
-        // TODO if directory not available, mount 2 times
         // TODO sudo uhubctl -p 5 -a 1 -l 1-1 && sudo mount /media/video/
         // TODO Timer when web server is inactive: 10 min: sudo uhubctl -p 5 -a 0 -l 1-1
-        var di = new DirectoryInfo(videoPath);
-        var files = from n in di.EnumerateFiles()
-                    orderby n.Name
-                    select n.Name;
-        return Task.FromResult<object>(new DirectoryList(files));
+        try 
+        {
+            var di = new DirectoryInfo(videoPath);
+            var files = from n in di.EnumerateFiles()
+                        orderby n.Name
+                        select n.Name;
+            return Task.FromResult<object>(new DirectoryList(files));
+        }
+        catch (DirectoryNotFoundException)
+        {
+            var text = Process.RunAsync("uhubctl", "-p 5 -a 1 -l 1-1").Result;
+            Console.WriteLine(text);
+            text = Process.RunAsync("mount", "/media/video/").Result;
+            Console.WriteLine(text);
+            // Retry!!!
+            throw;
+        }
     })
     {
         Host = host,
@@ -131,6 +142,8 @@ var server = new Server(new Settings()
     TlsPort = serverTlsPort,
     IsTlsEnabled = true,
     UseLetsEncrypt = true,
+    // TODO from Environment
+    EncryptDirectory = "/home/uwe/.config/letsencrypt-uweb",
     Routes = new Route[]
     {
         routeVideoList,
