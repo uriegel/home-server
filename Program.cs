@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using UwebServer;
 using UwebServer.Routes;
 
+var mountPath = Environment.GetEnvironmentVariable("MOUNT_PATH");
+Console.WriteLine($"Using mount path: {mountPath}");
+
 var videoPath = Environment.GetEnvironmentVariable("VIDEO_PATH");
 Console.WriteLine($"Using video path: {videoPath}");
 
@@ -45,6 +48,7 @@ var basicAuthentication = new BasicAuthentication
 JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecure)
     => new JsonRest("/media/video/list", _ =>
     {
+        // TODO if directory not available, mount 2 times
         var di = new DirectoryInfo(videoPath);
         var files = from n in di.EnumerateFiles()
                     orderby n.Name
@@ -60,6 +64,7 @@ JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecu
 JsonRest createRouteMusicList(string host, BasicAuthentication auth, bool isSecure)
     => new JsonRest("/media/music", input =>
     {
+        // TODO if directory not available, mount 2 times
         var path = input?.Path != null ? Path.Combine(musicPath, Uri.UnescapeDataString(input?.Path.Replace('+', ' '))) : musicPath;
         var di = new DirectoryInfo(path);
         var dirs = di.Exists 
@@ -172,6 +177,7 @@ class MediaServer : Route
 
     public override async Task<bool> ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
     {
+        // TODO if directory not available, mount 2 times
         var query = new UrlComponents(headers.Url, Path);
         var file = Uri.UnescapeDataString(query.Path.Replace('+', ' '));
         if (music)

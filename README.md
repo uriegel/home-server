@@ -10,23 +10,6 @@ sudo apt upgrade
 
 ### External USB disk
 
-Get the UUID of the disk:
-
-```
-sudo blkid
-```
-
-Enter this in 
-
-```
-sudo nano /etc/fstab
-```
-
-```
-UUID=04F20EEDF20EE332   /media/video    ext4    defaults,nofail 0       1
-```
-
-or use disk label:
 ```
 LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
 ```
@@ -43,21 +26,6 @@ mount drive:
 sudo mount -a
 ```
 
-Send external disk to sleep after some time (20s):
-
-```
-sudo nano /etc/hdparm.conf
-```
-
-then edit this conf file:
-
-```
-/dev/disk/by-label/Videos {
-        apm = 3
-        spindown_time = 60
-}
-```
-
 ### Install as service
 
 ```
@@ -71,6 +39,7 @@ Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
 After=network.target
 
 [Service]
+Environment=MOUNT_PATH=/media/video
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=UPLOAD_PATH=/home/uwe/upload
@@ -102,6 +71,21 @@ Now the program is not debuggable any more. To remove:
 ```setcap -r /home/uwe/.dotnet/dotnet```
 
 ## Deprecated
+
+Send external disk to sleep after some time (20s):
+
+```
+sudo nano /etc/hdparm.conf
+```
+
+then edit this conf file:
+
+```
+/dev/disk/by-label/Videos {
+        apm = 3
+        spindown_time = 60
+}
+```
 
 Send external disk to sleep after 10 min (deprecated, because tlp prevents booting):
 
@@ -205,3 +189,21 @@ location <path>; {
 
 location / {
 ```
+
+Get the UUID of the disk:
+
+```
+sudo blkid
+```
+
+Enter this in 
+
+```
+sudo nano /etc/fstab
+```
+
+```
+UUID=04F20EEDF20EE332   /media/video    ext4    defaults,nofail 0       1
+```
+
+or use disk label:
