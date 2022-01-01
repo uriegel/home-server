@@ -48,7 +48,10 @@ var basicAuthentication = new BasicAuthentication
 JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecure)
     => new JsonRest("/media/video/list", _ =>
     {
+        // TODO usb port configurable
         // TODO if directory not available, mount 2 times
+        // TODO sudo uhubctl -p 5 -a 1 -l 1-1 && sudo mount /media/video/
+        // TODO Timer when web server is inactive: 10 min: sudo uhubctl -p 5 -a 0 -l 1-1
         var di = new DirectoryInfo(videoPath);
         var files = from n in di.EnumerateFiles()
                     orderby n.Name

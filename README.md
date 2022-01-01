@@ -70,6 +70,18 @@ Now the program is not debuggable any more. To remove:
 
 ```setcap -r /home/uwe/.dotnet/dotnet```
 
+## Logging
+
+``` sudo journalctl -u homeserver ```
+
+Remove old logs:
+
+```
+journalctl --disk-usage
+sudo journalctl --rotate      
+sudo journalctl --vacuum-time=2weeks
+```
+
 ## Deprecated
 
 Send external disk to sleep after some time (20s):
