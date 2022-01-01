@@ -82,6 +82,31 @@ sudo journalctl --rotate
 sudo journalctl --vacuum-time=2weeks
 ```
 
+## uhubctl
+
+Completely shutdown usb (with ethernet):
+```
+echo '1-1' |sudo tee /sys/bus/usb/drivers/usb/unbind
+```
+
+Shutdown specific usb port:
+
+```
+sudo uhubctl -l 1-1 -p 2 -a 0
+sudo apt-get install libusb-1.0-0-dev
+git clone https://github.com/mvp/uhubctl
+cd uhubctl
+make
+sudo apt install make
+make
+cc
+sudo apt install gcc
+cc
+make
+ls
+sudo make install
+```
+
 ## Deprecated
 
 Send external disk to sleep after some time (20s):
