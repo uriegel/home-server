@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,6 +9,10 @@ using UwebServer.Routes;
 
 var mountPath = Environment.GetEnvironmentVariable("MOUNT_PATH");
 Console.WriteLine($"Using mount path: {mountPath}");
+
+var port = Environment.GetEnvironmentVariable("USB_MEDIA_PORT");
+var usbMediaPort = int.TryParse(port, out var val) ? val : 1;
+Console.WriteLine($"Using usb port for media disk: {usbMediaPort}");
 
 var videoPath = Environment.GetEnvironmentVariable("VIDEO_PATH");
 Console.WriteLine($"Using video path: {videoPath}");
@@ -23,12 +26,12 @@ Console.WriteLine($"Using video upload path: {uploadVideoPath}");
 var uploadPath = Environment.GetEnvironmentVariable("UPLOAD_PATH");
 Console.WriteLine($"Using upload path: {uploadPath}");
 
-var port = Environment.GetEnvironmentVariable("SERVER_PORT");
-var serverPort = int.TryParse(port, out var val) ? val : 80;
+port = Environment.GetEnvironmentVariable("SERVER_PORT");
+var serverPort = int.TryParse(port, out val) ? val : 80;
 Console.WriteLine($"Using server port: {serverPort}");
 
-var tlsPort = Environment.GetEnvironmentVariable("SERVER_TLS_PORT");
-var serverTlsPort = int.TryParse(tlsPort, out var tlsval) ? tlsval : 443;
+port = Environment.GetEnvironmentVariable("SERVER_TLS_PORT");
+var serverTlsPort = int.TryParse(port, out val) ? val : 443;
 Console.WriteLine($"Using tls server port: {serverTlsPort}");
 
 var authName = Environment.GetEnvironmentVariable("AUTH_NAME");
@@ -45,12 +48,10 @@ var basicAuthentication = new BasicAuthentication
     Password = authPw
 };
 
-        // TODO usb port configurable
-        // TODO sudo uhubctl -p 5 -a 1 -l 1-1 && sudo mount /media/video/
-        // TODO Timer when web server is inactive: 10 min: sudo uhubctl -p 5 -a 0 -l 1-1
+// TODO Timer when web server is inactive: 10 min: sudo uhubctl -p 5 -a 0 -l 1-1
 JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecure)
     => new JsonRest("/media/video/list", 
-        _ => MediaAccess.WhenMediaMounted(() => 
+        _ => MediaAccess.WhenMediaMounted(usbMediaPort, mountPath, () => 
         {
             var di = new DirectoryInfo(videoPath);
             var files = from n in di.EnumerateFiles()
@@ -66,28 +67,29 @@ JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecu
     };
 
 JsonRest createRouteMusicList(string host, BasicAuthentication auth, bool isSecure)
-    => new JsonRest("/media/music", input =>
-    {
-        // TODO if directory not available, mount 2 times
-        var path = input?.Path != null ? Path.Combine(musicPath, Uri.UnescapeDataString(input?.Path.Replace('+', ' '))) : musicPath;
-        var di = new DirectoryInfo(path);
-        var dirs = di.Exists 
-            ? (from n in di.EnumerateDirectories()
-            orderby n.Name
-            select n.Name).ToArray()
-            : null;
-        var files = di.Exists 
-            ? from n in di.EnumerateFiles()
-            orderby n.Name
-            select n.Name
-            : null;
-        if (dirs?.Length > 0)
-            return Task.FromResult<object>(new DirectoryList(dirs));
-        else if (files != null) 
-            return Task.FromResult<object>(new DirectoryList(files.ToArray()));
-        else
-            return Task.FromResult<object>(null);
-    })
+    => new JsonRest("/media/music", 
+        input => MediaAccess.WhenMediaMounted(usbMediaPort, mountPath, () => 
+        {
+            var path = input?.Path != null ? Path.Combine(musicPath, Uri.UnescapeDataString(input?.Path.Replace('+', ' '))) : musicPath;
+            var di = new DirectoryInfo(path);
+            var dirs = di.Exists 
+                ? (from n in di.EnumerateDirectories()
+                orderby n.Name
+                select n.Name).ToArray()
+                : null;
+            var files = di.Exists 
+                ? from n in di.EnumerateFiles()
+                orderby n.Name
+                select n.Name
+                : null;
+            if (dirs?.Length > 0)
+                return Task.FromResult<object>(new DirectoryList(dirs));
+            else if (files != null) 
+                return Task.FromResult<object>(new DirectoryList(files.ToArray()));
+            else
+                return Task.FromResult<object>(null);
+        })
+    )
     {
         Host = host,
         Tls = isSecure ? true : null,
@@ -98,9 +100,9 @@ var routeVideoList = createRouteVideoList(intranetHost, null, false);
 
 var routeMusicList = createRouteMusicList(intranetHost, null, false);
 
-var routeVideoServer = new MediaServer("/media/video", videoPath, false, intranetHost, null, false);
+var routeVideoServer = new MediaServer(mountPath, usbMediaPort, "/media/video", videoPath, false, intranetHost, null, false);
 
-var routeMusicServer = new MediaServer("/media/music", musicPath, true, intranetHost, null, false);
+var routeMusicServer = new MediaServer(mountPath, usbMediaPort, "/media/music", musicPath, true, intranetHost, null, false);
 
 var routeUpload = new UploadRoute("/upload", uploadPath) { Host = intranetHost };
 
@@ -116,9 +118,9 @@ var routeVideoListInternet = createRouteVideoList(null, basicAuthentication, tru
 
 var routeMusicListInternet = createRouteMusicList(null, basicAuthentication, true);
 
-var routeVideoServerInternet = new MediaServer("/media/video", videoPath, false, null, basicAuthentication, true);
+var routeVideoServerInternet = new MediaServer(mountPath, usbMediaPort, "/media/video", videoPath, false, null, basicAuthentication, true);
 
-var routeMusicServerInternet = new MediaServer("/media/music", musicPath, true, null, basicAuthentication, true);
+var routeMusicServerInternet = new MediaServer(mountPath, usbMediaPort, "/media/music", musicPath, true, null, basicAuthentication, true);
 
 var routeFritz = new ReverseProxy("http://fritz.box")
 {
@@ -171,39 +173,45 @@ record DirectoryList(string[] Files);
 
 class MediaServer : Route
 {
-    public MediaServer(string path, string filePath, bool music, string host, BasicAuthentication auth, bool isSecure)
+    public MediaServer(string mountPath, int usbMediaPort, string path, string filePath, bool music, 
+        string host, BasicAuthentication auth, bool isSecure)
     {
         Path = path;
         this.filePath = filePath;
+        this.mountPath = mountPath;
+        this.usbMediaPort = usbMediaPort;
         this.music = music;
         Host = host;
         Tls = isSecure ? true : null;
         BasicAuthentication = auth;
     }
 
-    public override async Task<bool> ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
-    {
-        // TODO if directory not available, mount 2 times
-        var query = new UrlComponents(headers.Url, Path);
-        var file = Uri.UnescapeDataString(query.Path.Replace('+', ' '));
-        if (music)
-            await response.SendFileAsync(System.IO.Path.Combine(filePath, file));
-        else
-        {
-            var mp4 = System.IO.Path.Combine(filePath, file + ".mp4");
-            if (File.Exists(mp4))
-                await response.SendFileAsync(mp4);
-            else
+    public override Task<bool> ProcessAsync(IRequest request, IRequestHeaders headers, Response response)
+        => MediaAccess.WhenMediaMounted(usbMediaPort, mountPath, async () =>
             {
-                var mkv = System.IO.Path.Combine(filePath, file + ".mkv");
-                await response.SendFileAsync(mkv);
+                var query = new UrlComponents(headers.Url, Path);
+                var file = Uri.UnescapeDataString(query.Path.Replace('+', ' '));
+                if (music)
+                    await response.SendFileAsync(System.IO.Path.Combine(filePath, file));
+                else
+                {
+                    var mp4 = System.IO.Path.Combine(filePath, file + ".mp4");
+                    if (File.Exists(mp4))
+                        await response.SendFileAsync(mp4);
+                    else
+                    {
+                        var mkv = System.IO.Path.Combine(filePath, file + ".mkv");
+                        await response.SendFileAsync(mkv);
+                    }
+                }
+                return true;
             }
-        }
-        return true;
-    }
+        );
 
     readonly string filePath;
     readonly bool music;
+    readonly string mountPath; 
+    readonly int usbMediaPort;
 }
 
 class Native
@@ -215,5 +223,6 @@ class Native
     public extern static int signal(int pid, Callback callback);
 }
 
-// TODO: basic authentication
-// TODO: lets encrypt
+// TODO Update video when disk is shut down
+// TODO basic authentication
+// TODO lets encrypt
