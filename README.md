@@ -39,13 +39,14 @@ Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
 After=network.target
 
 [Service]
+Environment=USB_MEDIA_PORT=5
 Environment=MOUNT_PATH=/media/video
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=UPLOAD_PATH=/home/uwe/upload
 Environment=UPLOAD_VIDEO_PATH=/media/video/videos
 Type=simple
-User=uwe
+# User=uwe root mandatory because of power on/off and mounting
 ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/HomeServer/HomeServer.dll
 Restart=on-failure
 
