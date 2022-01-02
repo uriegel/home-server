@@ -45,30 +45,20 @@ var basicAuthentication = new BasicAuthentication
     Password = authPw
 };
 
-JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecure)
-    => new JsonRest("/media/video/list", _ =>
-    {
         // TODO usb port configurable
         // TODO sudo uhubctl -p 5 -a 1 -l 1-1 && sudo mount /media/video/
         // TODO Timer when web server is inactive: 10 min: sudo uhubctl -p 5 -a 0 -l 1-1
-        try 
+JsonRest createRouteVideoList(string host, BasicAuthentication auth, bool isSecure)
+    => new JsonRest("/media/video/list", 
+        _ => MediaAccess.WhenMediaMounted(() => 
         {
             var di = new DirectoryInfo(videoPath);
             var files = from n in di.EnumerateFiles()
                         orderby n.Name
                         select n.Name;
-            return Task.FromResult<object>(new DirectoryList(files));
-        }
-        catch (DirectoryNotFoundException)
-        {
-            var text = Process.RunAsync("uhubctl", "-p 5 -a 1 -l 1-1").Result;
-            Console.WriteLine(text);
-            text = Process.RunAsync("mount", "/media/video/").Result;
-            Console.WriteLine(text);
-            // Retry!!!
-            throw;
-        }
-    })
+            return Task.FromResult<object>(new DirectoryList(files.ToArray()));
+        })
+    )
     {
         Host = host,
         Tls = isSecure ? true : null,
@@ -94,7 +84,7 @@ JsonRest createRouteMusicList(string host, BasicAuthentication auth, bool isSecu
         if (dirs?.Length > 0)
             return Task.FromResult<object>(new DirectoryList(dirs));
         else if (files != null) 
-            return Task.FromResult<object>(new DirectoryList(files));
+            return Task.FromResult<object>(new DirectoryList(files.ToArray()));
         else
             return Task.FromResult<object>(null);
     })
@@ -177,7 +167,7 @@ server.Start();
 stopEvent.WaitOne();
 server.Stop();
 
-record DirectoryList(IEnumerable<string> Files);
+record DirectoryList(string[] Files);
 
 class MediaServer : Route
 {
