@@ -1,5 +1,5 @@
 function dragOver(ev) {
-    ev.preventDefault();
+    ev.preventDefault()
 }
 
 function dragEnter(ev) {
