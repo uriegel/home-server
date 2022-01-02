@@ -215,6 +215,10 @@ class Native
     public extern static int signal(int pid, Callback callback);
 }
 
+// TODO Upload first time: request rejected, but no error is displayed
+// TODO Display error
+// TODO Why is it rejected
+// TODO Drag n drop in chrome only every 5 time
 
 // TODO: basic authentication
 // TODO: lets encrypt
