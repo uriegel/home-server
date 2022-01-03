@@ -34,6 +34,9 @@ port = Environment.GetEnvironmentVariable("SERVER_TLS_PORT");
 var serverTlsPort = int.TryParse(port, out val) ? val : 443;
 Console.WriteLine($"Using tls server port: {serverTlsPort}");
 
+var letsencryptPath = Environment.GetEnvironmentVariable("LETS_ENCRYPT_DIR");
+Console.WriteLine($"Using Lets Encrypt path path: {letsencryptPath}");
+
 var authName = Environment.GetEnvironmentVariable("AUTH_NAME");
 var authPw = Environment.GetEnvironmentVariable("AUTH_PW");
 
@@ -134,8 +137,7 @@ var server = new Server(new Settings()
     TlsPort = serverTlsPort,
     IsTlsEnabled = true,
     UseLetsEncrypt = true,
-    // TODO from Environment
-    EncryptDirectory = "/home/uwe/.config/letsencrypt-uweb",
+    EncryptDirectory = letsencryptPath,
     Routes = new Route[]
     {
         routeVideoList,

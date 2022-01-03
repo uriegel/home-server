@@ -39,20 +39,26 @@ Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=USB_MEDIA_PORT=5
 Environment=MOUNT_PATH=/media/video
+Environment=USB_MEDIA_PORT=5
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=UPLOAD_PATH=/home/uwe/upload
 Environment=UPLOAD_VIDEO_PATH=/media/video/videos
+Environment=SERVER_PORT=8080
+Environment=SERVER_TLS_PORT=4433
+Environment=AUTH_NAME=uweriegel
+Environment=AUTH_PW=illmatic
+Environment=FRITZ_HOST=fritz.uriegel.de
+Environment=INTRANET_HOST=roxy
+Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
+WorkingDirectory=/home/uwe/HomeServer
 Type=simple
-# User=uwe root mandatory because of power on/off and mounting
-ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/HomeServer/HomeServer.dll
+ExecStart=/home/uwe/.dotnet6/dotnet /home/uwe/HomeServer/HomeServer.dll
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
-
 
 ```
 
