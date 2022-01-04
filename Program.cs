@@ -226,5 +226,4 @@ class Native
 }
 
 // TODO Update video when disk is shut down
-// TODO basic authentication
-// TODO lets encrypt
+// When Certificate is newer: reread certificate

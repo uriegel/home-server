@@ -47,9 +47,9 @@ Environment=UPLOAD_PATH=/home/uwe/upload
 Environment=UPLOAD_VIDEO_PATH=/media/video/videos
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=4433
-Environment=AUTH_NAME=uweriegel
-Environment=AUTH_PW=illmatic
-Environment=FRITZ_HOST=fritz.uriegel.de
+Environment=AUTH_NAME=nnnnn
+Environment=AUTH_PW=**********
+Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
 Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
 WorkingDirectory=/home/uwe/HomeServer
