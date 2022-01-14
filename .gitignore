@@ -1,7 +1,4 @@
 obj
 bin
-
-
-# Added by cargo
-
 /target
+Cargo.lock
