@@ -69,6 +69,9 @@ async fn main() {
         .or(route_static);
 
     warp::serve(routes)
+        .tls()
+        .cert_path("cert.pem")
+        .key_path("key.pem")
         .run(([0, 0, 0, 0], port))
         .await; 
 }
