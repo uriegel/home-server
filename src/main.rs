@@ -32,7 +32,16 @@ async fn main() {
         .or::<u16>(Ok(9865))
         .unwrap();
 
-    println!("port: {}", port);        
+    let tls_port_string = 
+        env::var("TLS_SERVER_PORT")
+        .or::<String>(Ok("4433".to_string()))
+        .unwrap();
+    let tls_port = 
+        tls_port_string.parse::<u16>()
+        .or::<u16>(Ok(9865))
+        .unwrap();
+
+        println!("port: {}", tls_port);        
 
     async fn simple_file_send(filename: String) -> Result<impl warp::Reply, warp::Rejection> {
         // Serve a file by asynchronously reading it by chunks using tokio-util crate.
@@ -68,10 +77,14 @@ async fn main() {
         route_acme
         .or(route_static);
 
+    // warp::serve(routes)
+    //     .run(([0, 0, 0, 0], port))
+    //     .await; 
+
     warp::serve(routes)
         .tls()
-        .cert_path("cert.pem")
-        .key_path("key.pem")
-        .run(([0, 0, 0, 0], port))
+        .cert_path("/home/uwe/Projekte/UwebServerCert/cert/3484110687051588624_crt_uriegel_de.crt")
+        .key_path("/home/uwe/Projekte/UwebServerCert/cert/3484110687051588624_key_uriegel_de.key")
+        .run(([0, 0, 0, 0], tls_port))
         .await; 
 }
