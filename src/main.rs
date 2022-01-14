@@ -2,7 +2,7 @@ use std::env;
 
 use chrono::Utc;
 use hyper::{HeaderMap, header::HeaderValue, Response, Body};
-use warp::{fs::{dir, File}, Reply, Filter};
+use warp::{fs::{dir, File}, Reply, Filter, path::Tail};
 
 pub fn add_headers(reply: File)->Response<Body> {
     let mut res = reply.into_response();
@@ -33,11 +33,40 @@ async fn main() {
         .unwrap();
 
     println!("port: {}", port);        
-        
-    let route_static = dir("webroot")
+
+    async fn simple_file_send(filename: String) -> Result<impl warp::Reply, warp::Rejection> {
+        // Serve a file by asynchronously reading it by chunks using tokio-util crate.
+    
+        if let Ok(file) = tokio::fs::File::open(filename).await {
+            let stream = tokio_util::codec::FramedRead::new(file, tokio_util::codec::BytesCodec::new());
+            let body = Body::wrap_stream(stream);
+            return Ok(Response::new(body));
+        }
+    
+        Ok(Response::new(Body::empty()))
+        //Ok(not_found())
+    }
+
+
+    // TODO directory!!
+    let route_acme = 
+        warp::path(".well-known")
+        .and(warp::path("acme-challenge"))
+        .and(warp::path::tail().map(|n: Tail| { 
+            let file = format!("/home/uwe/acme-challenge/{}", n.as_str().to_string());
+            file 
+        }))
+        .and_then(simple_file_send);
+
+
+
+    let route_static = 
+        dir("webroot")
         .map(add_headers);
 
-    let routes = route_static;
+    let routes = 
+        route_acme
+        .or(route_static);
 
     warp::serve(routes)
         .run(([0, 0, 0, 0], port))

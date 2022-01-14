@@ -8,6 +8,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.15", features = ["full"] }
+tokio-util = "0.6"
 hyper = "0.14"
 lexical-sort = "0.3"
 warp = "0.3"
