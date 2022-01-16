@@ -12,6 +12,7 @@ dependencies = [
  "percent-encoding",
  "serde",
  "serde_json",
+ "signal-hook",
  "tokio",
  "tokio-util",
  "warp",
@@ -823,6 +824,16 @@ dependencies = [
  "cpufeatures",
  "digest",
  "opaque-debug",
+]
+
+[[package]]
+name = "signal-hook"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "647c97df271007dcea485bb74ffdb57f2e683f1306c854f468a0c244badabf2d"
+dependencies = [
+ "libc",
+ "signal-hook-registry",
 ]
 
 [[package]]
