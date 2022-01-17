@@ -21,7 +21,7 @@ pub fn start_http_server(rt: &Runtime) {
         .map(add_headers);
 
     let request_filter = extract_request_data_filter();
-    let fritz_proxy = warp::any()
+    let fritz_proxy = warp::header::exact("Host", "uriegel.de")
         .map(|| ("http://fritz.box/".to_string(), "".to_string()))
         .untuple_one()
         .and(request_filter)
@@ -36,7 +36,8 @@ pub fn start_http_server(rt: &Runtime) {
 
     let routes = 
         route_acme
-        .or(fritz_proxy);    
+        .or(fritz_proxy)
+        .or(route_static);    
 
     rt.spawn(async move {
         serve(routes)
