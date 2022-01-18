@@ -1,4 +1,4 @@
-# Home Server
+# home-server
 a home server for my Raspberry Pi 3
 
 ## Setup
