@@ -6,13 +6,18 @@ use warp_reverse_proxy::{reverse_proxy_filter, proxy_to_and_forward_response, ex
 use crate::warp_utils::{simple_file_send, add_headers};
 
 pub fn start_http_server(rt: &Runtime) {
-    // TODO directory!!
+
+    let acme_challenge = dirs::config_dir().expect("Could not find config dir")
+        .join("letsencrypt-update")
+        .join("acme-challenge");
+
     let route_acme = 
         warp::path(".well-known")
         .and(warp::path("acme-challenge"))
-        .and(tail().map(|n: Tail| { 
-            let file = format!("/home/uwe/acme-challenge/{}", n.as_str().to_string());
-            file 
+        .and(tail().map(move|token: Tail| {
+            let token_path = acme_challenge.join(token.as_str().to_string()).to_str().expect("Could not create token path").to_string();
+            println!("Serving lets encrypt token: {token_path}");
+            token_path
         }))
         .and_then(simple_file_send);
 

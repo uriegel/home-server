@@ -16,7 +16,7 @@ fn main() {
         .unwrap();
     let port = 
         port_string.parse::<u16>()
-        .or::<u16>(Ok(9865))
+        .or::<u16>(Ok(8080))
         .unwrap();
 
     let tls_port_string = 
@@ -25,7 +25,7 @@ fn main() {
         .unwrap();
     let tls_port = 
         tls_port_string.parse::<u16>()
-        .or::<u16>(Ok(9865))
+        .or::<u16>(Ok(4433))
         .unwrap();
 
         println!("port: {}", tls_port);        
