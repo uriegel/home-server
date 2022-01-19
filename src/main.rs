@@ -1,9 +1,11 @@
 mod http_server;
+mod https_server;
 mod warp_utils;
 
 use std::{env, thread};
 
 use http_server::start_http_server;
+use https_server::start_https_server;
 use signal_hook::{iterator::Signals, consts::{SIGINT, SIGTERM}};
 use tokio::{runtime::Runtime};
 
@@ -31,7 +33,8 @@ fn main() {
         println!("port: {}", tls_port);        
 
     let rt = Runtime::new().unwrap();
-    start_http_server(&rt);
+    start_http_server(&rt, port);
+    start_https_server(&rt, tls_port);
 
     println!("Home server started");
 
