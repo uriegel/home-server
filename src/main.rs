@@ -1,6 +1,7 @@
 mod http_server;
 mod https_server;
 mod warp_utils;
+mod requests;
 
 use std::{env, thread};
 
@@ -30,8 +31,15 @@ fn main() {
         .or::<u16>(Ok(4433))
         .unwrap();
 
+    let video_path = 
+        env::var("VIDEO_PATH")
+        .or::<String>(Ok("/home/uwe/Videos".to_string()))
+        .unwrap();        
+
+    println!("video path: {video_path}");
+
     let rt = Runtime::new().unwrap();
-    start_http_server(&rt, port);
+    start_http_server(&rt, port, &video_path);
     start_https_server(&rt, tls_port);
 
     println!("Home server started");
