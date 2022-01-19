@@ -35,11 +35,15 @@ fn main() {
         env::var("VIDEO_PATH")
         .or::<String>(Ok("/home/uwe/Videos".to_string()))
         .unwrap();        
-
     println!("video path: {video_path}");
 
+    let media_host = env::var("MEDIA_HOST")
+        .or::<String>(Ok("illmatic".to_string()))
+        .unwrap();        
+    println!("media host: {media_host}");
+
     let rt = Runtime::new().unwrap();
-    start_http_server(&rt, port, &video_path);
+    start_http_server(&rt, port, &media_host, &video_path);
     start_https_server(&rt, tls_port);
 
     println!("Home server started");

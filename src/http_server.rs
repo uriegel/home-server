@@ -4,11 +4,13 @@ use warp_range::{with_partial_content_status, filter_range};
 
 use crate::{warp_utils::{simple_file_send, add_headers}, requests::{get_video_list, get_video_range, get_video}};
 
-pub fn start_http_server(rt: &Runtime, port: u16, video_path: &str) {
+pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str) {
 
+    let host_and_port = format!("{}:{port}", host);
     let video_path_clone = video_path.to_string();
     let route_get_video_list = 
-        warp::path("media")
+        warp::host::exact(&host_and_port)
+        .and(warp::path("media"))
         .and(warp::path("video"))
         .and(warp::path("list"))
         .and(warp::path::end())
@@ -16,8 +18,9 @@ pub fn start_http_server(rt: &Runtime, port: u16, video_path: &str) {
         .and_then(get_video_list);    
 
     let video_path_clone = video_path.to_string();        
-    let route_get_video = 
-        warp::path("media")
+    let route_get_video =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
         .and(warp::path("video"))
         .and(warp::path::param())
         .and(warp::any().map(move || { video_path_clone.to_string() }))
@@ -25,7 +28,8 @@ pub fn start_http_server(rt: &Runtime, port: u16, video_path: &str) {
 
     let video_path_clone = video_path.to_string();
     let route_get_video_range = 
-        warp::path("media")
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
         .and(warp::path("video"))
         .and(warp::path::param())
         .and(warp::any().map(move || { video_path_clone.to_string() }))
