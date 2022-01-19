@@ -14,7 +14,7 @@ pub fn start_https_server(rt: &Runtime, port: u16) -> bool {
         .map(add_headers);
 
     let request_filter = extract_request_data_filter();
-    let fritz_proxy = warp::header::exact("Host", "fritz.uriegel.de")
+    let fritz_proxy = warp::host::exact("fritz.uriegel.de")
         .map(|| ("http://fritz.box/".to_string(), "".to_string()))
         .untuple_one()
         .and(request_filter)
