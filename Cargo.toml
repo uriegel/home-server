@@ -1,5 +1,5 @@
 [package]
-name = "HomeServer"
+name = "home-server"
 version = "0.1.0"
 authors = ["uriegel <uriegel@hotmail.de>"]
 edition = "2021"

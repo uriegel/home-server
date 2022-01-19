@@ -8,7 +8,7 @@ use crate::warp_utils::{simple_file_send, add_headers};
 pub fn start_http_server(rt: &Runtime) {
 
     let acme_challenge = dirs::config_dir().expect("Could not find config dir")
-        .join("letsencrypt-update")
+        .join("letsencrypt-cert")
         .join("acme-challenge");
 
     let route_acme = 

@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'HomeServer'",
+            "name": "Debug executable 'home-server'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=HomeServer",
-                    "--package=HomeServer"
+                    "--bin=home-server",
+                    "--package=home-server"
                 ],
                 "filter": {
-                    "name": "HomeServer",
+                    "name": "home-server",
                     "kind": "bin"
                 }
             },
