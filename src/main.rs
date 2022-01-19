@@ -30,8 +30,6 @@ fn main() {
         .or::<u16>(Ok(4433))
         .unwrap();
 
-        println!("port: {}", tls_port);        
-
     let rt = Runtime::new().unwrap();
     start_http_server(&rt, port);
     start_https_server(&rt, tls_port);

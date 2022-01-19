@@ -32,4 +32,6 @@ pub fn start_http_server(rt: &Runtime, port: u16) {
             .run(([0, 0, 0, 0], port))
             .await;         
     });
+
+    println!("http server started on {port}");        
 }

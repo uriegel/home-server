@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use hyper::{header::HOST, HeaderMap};
 use tokio::runtime::Runtime;
 use warp::{serve, Filter, fs::dir};
@@ -5,7 +7,7 @@ use warp_reverse_proxy::{proxy_to_and_forward_response, extract_request_data_fil
 
 use crate::warp_utils::add_headers;
 
-pub fn start_https_server(rt: &Runtime, port: u16) {
+pub fn start_https_server(rt: &Runtime, port: u16) -> bool {
 
     let route_static = 
         dir("webroot")
@@ -26,17 +28,25 @@ pub fn start_https_server(rt: &Runtime, port: u16) {
     let routes = fritz_proxy.or(route_static);    
 
     let config_dir = dirs::config_dir().expect("Could not find config dir")
-        .join("letsencrypt-cert");
+        .join("letsencrypt-certiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
     let cert_file = config_dir.join("cert.pem");
     let key_file = config_dir.join("key.pem");
 
-    rt.spawn(async move {
-        serve(routes)
-        .tls()
-        .cert_path(cert_file)
-        .key_path(key_file)
-        .run(([0, 0, 0, 0], port))
-        .await;         
-    });
+    if Path::new(&cert_file).exists() && Path::new(&key_file).exists() {
+        rt.spawn(async move {
+            serve(routes)
+            .tls()
+            .cert_path(cert_file)
+            .key_path(key_file)
+            .run(([0, 0, 0, 0], port))
+            .await;         
+        });
+
+        println!("https server started on {port}");        
+        true
+    } else {
+        println!("https server could not be started, no certificate");        
+        false 
+    }
 }
 
