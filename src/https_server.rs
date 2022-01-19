@@ -28,7 +28,7 @@ pub fn start_https_server(rt: &Runtime, port: u16) -> bool {
     let routes = fritz_proxy.or(route_static);    
 
     let config_dir = dirs::config_dir().expect("Could not find config dir")
-        .join("letsencrypt-certiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+        .join("letsencrypt-cert");
     let cert_file = config_dir.join("cert.pem");
     let key_file = config_dir.join("key.pem");
 
