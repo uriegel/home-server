@@ -49,7 +49,7 @@ pub async fn get_video_range(file: String, path: String, range_header: String) -
 }
 
 fn reject(err: std::io::Error)->warp::Rejection {
-    println!("Could not get video list: {:?}", err);
+    println!("Could not get video list: {err:?}");
     warp::reject()
 }
 
@@ -61,11 +61,9 @@ async fn get_video_range_impl(file: String, path: String, range_header: String) 
 fn get_video_file(path: &str, file: String)->VideoFile {
     fn combine_path(path: &str, file: String, ext: &str)->Option<String> {
         let file_with_ext = file + ext;
-        println!("Hä {} {}", path, file_with_ext);
         let file = percent_encoding::percent_decode(file_with_ext.as_bytes()).decode_utf8().unwrap();
         let path = Path::new(&path).join(file.to_string());
-
-        println!("Feile {}", file);
+        println!("Serving video {file}");
 
         if path.exists() { Some(path.to_string_lossy().to_string())} else { None }
     }
@@ -74,9 +72,8 @@ fn get_video_file(path: &str, file: String)->VideoFile {
         VideoFile{ path: mp4, media_type: "video/mp4".to_string() }
     } else {
         if let Some(mkv) = combine_path(path, file, &".mkv") {
-            VideoFile{ path: mkv, media_type: "video/mkv".to_string() }
+            VideoFile{ path: mkv, media_type: "video/mp4".to_string() }
         } else {
-            // TODO 
             panic!("not mp4 and not mkv")
         }
     }
