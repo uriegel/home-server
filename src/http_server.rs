@@ -2,9 +2,15 @@ use tokio::runtime::Runtime;
 use warp::{serve, path::{tail, Tail}, Filter, fs::dir};
 use warp_range::{with_partial_content_status, filter_range};
 
-use crate::{warp_utils::{simple_file_send, add_headers}, requests::{get_video_list, get_video_range, get_video}};
+use crate::{
+    warp_utils::{
+        simple_file_send, add_headers
+    }, requests::{
+        get_video_list, get_video_range, get_video, get_directory, get_music, get_music_range
+    }
+};
 
-pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str) {
+pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str, music_path: &str) {
 
     let host_and_port = format!("{}:{port}", host);
     let video_path_clone = video_path.to_string();
@@ -37,6 +43,35 @@ pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str) 
         .and_then(get_video_range)
         .map(with_partial_content_status);        
 
+    let music_path_clone = music_path.to_string();
+    let route_music_directories =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("music"))
+        .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
+        .and(warp::any().map(move || { music_path_clone.to_string() }))
+        .and_then(get_directory);        
+
+    let music_path_clone = music_path.to_string();            
+    let route_music =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("music"))
+        .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
+        .and(warp::any().map(move || { music_path_clone.to_string() }))
+        .and_then(get_music);
+
+    let music_path_clone = music_path.to_string();            
+    let route_music_range =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("music"))
+        .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
+        .and(warp::any().map(move || { music_path_clone.to_string() }))
+        .and(filter_range())
+        .and_then(get_music_range)
+        .map(with_partial_content_status);
+            
     let acme_challenge = dirs::config_dir().expect("Could not find config dir")
         .join("letsencrypt-cert")
         .join("acme-challenge");
@@ -58,7 +93,11 @@ pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str) 
     let routes = 
         route_get_video_list
         .or(route_get_video_range)
-        .or(route_get_video)        .or(route_acme)
+        .or(route_get_video)        
+        .or(route_music_directories)
+        .or(route_music_range)
+        .or(route_music)
+        .or(route_acme)
         .or(route_static);    
 
     rt.spawn(async move {

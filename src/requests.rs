@@ -24,6 +24,23 @@ struct VideoFile {
 
 }
 
+struct RangeFile {
+    path: String,
+    media_type: String
+}
+
+#[derive(Serialize)]
+pub struct DirectoryList {
+    files: Vec<String>
+}
+
+impl Reply for DirectoryList {
+    fn into_response(self) -> Response<Body> { 
+        let reply = warp::reply::json(&self);
+        reply.into_response()
+    }
+}
+
 pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
     let entries = fs::read_dir(&path).map_err(reject)?;
     let mut files: Vec<String> = entries.filter_map(|n| {
@@ -46,6 +63,39 @@ pub async fn get_video(file: String, path: String) -> Result<impl warp::Reply, w
 
 pub async fn get_video_range(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {
     get_video_range_impl(file, path, range_header).await
+}
+
+pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
+    let path = percent_encoding::percent_decode(path.as_bytes()).decode_utf8().unwrap().replace("+", " ");
+    let path = &(root_path + "/" + &path);
+    if path.ends_with("mp3") {
+        Err(warp::reject())
+    } else {
+        let entries = fs::read_dir(path).map_err(reject)?;
+        let mut files: Vec<String> = entries.filter_map(|n| {
+            n.ok()
+                .and_then(|n| { Some(n.file_name().to_str()?.to_string())})
+        })
+        .collect();
+        files.sort_by(|a, b|natural_lexical_cmp(a, b));
+        Ok(DirectoryList{ files })
+    }
+}
+
+pub async fn get_music(path: String, root_path: String)->Result<impl warp::Reply, warp::Rejection> {
+    let path = &(root_path.clone() + "/" + &path);
+    if path.ends_with("mp3") {
+        let range_file = get_music_range_file(&root_path, path.clone());
+        get_range("".to_string(), &range_file.path, &range_file.media_type).await
+    } else {
+        Err(warp::reject())
+    }
+}
+
+pub async fn get_music_range(path: String, root_path: String, range_header: String)->Result<impl warp::Reply, warp::Rejection> {
+    let path = &(root_path.clone() + "/" + &path);
+    let range_file = get_music_range_file(&root_path, path.clone());
+    get_range(range_header, &range_file.path, &range_file.media_type).await
 }
 
 fn reject(err: std::io::Error)->warp::Rejection {
@@ -77,4 +127,14 @@ fn get_video_file(path: &str, file: String)->VideoFile {
             panic!("not mp4 and not mkv")
         }
     }
+}
+
+fn get_music_range_file(path: &str, file: String)->RangeFile {
+    let file = percent_encoding::percent_decode(file.as_bytes())
+        .decode_utf8()
+        .unwrap()
+        .replace("+", " ");
+    let path = Path::new(&path).join(file.to_string());
+    let path = path.to_string_lossy().to_string();
+    RangeFile{ path, media_type: "audio/mp3".to_string() }
 }
