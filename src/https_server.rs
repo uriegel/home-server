@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use hyper::{header::HOST, HeaderMap};
 use tokio::runtime::Runtime;
@@ -7,7 +7,7 @@ use warp_reverse_proxy::{proxy_to_and_forward_response, extract_request_data_fil
 
 use crate::warp_utils::add_headers;
 
-pub fn start_https_server(rt: &Runtime, port: u16) -> bool {
+pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -> bool {
 
     let route_static = 
         dir("webroot")
@@ -27,10 +27,8 @@ pub fn start_https_server(rt: &Runtime, port: u16) -> bool {
 
     let routes = fritz_proxy.or(route_static);    
 
-    let config_dir = dirs::config_dir().expect("Could not find config dir")
-        .join("letsencrypt-cert");
-    let cert_file = config_dir.join("cert.pem");
-    let key_file = config_dir.join("key.pem");
+    let cert_file = lets_encrypt_dir.join("cert.pem");
+    let key_file = lets_encrypt_dir.join("key.pem");
 
     if Path::new(&cert_file).exists() && Path::new(&key_file).exists() {
         rt.spawn(async move {

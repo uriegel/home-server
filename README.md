@@ -51,27 +51,25 @@ sudo nano /lib/systemd/system/homeserver.service
 ```
 [Unit]
 Description=Home Server for serving videos to AMAZON FirePlayer
-Documentation=https://github.com/uriegel/HomeServer/blob/master/README.md
+Documentation=https://github.com/uriegel/home-server/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=MOUNT_PATH=/media/video
-Environment=USB_MEDIA_PORT=5
-Environment=VIDEO_PATH=/media/video/videos
-Environment=MUSIC_PATH=/media/video/Musik
-Environment=UPLOAD_PATH=/home/uwe/upload
-Environment=UPLOAD_VIDEO_PATH=/media/video/videos
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=4433
-Environment=AUTH_NAME=nnnnn
-Environment=AUTH_PW=**********
+Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
 Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
-Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
-WorkingDirectory=/home/uwe/HomeServer
+Environment=VIDEO_PATH=/media/video/videos
+Environment=MUSIC_PATH=/media/video/Musik
+Environment=MOUNT_PATH=/media/video
+Environment=USB_MEDIA_PORT=5
 Type=simple
-ExecStart=/home/uwe/.dotnet6/dotnet /home/uwe/HomeServer/HomeServer.dll
+ExecStart=/home/uwe/server
 Restart=on-failure
+#WorkingDirectory=/home/uwe/server
+#Environment=AUTH_NAME=nnnnn
+#Environment=AUTH_PW=**********
 
 [Install]
 WantedBy=multi-user.target

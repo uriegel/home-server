@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use tokio::runtime::Runtime;
 use warp::{serve, path::{tail, Tail}, Filter, fs::dir};
 use warp_range::{with_partial_content_status, filter_range};
@@ -10,7 +12,7 @@ use crate::{
     }
 };
 
-pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str, music_path: &str) {
+pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, host: &str, video_path: &str, music_path: &str) {
 
     let host_and_port = format!("{}:{port}", host);
     let video_path_clone = video_path.to_string();
@@ -72,10 +74,7 @@ pub fn start_http_server(rt: &Runtime, port: u16, host: &str, video_path: &str, 
         .and_then(get_music_range)
         .map(with_partial_content_status);
             
-    let acme_challenge = dirs::config_dir().expect("Could not find config dir")
-        .join("letsencrypt-cert")
-        .join("acme-challenge");
-
+    let acme_challenge = lets_encrypt_dir.join("acme-challenge");
     let route_acme = 
         warp::path(".well-known")
         .and(warp::path("acme-challenge"))

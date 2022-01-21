@@ -24,7 +24,7 @@
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",
                 "SERVER_TLS_PORT": "4433",
-                "MEDIA_HOST": "illmatic"
+                "INTRANET_HOST": "illmatic"
             },            
             "args": [],
             "cwd": "${workspaceFolder}"
