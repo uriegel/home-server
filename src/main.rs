@@ -16,7 +16,7 @@ fn main() {
     let port_string = env::var("SERVER_PORT").or::<String>(Ok("0".to_string())).unwrap();
     let port = port_string.parse::<u16>().expect("Could not parse server port");
 
-    let tls_port_string = env::var("TLS_SERVER_PORT").or::<String>(Ok("0".to_string())).unwrap();
+    let tls_port_string = env::var("SERVER_TLS_PORT").or::<String>(Ok("0".to_string())).unwrap();
     let tls_port = tls_port_string.parse::<u16>().expect("Could not parse server tls port");
 
     let lets_encrypt_dir = PathBuf::from(env::var("LETS_ENCRYPT_DIR").expect("Please specify LETS_ENCRYPT_DIR"));

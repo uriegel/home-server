@@ -45,7 +45,7 @@ sudo mount -a
 ### Install as service
 
 ```
-sudo nano /lib/systemd/system/homeserver.service
+sudo nano /lib/systemd/system/home-server.service
 ```
 
 ```
@@ -65,7 +65,7 @@ Environment=MUSIC_PATH=/media/video/Musik
 Environment=MOUNT_PATH=/media/video
 Environment=USB_MEDIA_PORT=5
 Type=simple
-ExecStart=/home/uwe/server
+ExecStart=/home/uwe/server/home-server
 Restart=on-failure
 #WorkingDirectory=/home/uwe/server
 #Environment=AUTH_NAME=nnnnn
@@ -78,9 +78,9 @@ WantedBy=multi-user.target
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable homeserver.service
-sudo systemctl start homeserver
-sudo systemctl status homeserver
+sudo systemctl enable home-server.service
+sudo systemctl start home-server
+sudo systemctl status home-server
 ```
 
 Port 80 and port 443 on Linux:
