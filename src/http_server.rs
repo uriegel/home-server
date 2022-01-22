@@ -85,3 +85,5 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
 
     println!("http server started on {port}");        
 }
+
+// TODO Check if file is accessed: lsof -t /home/uwe/Videos/Vietnam1.mp4 | wc -w
