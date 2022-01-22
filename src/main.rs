@@ -2,6 +2,7 @@ mod http_server;
 mod https_server;
 mod warp_utils;
 mod requests;
+mod disk_mount;
 
 use std::{env, thread, path::PathBuf};
 

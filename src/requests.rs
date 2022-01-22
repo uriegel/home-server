@@ -6,6 +6,8 @@ use serde::Serialize;
 use warp::Reply;
 use warp_range::get_range;
 
+use crate::disk_mount::mount;
+
 #[derive(Serialize)]
 pub struct VideoList {
     files: Vec<String>
@@ -42,19 +44,29 @@ impl Reply for DirectoryList {
 }
 
 pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
-    let entries = fs::read_dir(&path).map_err(reject)?;
-    let mut files: Vec<String> = entries.filter_map(|n| {
-        n.ok().and_then(|n| {
-            let is_file = n.metadata().ok().and_then(|n|{
-                if n.is_file() { Some(()) } else { None }
-            }).is_some();
+    async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
+        let entries = fs::read_dir(&path).map_err(reject)?;
+        let mut files: Vec<String> = entries.filter_map(|n| {
+            n.ok().and_then(|n| {
+                let is_file = n.metadata().ok().and_then(|n|{
+                    if n.is_file() { Some(()) } else { None }
+                }).is_some();
             
-            if is_file { Some(n.file_name().to_str()?.to_string())} else { None}
+                if is_file { Some(n.file_name().to_str()?.to_string())} else { None}
+            })
         })
-    })
-    .collect();
-    files.sort_by(|a, b|natural_lexical_cmp(a, b));
-    Ok(VideoList{ files })
+        .collect();
+        files.sort_by(|a, b|natural_lexical_cmp(a, b));
+        Ok(VideoList{ files })
+    }
+
+    match get_video_list(path.clone()).await {
+        Ok(res) => Ok(res),
+        Err(_err) => {
+            mount().await;
+            get_video_list(path.clone()).await
+        }
+    }
 }
 
 pub async fn get_video(file: String, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
@@ -65,37 +77,60 @@ pub async fn get_video(file: String, path: String, range: Option<String>) -> Res
 
     match get_video_range(file.clone(), path.clone(), range.clone()).await {
         Ok(res) => Ok(res),
-        Err(_err) => get_video_range(file, path, range).await
+        Err(_err) => {
+            mount().await;
+            get_video_range(file, path, range).await
+        }
     }
 }
 
 pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
-    let path = percent_encoding::percent_decode(path.as_bytes()).decode_utf8().unwrap().replace("+", " ");
-    let path = &(root_path + "/" + &path);
-    if path.ends_with("mp3") {
-        Err(warp::reject())
-    } else {
-        let entries = fs::read_dir(path).map_err(reject)?;
-        let mut files: Vec<String> = entries.filter_map(|n| {
-            n.ok()
-                .and_then(|n| { Some(n.file_name().to_str()?.to_string())})
-        })
-        .collect();
-        files.sort_by(|a, b|natural_lexical_cmp(a, b));
-        Ok(DirectoryList{ files })
+    async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
+        let path = percent_encoding::percent_decode(path.as_bytes()).decode_utf8().unwrap().replace("+", " ");
+        let path = &(root_path + "/" + &path);
+        if path.ends_with("mp3") {
+            Err(warp::reject())
+        } else {
+            let entries = fs::read_dir(path).map_err(reject)?;
+            let mut files: Vec<String> = entries.filter_map(|n| {
+                n.ok()
+                    .and_then(|n| { Some(n.file_name().to_str()?.to_string())})
+            })
+            .collect();
+            files.sort_by(|a, b|natural_lexical_cmp(a, b));
+            Ok(DirectoryList{ files })
+        }
+    }
+
+    match get_directory(path.clone(), root_path.clone()).await {
+        Ok(res) => Ok(res),
+        Err(_err) => {
+            mount().await;
+            get_directory(path, root_path).await
+        }
     }
 }
 
 pub async fn get_music(path: String, root_path: String, range: Option<String>)->Result<impl warp::Reply, warp::Rejection> {
-    let path = &(root_path.clone() + "/" + &path);
-    if path.ends_with("mp3") {
-        let range_file = get_music_file(&root_path, path.clone());
-        get_range(range, &range_file.path, &range_file.media_type).await
-    } else {
-        Err(warp::reject())
+    async fn get_music(path: String, root_path: String, range: Option<String>)->Result<impl warp::Reply, warp::Rejection> {
+        let path = &(root_path.clone() + "/" + &path);
+        if path.ends_with("mp3") {
+            let range_file = get_music_file(&root_path, path.clone());
+            get_range(range, &range_file.path, &range_file.media_type).await
+        } else {
+            Err(warp::reject())
+        }
+    }
+
+    match get_music(path.clone(), root_path.clone(), range.clone()).await {
+        Ok(res) => Ok(res),
+        Err(_err) => {
+            mount().await;
+            get_music(path, root_path, range).await
+        }
     }
 }
-
+    
 fn reject(err: std::io::Error)->warp::Rejection {
     println!("Could not get video list: {err:?}");
     warp::reject()
@@ -133,3 +168,4 @@ fn get_music_file(path: &str, file: String)->RangeFile {
     let path = path.to_string_lossy().to_string();
     RangeFile{ path, media_type: "audio/mp3".to_string() }
 }
+
