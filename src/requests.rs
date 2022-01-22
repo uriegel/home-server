@@ -6,7 +6,7 @@ use serde::Serialize;
 use warp::Reply;
 use warp_range::get_range;
 
-use crate::disk_mount::mount;
+use crate::media_access::mount;
 
 #[derive(Serialize)]
 pub struct VideoList {
