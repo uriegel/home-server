@@ -24,7 +24,8 @@
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",
                 "SERVER_TLS_PORT": "4433",
-                "INTRANET_HOST": "illmatic"
+                "INTRANET_HOST": "illmatic",
+                "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-cert"
             },            
             "args": [],
             "cwd": "${workspaceFolder}"

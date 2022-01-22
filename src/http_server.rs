@@ -2,13 +2,13 @@ use std::path::PathBuf;
 
 use tokio::runtime::Runtime;
 use warp::{serve, path::{tail, Tail}, Filter, fs::dir};
-use warp_range::{with_partial_content_status, filter_range};
+use warp_range::filter_range;
 
 use crate::{
     warp_utils::{
         simple_file_send, add_headers
     }, requests::{
-        get_video_list, get_video_range, get_video, get_directory, get_music, get_music_range
+        get_video_list, get_video, get_directory, get_music
     }
 };
 
@@ -32,18 +32,8 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(warp::path("video"))
         .and(warp::path::param())
         .and(warp::any().map(move || { video_path_clone.to_string() }))
-        .and_then(get_video);
-
-    let video_path_clone = video_path.to_string();
-    let route_get_video_range = 
-        warp::host::exact(&host_and_port) 
-        .and(warp::path("media"))
-        .and(warp::path("video"))
-        .and(warp::path::param())
-        .and(warp::any().map(move || { video_path_clone.to_string() }))
         .and(filter_range())
-        .and_then(get_video_range)
-        .map(with_partial_content_status);        
+        .and_then(get_video);
 
     let music_path_clone = music_path.to_string();
     let route_music_directories =
@@ -61,18 +51,8 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(warp::path("music"))
         .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
         .and(warp::any().map(move || { music_path_clone.to_string() }))
-        .and_then(get_music);
-
-    let music_path_clone = music_path.to_string();            
-    let route_music_range =
-        warp::host::exact(&host_and_port) 
-        .and(warp::path("media"))
-        .and(warp::path("music"))
-        .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
-        .and(warp::any().map(move || { music_path_clone.to_string() }))
         .and(filter_range())
-        .and_then(get_music_range)
-        .map(with_partial_content_status);
+        .and_then(get_music);
             
     let acme_challenge = lets_encrypt_dir.join("acme-challenge");
     let route_acme = 
@@ -91,10 +71,8 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
 
     let routes = 
         route_get_video_list
-        .or(route_get_video_range)
         .or(route_get_video)        
         .or(route_music_directories)
-        .or(route_music_range)
         .or(route_music)
         .or(route_acme)
         .or(route_static);    

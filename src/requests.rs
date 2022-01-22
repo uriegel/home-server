@@ -57,12 +57,16 @@ pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
     Ok(VideoList{ files })
 }
 
-pub async fn get_video(file: String, path: String) -> Result<impl warp::Reply, warp::Rejection> {
-    get_video_range_impl(file, path, "".to_string()).await
-}
+pub async fn get_video(file: String, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn get_video_range(file: String, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
+        let video = get_video_file(&path, file)?;
+        get_range(range, &video.path, &video.media_type).await
+    }
 
-pub async fn get_video_range(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {
-    get_video_range_impl(file, path, range_header).await
+    match get_video_range(file.clone(), path.clone(), range.clone()).await {
+        Ok(res) => Ok(res),
+        Err(_err) => get_video_range(file, path, range).await
+    }
 }
 
 pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
@@ -82,20 +86,14 @@ pub async fn get_directory(path: String, root_path: String)->Result<DirectoryLis
     }
 }
 
-pub async fn get_music(path: String, root_path: String)->Result<impl warp::Reply, warp::Rejection> {
+pub async fn get_music(path: String, root_path: String, range: Option<String>)->Result<impl warp::Reply, warp::Rejection> {
     let path = &(root_path.clone() + "/" + &path);
     if path.ends_with("mp3") {
-        let range_file = get_music_range_file(&root_path, path.clone());
-        get_range("".to_string(), &range_file.path, &range_file.media_type).await
+        let range_file = get_music_file(&root_path, path.clone());
+        get_range(range, &range_file.path, &range_file.media_type).await
     } else {
         Err(warp::reject())
     }
-}
-
-pub async fn get_music_range(path: String, root_path: String, range_header: String)->Result<impl warp::Reply, warp::Rejection> {
-    let path = &(root_path.clone() + "/" + &path);
-    let range_file = get_music_range_file(&root_path, path.clone());
-    get_range(range_header, &range_file.path, &range_file.media_type).await
 }
 
 fn reject(err: std::io::Error)->warp::Rejection {
@@ -103,12 +101,7 @@ fn reject(err: std::io::Error)->warp::Rejection {
     warp::reject()
 }
 
-async fn get_video_range_impl(file: String, path: String, range_header: String) -> Result<impl warp::Reply, warp::Rejection> {
-    let video = get_video_file(&path, file);
-    get_range(range_header, &video.path, &video.media_type).await
-}
-
-fn get_video_file(path: &str, file: String)->VideoFile {
+fn get_video_file(path: &str, file: String) -> Result<VideoFile, warp::Rejection> {
     fn combine_path(path: &str, file: String, ext: &str)->Option<String> {
         let file_with_ext = file + ext;
         let file = percent_encoding::percent_decode(file_with_ext.as_bytes()).decode_utf8().unwrap();
@@ -119,17 +112,19 @@ fn get_video_file(path: &str, file: String)->VideoFile {
     }
     
     if let Some(mp4) = combine_path(path, file.clone(),&".mp4") {
-        VideoFile{ path: mp4, media_type: "video/mp4".to_string() }
+        Ok(VideoFile{ path: mp4, media_type: "video/mp4".to_string() })
     } else {
         if let Some(mkv) = combine_path(path, file, &".mkv") {
-            VideoFile{ path: mkv, media_type: "video/mp4".to_string() }
+            Ok(VideoFile{ path: mkv, media_type: "video/mp4".to_string() })
         } else {
-            panic!("not mp4 and not mkv")
+            println!("Could not access video file");
+            Err(warp::reject())
+            //panic!("not mp4 and not mkv")
         }
     }
 }
 
-fn get_music_range_file(path: &str, file: String)->RangeFile {
+fn get_music_file(path: &str, file: String)->RangeFile {
     let file = percent_encoding::percent_decode(file.as_bytes())
         .decode_utf8()
         .unwrap()
