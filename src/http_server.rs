@@ -8,11 +8,12 @@ use crate::{
     warp_utils::{
         simple_file_send, add_headers
     }, requests::{
-        get_video_list, get_video, get_directory, get_music
+        get_video_list, get_video, get_directory, get_music, access_media
     }
 };
 
-pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, host: &str, video_path: &str, music_path: &str) {
+pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, host: &str, usb_media_port: u16, 
+        media_mount_path: &str, video_path: &str, music_path: &str) {
 
     let host_and_port = format!("{}:{port}", host);
     let video_path_clone = video_path.to_string();
@@ -54,6 +55,17 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(filter_range())
         .and_then(get_music);
             
+    let video_path_clone = video_path.to_string();        
+    let media_mount_path_clone = media_mount_path.to_string();        
+    let route_media_access =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("access"))
+        .and(warp::any().map(move || { video_path_clone.to_string() }))
+        .and(warp::any().map(move || { media_mount_path_clone.to_string() }))
+        .and(warp::any().map(move || { usb_media_port }))
+        .and_then(access_media);
+
     let acme_challenge = lets_encrypt_dir.join("acme-challenge");
     let route_acme = 
         warp::path(".well-known")
@@ -75,6 +87,7 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .or(route_get_video)        
         .or(route_music_directories)
         .or(route_music)
+        .or(route_media_access)
         .or(route_acme)
         .or(route_static);    
 
@@ -87,4 +100,4 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
     println!("http server started on {port}");        
 }
 
-// TODO Check if file is accessed: lsof -t /home/uwe/Videos/Vietnam1.mp4 | wc -w
+

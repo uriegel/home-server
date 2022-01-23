@@ -23,6 +23,12 @@ fn main() {
     let lets_encrypt_dir = PathBuf::from(env::var("LETS_ENCRYPT_DIR").expect("Please specify LETS_ENCRYPT_DIR"));
     println!("lets encrypt path: {lets_encrypt_dir:?}");
 
+    let media_mount_path = env::var("MEDIA_MOUNT_PATH").expect("Please specify MEDIA_MOUNT_PATH");
+    println!("media mount path: {media_mount_path}");
+
+    let usb_media_port_str = env::var("USB_MEDIA_PORT").or::<String>(Ok("0".to_string())).unwrap();
+    let usb_media_port = usb_media_port_str.parse::<u16>().expect("Could not parse usb media port");
+
     let video_path = env::var("VIDEO_PATH").expect("Please specify VIDEO_PATH");
     println!("video path: {video_path}");
 
@@ -33,7 +39,7 @@ fn main() {
     println!("media host: {intranet_host}");
 
     let rt = Runtime::new().unwrap();
-    start_http_server(&rt, port, &lets_encrypt_dir, &intranet_host, &video_path, &music_path);
+    start_http_server(&rt, port, &lets_encrypt_dir, &intranet_host, usb_media_port, &media_mount_path, &video_path, &music_path);
     start_https_server(&rt, tls_port, &lets_encrypt_dir);
 
     println!("Home server started");

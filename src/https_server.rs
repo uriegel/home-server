@@ -2,10 +2,8 @@ use std::path::{Path, PathBuf};
 
 use hyper::{header::HOST, HeaderMap};
 use tokio::runtime::Runtime;
-use warp::{serve, Filter, fs::dir};
+use warp::{serve, Filter};
 use warp_reverse_proxy::{proxy_to_and_forward_response, extract_request_data_filter};
-
-use crate::warp_utils::add_headers;
 
 pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -> bool {
 

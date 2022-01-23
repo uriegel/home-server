@@ -6,7 +6,7 @@ use serde::Serialize;
 use warp::Reply;
 use warp_range::get_range;
 
-//use crate::media_access::mount;
+use crate::media_access::mount_device;
 
 #[derive(Serialize)]
 pub struct VideoList {
@@ -89,6 +89,12 @@ pub async fn get_music(path: String, root_path: String, range: Option<String>)->
     } else {
         Err(warp::reject())
     }
+}
+
+pub async fn access_media(path: String, media_mount_path: String, usb_media_port: u16)->Result<impl warp::Reply, warp::Rejection> {
+    println!("Accessing media device");
+    mount_device(&path, media_mount_path, usb_media_port).await;
+    Ok(warp::reply())
 }
     
 fn reject(err: std::io::Error)->warp::Rejection {

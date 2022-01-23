@@ -62,7 +62,7 @@ Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
-Environment=MOUNT_PATH=/media/video
+Environment=MEDIA_MOUNT_PATH=/media/video
 Environment=USB_MEDIA_PORT=5
 Type=simple
 ExecStart=/home/uwe/server/home-server
@@ -236,7 +236,7 @@ export VIDEO_PATH=/media/video/videos
 
 ### NginX redirection
 
-// TODO: /etc/nginx/sites-available/default:
+// ## /etc/nginx/sites-available/default:
 // Items redirecting to nodejs
 // Install node.js as service
 
