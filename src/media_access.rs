@@ -1,6 +1,6 @@
 use std::{fs::{self, ReadDir}};
 
-use tokio::{process::Command};
+use tokio::{process::Command, time::{sleep, Duration}};
 
 pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_port: u16) {
 
@@ -33,7 +33,10 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
     
         power_on(usb_media_port).await;
         mount(&media_mount_path).await;
-        let res = access_first_file(media_path);
+        if !access_first_file(media_path) {
+            sleep(Duration::from_secs(2)).await;
+            mount(&media_mount_path).await;
+        }
 
         async fn power_on(usb_media_port: u16) {
             println!("Power on usb hub...");
@@ -50,18 +53,18 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
             }
         }
 
-        async fn mount(media_mount_path: &str) -> Option<()> {
+        async fn mount(media_mount_path: &str) -> bool {
             println!("Mounting media device...");
             match Command::new("mount")
             .arg(media_mount_path)
             .output().await {
                 Ok(output) => {
                     println!("Mounted {}", String::from_utf8(output.stdout).unwrap());
-                    Some(())
+                    true
                 },
                 Err(err) => {
                     println!("Could not mount: {err}");
-                    None
+                    false
                 }
             }
         }
