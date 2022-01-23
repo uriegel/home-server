@@ -66,7 +66,8 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and_then(simple_file_send);
 
     let route_static = 
-        dir("webroot")
+        warp::host::exact(&host_and_port) 
+        .and(dir("webroot"))
         .map(add_headers);
 
     let routes = 

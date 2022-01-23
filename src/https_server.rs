@@ -9,9 +9,10 @@ use crate::warp_utils::add_headers;
 
 pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -> bool {
 
-    let route_static = 
-        dir("webroot")
-        .map(add_headers);
+    // Basic Authorization
+    // let route_static = 
+    //     dir("webroot")
+    //     .map(add_headers);
 
     let request_filter = extract_request_data_filter();
     let fritz_proxy = warp::host::exact("fritz.uriegel.de")
@@ -25,7 +26,7 @@ pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -
             proxy_to_and_forward_response(pa, bp, uri, ps, m, proxy_headers, body)
         });
 
-    let routes = fritz_proxy.or(route_static);    
+    let routes = fritz_proxy; //.or(route_static);    
 
     let cert_file = lets_encrypt_dir.join("cert.pem");
     let key_file = lets_encrypt_dir.join("key.pem");

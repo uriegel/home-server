@@ -1,23 +1,25 @@
-body {
-    font-family: sans-serif;
+body { 
+    display: flex;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100vh;
+    margin: 0px;
+    background-color: black;
+    flex-direction: column;
 }
 
-.dropcontainer {
-    height: 50px;
-    margin-top: 10px;
+div {
+    flex-grow: 1;
     position: relative;
-    background-color: rgb(197, 255, 197);
 }
 
-.dropcontainer.drop {
-    background-color: lightyellow;
-}
-
-.dropcontainer>div {
+#video {
     position: absolute;
-}
-
-#progressBar, #progressBarVideo {
-    height: 100%;
-    background-color: greenyellow;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    max-height: 100%;
+    height: 100vh;
+    margin: 0 auto;        
 }
