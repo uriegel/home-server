@@ -10,9 +10,16 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
     }
 
     fn access_first_file(media_path: &str) -> bool {
-        fn get_first_file(read_dir: ReadDir) -> Option<bool> {
-            //file_exists
-            Some(false)
+        fn get_first_file(mut read_dir: ReadDir) -> Option<bool> {
+            if let Some(val) = 
+                read_dir
+                .next()
+                .and_then(|file|{
+                    file.and_then(|file| { 
+                        Ok(file.path().exists())
+                    }).ok()
+                }) { Some(true)}
+            else { None }
         }
 
         fs::read_dir(media_path)
@@ -28,7 +35,7 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
         let res = access_first_file(media_path);
 
         async fn power_on(usb_media_port: u16) {
-            Console.WriteLine("Power on usb hub...");
+            println!("Power on usb hub...");
             match Command::new("uhubctl")
             .arg("-p")
             .arg(format!("{usb_media_port}"))
@@ -42,7 +49,22 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
             }
         }
 
-        // }
+        async fn mount(media_mount_path: &str) -> Option<()> {
+            println!("Mounting media device...");
+            match Command::new("mount")
+            .arg(media_mount_path)
+            .output().await {
+                Ok(output) => {
+                    println!("Mounted {}", String::from_utf8(output.stdout).unwrap());
+                    Some(())
+                },
+                Err(err) => {
+                    println!("Could not mount: {err}");
+                    None
+                }
+            }
+        }
+// }
         // catch(Exception e)
         // {
         //     await Task.Delay(2000);
@@ -50,6 +72,7 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
         //     Console.WriteLine($"mount executed (2nd time) {text}");
         // }
     }
+
 }
 
 // TODO Check if file is accessed: lsof -t /home/uwe/Videos/Vietnam1.mp4 | wc -w
