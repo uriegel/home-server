@@ -1,6 +1,6 @@
-use std::{fs::{self, ReadDir}, process::Output};
+use std::{fs::{self, ReadDir}};
 
-use tokio::{process::Command, io};
+use tokio::{process::Command};
 
 pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_port: u16) {
 
@@ -18,7 +18,7 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
                     file.and_then(|file| { 
                         Ok(file.path().exists())
                     }).ok()
-                }) { Some(true)}
+                }) { Some(val)}
             else { None }
         }
 
@@ -32,6 +32,7 @@ pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_
         println!("mounting {media_path} to access {media_mount_path} port {usb_media_port}");
     
         power_on(usb_media_port).await;
+        mount(&media_mount_path).await;
         let res = access_first_file(media_path);
 
         async fn power_on(usb_media_port: u16) {
