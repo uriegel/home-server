@@ -28,6 +28,7 @@ fn main() {
 
     let usb_media_port_str = env::var("USB_MEDIA_PORT").or::<String>(Ok("0".to_string())).unwrap();
     let usb_media_port = usb_media_port_str.parse::<u16>().expect("Could not parse usb media port");
+    println!("usb media port: {usb_media_port}");
 
     let video_path = env::var("VIDEO_PATH").expect("Please specify VIDEO_PATH");
     println!("video path: {video_path}");
