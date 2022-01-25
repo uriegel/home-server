@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Home server started");
 
-    let mut signals = Signals::new(&[SIGINT, SIGTERM]).unwrap();
+    let mut signals = Signals::new(&[SIGINT, SIGTERM])?;
     let shutdown_listener = thread::spawn(move || {
         for sig in signals.forever() {
             println!("Received signal {sig:?}");
