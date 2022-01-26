@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use tokio::runtime::Runtime;
 use warp::{serve, path::{tail, Tail}, Filter, fs::dir};
 use warp_range::filter_range;
@@ -9,14 +7,13 @@ use crate::{
         simple_file_send, add_headers
     }, requests::{
         get_video_list, get_video, get_directory, get_music, access_media
-    }
+    }, config::Config
 };
 
-pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, host: &str, usb_media_port: u16, 
-        media_mount_path: &str, video_path: &str, music_path: &str) {
+pub fn start_http_server(rt: &Runtime, config: Config) {
 
-    let host_and_port = format!("{}:{port}", host);
-    let video_path_clone = video_path.to_string();
+    let host_and_port = format!("{}:{}", config.intranet_host, config.port);
+    let video_path_clone = config.video_path.to_string();
     let route_get_video_list = 
         warp::host::exact(&host_and_port)
         .and(warp::path("media"))
@@ -26,7 +23,7 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(warp::any().map(move || { video_path_clone.to_string() }))
         .and_then(get_video_list);    
 
-    let video_path_clone = video_path.to_string();        
+    let video_path_clone = config.video_path.to_string();        
     let route_get_video =
         warp::host::exact(&host_and_port) 
         .and(warp::path("media"))
@@ -36,7 +33,7 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(filter_range())
         .and_then(get_video);
 
-    let music_path_clone = music_path.to_string();
+    let music_path_clone = config.music_path.to_string();
     let route_music_directories =
         warp::host::exact(&host_and_port) 
         .and(warp::path("media"))
@@ -45,7 +42,7 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(warp::any().map(move || { music_path_clone.to_string() }))
         .and_then(get_directory);        
 
-    let music_path_clone = music_path.to_string();            
+    let music_path_clone = config.music_path.to_string();            
     let route_music =
         warp::host::exact(&host_and_port) 
         .and(warp::path("media"))
@@ -55,18 +52,18 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
         .and(filter_range())
         .and_then(get_music);
             
-    let video_path_clone = video_path.to_string();        
-    let media_mount_path_clone = media_mount_path.to_string();        
+    let video_path_clone = config.video_path.to_string();        
+    let media_mount_path_clone = config.media_mount_path.to_string();        
     let route_media_access =
         warp::host::exact(&host_and_port) 
         .and(warp::path("media"))
         .and(warp::path("access"))
         .and(warp::any().map(move || { video_path_clone.to_string() }))
         .and(warp::any().map(move || { media_mount_path_clone.to_string() }))
-        .and(warp::any().map(move || { usb_media_port }))
+        .and(warp::any().map(move || { config.usb_media_port.clone() }))
         .and_then(access_media);
 
-    let acme_challenge = lets_encrypt_dir.join("acme-challenge");
+    let acme_challenge = config.lets_encrypt_dir.join("acme-challenge");
     let route_acme = 
         warp::path(".well-known")
         .and(warp::path("acme-challenge"))
@@ -93,11 +90,11 @@ pub fn start_http_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf, ho
 
     rt.spawn(async move {
         serve(routes)
-            .run(([0, 0, 0, 0], port))
+            .run(([0, 0, 0, 0], config.port))
             .await;         
     });
 
-    println!("http server started on {port}");        
+    println!("http server started on {}", config.port);        
 }
 
 

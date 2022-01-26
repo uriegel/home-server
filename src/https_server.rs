@@ -1,11 +1,13 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use hyper::{header::HOST, HeaderMap};
 use tokio::runtime::Runtime;
 use warp::{serve, Filter};
 use warp_reverse_proxy::{proxy_to_and_forward_response, extract_request_data_filter};
 
-pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -> bool {
+use crate::config::Config;
+
+pub fn start_https_server(rt: &Runtime, config: Config) -> bool {
 
     // Basic Authorization
     // let route_static = 
@@ -26,8 +28,8 @@ pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -
 
     let routes = fritz_proxy; //.or(route_static);    
 
-    let cert_file = lets_encrypt_dir.join("cert.pem");
-    let key_file = lets_encrypt_dir.join("key.pem");
+    let cert_file = config.lets_encrypt_dir.join("cert.pem");
+    let key_file = config.lets_encrypt_dir.join("key.pem");
 
     if Path::new(&cert_file).exists() && Path::new(&key_file).exists() {
         rt.spawn(async move {
@@ -35,11 +37,11 @@ pub fn start_https_server(rt: &Runtime, port: u16, lets_encrypt_dir: &PathBuf) -
             .tls()
             .cert_path(cert_file)
             .key_path(key_file)
-            .run(([0, 0, 0, 0], port))
+            .run(([0, 0, 0, 0], config.tls_port))
             .await;         
         });
 
-        println!("https server started on {port}");        
+        println!("https server started on {}", config.tls_port);        
         true
     } else {
         println!("https server could not be started, no certificate");        
