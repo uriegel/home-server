@@ -4,9 +4,9 @@ use hyper::{Response, Body};
 use lexical_sort::natural_lexical_cmp;
 use serde::Serialize;
 use warp::Reply;
-use warp_range::get_range;
+use warp_range::get_range_with_cb;
 
-use crate::media_access::mount_device;
+use crate::media_access::{mount_device, self};
 
 #[derive(Serialize)]
 pub struct VideoList {
@@ -45,6 +45,7 @@ impl Reply for DirectoryList {
 
 pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
     let entries = fs::read_dir(&path).map_err(reject)?;
+    media_access::i_am_alive();
     let mut files: Vec<String> = entries.filter_map(|n| {
         n.ok().and_then(|n| {
             let is_file = n.metadata().ok().and_then(|n|{
@@ -61,12 +62,15 @@ pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
 
 pub async fn get_video(file: String, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
     let video = get_video_file(&path, file)?;
-    get_range(range, &video.path, &video.media_type).await
+    get_range_with_cb(range, &video.path, &video.media_type, |_| { 
+        media_access::i_am_alive();
+     }).await
 }
 
 pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
     let path = percent_encoding::percent_decode(path.as_bytes()).decode_utf8().unwrap().replace("+", " ");
     let path = &(root_path + "/" + &path);
+    media_access::i_am_alive();
     if path.ends_with("mp3") {
         Err(warp::reject())
     } else {
@@ -85,7 +89,9 @@ pub async fn get_music(path: String, root_path: String, range: Option<String>)->
     let path = &(root_path.clone() + "/" + &path);
     if path.ends_with("mp3") {
         let range_file = get_music_file(&root_path, path.clone());
-        get_range(range, &range_file.path, &range_file.media_type).await
+        get_range_with_cb(range, &range_file.path, &range_file.media_type, |_|{ 
+            media_access::i_am_alive();
+         }).await
     } else {
         Err(warp::reject())
     }

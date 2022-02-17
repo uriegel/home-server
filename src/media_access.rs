@@ -2,6 +2,10 @@ use std::{fs::{self, ReadDir}};
 
 use tokio::{process::Command, time::{sleep, Duration}};
 
+pub fn i_am_alive() {
+
+}
+
 pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_port: u16) {
 
     match access_first_file(media_path) {
