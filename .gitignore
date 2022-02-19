@@ -1,5 +1,4 @@
 obj
 bin
-/target
-Cargo.lock
 
+.ionide/symbolCache.db

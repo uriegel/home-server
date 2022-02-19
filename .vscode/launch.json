@@ -5,20 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb",
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
             "request": "launch",
-            "name": "Debug executable 'home-server'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=home-server",
-                    "--package=home-server"
-                ],
-                "filter": {
-                    "name": "home-server",
-                    "kind": "bin"
-                }
-            },
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/net6.0/server.dll",
+            "stopAtEntry": false,
+            "console": "internalConsole",
             "env": {
                 "VIDEO_PATH": "/home/uwe/Videos",
                 "MUSIC_PATH": "/home/uwe/Musik",
