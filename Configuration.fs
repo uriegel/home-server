@@ -15,10 +15,8 @@ let httpPort () = getPortFromEnvironment "SERVER_PORT" |> Option.defaultValue 80
 let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
 
 let getLetsEncryptDirectory () = Utils.getEnvironmentVariable "LETS_ENCRYPT_DIR"
-let appendCertFile certFile = Utils.pathCombine certFile
-
-let makeCertFileName certFile = getLetsEncryptDirectory >=> Utils.pathCombine certFile // |> Option.defaultValue ""
-let makeCertificatePath = makeCertFileName "cert.pem" //|> Option.defaultValue ""
+let makeCertFileName certFile = getLetsEncryptDirectory >=> Utils.pathCombine certFile 
+let makeCertificatePath = makeCertFileName "cert.pem" 
 let makeKeyPath = makeCertFileName "key.pem"
 let getCertificate () = makeCertificatePath ()
 let getKey () = makeKeyPath () 
