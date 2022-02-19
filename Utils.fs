@@ -10,11 +10,9 @@ module OptionFish =
 
 let exceptionToOption func =
     try
-        let res = func ()
-        if res <> null then
-            Some(res) 
-        else 
-            None
+        match func () with
+        | res when res <> null -> Some(res) 
+        | _ -> None
     with
     | _ -> None
 
