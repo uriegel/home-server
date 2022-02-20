@@ -2,6 +2,8 @@ open Giraffe
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
+open System.Text.Json
+open System.Text.Json.Serialization
 
 open Logging
 open Routes
@@ -9,7 +11,12 @@ open Routes
 printfn "Launching home server..."
 
 let configureServices (services : IServiceCollection) = 
-    services.AddGiraffe()
+    let jsonOptions = JsonSerializerOptions()
+    jsonOptions.Converters.Add(JsonFSharpConverter())
+    services
+        .AddGiraffe()
+        .AddSingleton(jsonOptions) 
+        .AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
     |> ignore
 
 let webHostBuilder (webHostBuilder: IWebHostBuilder) = 

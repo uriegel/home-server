@@ -14,5 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Giraffe" Version="6.0.0-alpha-2" />
+    <PackageReference Include="FSharp.SystemTextJson" Version="0.17.4" />
   </ItemGroup>
 </Project>

@@ -8,6 +8,12 @@ open System.Threading.Tasks
 open Configuration
 open Requests
 
+type Msg = {
+    Nachricht: string
+    Nummer: int
+    Versuche: int option
+}
+
 let configureRoutes (app : IApplicationBuilder) = 
     let skip : HttpFuncResult = Task.FromResult None
 
@@ -34,6 +40,7 @@ let configureRoutes (app : IApplicationBuilder) =
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [
                     route "/ping" >=> show ()
+                    route "/json" >=> json { Nachricht = "Guten Tag"; Nummer = 9865; Versuche = None }
                     route "/"     >=> htmlFile "webroot/index.html" ]
             secureHost "fritz.uriegel.de" >=> text "Zur Fritzbox"
             allHosts >=> text "Falscher Host"
