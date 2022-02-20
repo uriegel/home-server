@@ -27,9 +27,13 @@ let secureHost host (next: HttpFunc) (ctx: HttpContext) =
 let allHosts (next: HttpFunc) (ctx: HttpContext) =
     next ctx
 
+let test () =
+    printfn "Test"
+    "illmatic" 
+
 let routes =
     choose [
-        host "illmatic" >=>
+        host <| test () >=>
             choose [
                 route "/ping" >=> show ()
                 route "/"     >=> htmlFile "webroot/index.html" ]

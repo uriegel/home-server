@@ -3,6 +3,7 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 
+open Logging
 open Routes
 
 printfn "Launching home server..."
@@ -14,6 +15,7 @@ let webHostBuilder (webHostBuilder: IWebHostBuilder) =
         .ConfigureKestrel(Configuration.configureKestrel)
         .Configure(configureRoutes)
         .ConfigureServices(configureServices)
+        .ConfigureLogging(configureLogging)
         |> ignore
 
 Host.CreateDefaultBuilder()
