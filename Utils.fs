@@ -2,11 +2,19 @@ module Utils
 
 open System.Security.Cryptography.X509Certificates
 
-module OptionFish = 
-    let (>=>) switch1 switch2 x =
-        match switch1 x with
-        | Some s -> switch2 s
-        | None   -> None
+type Response<'a> = 
+    | Ok  of 'a
+    | Err of System.Exception
+
+let (?>=>) switch1 switch2 x =
+    match switch1 x with
+    | Some s -> switch2 s
+    | None   -> None
+
+let (!>=>) switch1 switch2 x =
+    match switch1 x with
+    | Ok s -> switch2 s
+    | Err e   -> Err e
 
 let switch f x =
     f x |> Some 
@@ -44,6 +52,12 @@ let exceptionToOption func =
     with
     | _ -> None
 
+let exceptionToResponse func =
+    try
+        Ok(func ()) 
+    with
+    | e -> Err(e)
+
 let parseInt (str: string) = 
     match System.Int32.TryParse str with
     | true,int -> Some int
@@ -52,13 +66,11 @@ let parseInt (str: string) =
 let retrieveEnvironmentVariable key =
     exceptionToOption (fun () -> System.Environment.GetEnvironmentVariable key)  
 
-open OptionFish
-
 let getEnvironmentVariableLogged =
     let logToConsole (key, value) = printfn "Reading environment %s: %s" key value
     (withInputVar retrieveEnvironmentVariable) 
-        >=> switch (tee logToConsole) 
-        >=> omitInputVar
+        ?>=> switch (tee logToConsole) 
+        ?>=> omitInputVar
 
 let getEnvironmentVariable = memoize getEnvironmentVariableLogged
 
@@ -68,5 +80,9 @@ let getCertificateFromFile certPath keyPath =
 let pathCombine subPath path =
     exceptionToOption (fun () -> System.IO.Path.Combine (path, subPath))
 
+let getFiles path = 
+    exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetFiles())
 
+let getDirectories path = 
+    exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
 
