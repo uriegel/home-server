@@ -8,7 +8,9 @@ open Routes
 
 printfn "Launching home server..."
 
-let configureServices (services : IServiceCollection) = services.AddGiraffe() |> ignore
+let configureServices (services : IServiceCollection) = 
+    services.AddGiraffe()
+    |> ignore
 
 let webHostBuilder (webHostBuilder: IWebHostBuilder) = 
     webHostBuilder

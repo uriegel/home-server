@@ -20,6 +20,8 @@ let getKey () = makeKeyPath ()
 let getCertValuePair () = OptionFrom2Options (getCertificate ()) (getKey ())
 let getCertificateFromFile = getCertValuePair >=> fun (a, b) -> getCertificateFromFile a b
 
+let getIntranetHost () = getEnvironmentVariable "INTRANET_HOST"
+
 let httpsOptions (options: HttpsConnectionAdapterOptions) = 
     options.ServerCertificate <- getCertificateFromFile () |> Option.defaultValue null
 

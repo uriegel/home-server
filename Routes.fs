@@ -5,6 +5,7 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Http
 open System.Threading.Tasks
 
+open Configuration
 open Requests
 
 let skip : HttpFuncResult = Task.FromResult None
@@ -27,13 +28,9 @@ let secureHost host (next: HttpFunc) (ctx: HttpContext) =
 let allHosts (next: HttpFunc) (ctx: HttpContext) =
     next ctx
 
-let test () =
-    printfn "Test"
-    "illmatic" 
-
 let routes =
     choose [
-        host <| test () >=>
+        host <| (getIntranetHost () |> Option.defaultValue "") >=>
             choose [
                 route "/ping" >=> show ()
                 route "/"     >=> htmlFile "webroot/index.html" ]
