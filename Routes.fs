@@ -12,6 +12,7 @@ type Msg = {
     Nachricht: string
     Nummer: int
     Versuche: int option
+    KeineVersuche: string
 }
 
 let configureRoutes (app : IApplicationBuilder) = 
@@ -40,7 +41,7 @@ let configureRoutes (app : IApplicationBuilder) =
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [
                     route "/ping" >=> show ()
-                    route "/json" >=> json { Nachricht = "Guten Tag"; Nummer = 9865; Versuche = None }
+                    route "/json" >=> json { Nachricht = "Guten Tag"; Nummer = 9865; Versuche = Some(99); KeineVersuche = null }
                     route "/"     >=> htmlFile "webroot/index.html" ]
             secureHost "fritz.uriegel.de" >=> text "Zur Fritzbox"
             allHosts >=> text "Falscher Host"

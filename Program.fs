@@ -12,6 +12,7 @@ printfn "Launching home server..."
 
 let configureServices (services : IServiceCollection) = 
     let jsonOptions = JsonSerializerOptions()
+    //jsonOptions.DefaultIgnoreCondition <- JsonIgnoreCondition.WhenWritingNull
     jsonOptions.Converters.Add(JsonFSharpConverter())
     services
         .AddGiraffe()
