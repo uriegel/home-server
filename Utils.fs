@@ -8,6 +8,11 @@ module OptionFish =
         | Some s -> switch2 s
         | None -> None
 
+let OptionFrom2Options a b = 
+    match a, b with
+    | Some a, Some b -> Some (a, b)
+    | _ -> None
+
 let exceptionToOption func =
     try
         match func () with

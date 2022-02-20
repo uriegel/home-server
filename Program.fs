@@ -1,8 +1,8 @@
 open Giraffe
-open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
+
 open Routes
 
 printfn "Launching home server..."
