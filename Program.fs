@@ -12,12 +12,13 @@ printfn "Launching home server..."
 
 let configureServices (services : IServiceCollection) = 
     let jsonOptions = JsonSerializerOptions()
+    // TODO FSharpUtils
     //jsonOptions.DefaultIgnoreCondition <- JsonIgnoreCondition.WhenWritingNull
-    jsonOptions.Converters.Add(JsonFSharpConverter())
+//    jsonOptions.Converters.Add(JsonFSharpConverter())
     services
         .AddGiraffe()
-        .AddSingleton(jsonOptions) 
-        .AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
+        //.AddSingleton(jsonOptions) 
+        //.AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
     |> ignore
 
 let webHostBuilder (webHostBuilder: IWebHostBuilder) = 

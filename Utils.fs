@@ -6,18 +6,21 @@ type Response<'a> =
     | Ok  of 'a
     | Err of System.Exception
 
-let (?>=>) switch1 switch2 x =
+let (>=>?) switch1 switch2 x =
     match switch1 x with
     | Some s -> switch2 s
     | None   -> None
 
-let (!>=>) switch1 switch2 x =
+let (>=>!) switch1 switch2 x =
     match switch1 x with
     | Ok s -> switch2 s
     | Err e   -> Err e
 
 let switch f x =
     f x |> Some 
+
+let switchResponse f x =
+    f x |> Ok 
 
 let tee f x =
     f x |> ignore
@@ -69,8 +72,8 @@ let retrieveEnvironmentVariable key =
 let getEnvironmentVariableLogged =
     let logToConsole (key, value) = printfn "Reading environment %s: %s" key value
     (withInputVar retrieveEnvironmentVariable) 
-        ?>=> switch (tee logToConsole) 
-        ?>=> omitInputVar
+        >=>? switch (tee logToConsole) 
+        >=>? omitInputVar
 
 let getEnvironmentVariable = memoize getEnvironmentVariableLogged
 
@@ -86,3 +89,6 @@ let getFiles path =
 let getDirectories path = 
     exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
 
+// TODO from FSharpUtils
+let icompare a b = 
+    System.String.Compare (a, b, System.StringComparison.CurrentCultureIgnoreCase)
