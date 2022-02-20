@@ -5,6 +5,8 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Http
 open System.Threading.Tasks
 
+open Requests
+
 let skip : HttpFuncResult = Task.FromResult None
 
 let host (host: string) (next: HttpFunc) (ctx: HttpContext) =
@@ -29,7 +31,7 @@ let routes =
     choose [
         host "illmatic" >=>
             choose [
-                route "/ping" >=> text "pong"
+                route "/ping" >=> show ()
                 route "/"     >=> htmlFile "webroot/index.html" ]
         secureHost "fritz.uriegel.de" >=> text "Zur Fritzbox"
         allHosts >=> text "Falscher Host"
