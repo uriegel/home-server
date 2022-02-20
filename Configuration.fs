@@ -7,11 +7,11 @@ open Microsoft.AspNetCore.Server.Kestrel.Https
 open Utils
 open Utils.OptionFish
 
-let getPortFromEnvironment = getEnvironmentVariableLogged >=> parseInt 
+let getPortFromEnvironment = getEnvironmentVariable >=> parseInt 
 let httpPort () = getPortFromEnvironment "SERVER_PORT" |> Option.defaultValue 80
 let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
 
-let getLetsEncryptDirectory () = getEnvironmentVariableLogged "LETS_ENCRYPT_DIR"
+let getLetsEncryptDirectory () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
 let makeCertFileName certFile = getLetsEncryptDirectory >=> pathCombine certFile 
 let makeCertificatePath = makeCertFileName "cert.pem" 
 let makeKeyPath = makeCertFileName "key.pem"

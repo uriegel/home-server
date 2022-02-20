@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/bin/Debug/net6.0/server.dll",
             "stopAtEntry": false,
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "env": {
                 "VIDEO_PATH": "/home/uwe/Videos",
                 "MUSIC_PATH": "/home/uwe/Musik",
