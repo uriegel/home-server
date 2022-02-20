@@ -6,8 +6,8 @@ open Microsoft.AspNetCore.Server.Kestrel.Https
 open Utils.OptionFish
 
 let OptionFrom2Options a b = 
-    match (a, b) with
-    | (Some a, Some b) -> Some (a, b)
+    match a, b with
+    | Some a, Some b -> Some (a, b)
     | _ -> None
 
 let getPortFromEnvironment = Utils.getEnvironmentVariable >=> Utils.parseInt 
