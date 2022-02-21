@@ -15,7 +15,7 @@ let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
     ctx.SetHttpHeader("Content-Type", contentType)
     next ctx
 
-let getVideoList () =
+let getVideoList path =
     let getName (fileInfo: FileInfo) = fileInfo.Name
     let getFileNames (fileList: FileInfo[]) = 
         fileList
@@ -23,7 +23,7 @@ let getVideoList () =
         |> Array.sortWith icompare
     let getList = getFiles >=>! switchResponse getFileNames
     
-    match getList "/home/uwe/Videos" with
+    match getList path with
     | Ok value -> json { Files = value }
     // TODO send error html and log error
     | Err e    -> text "No output"

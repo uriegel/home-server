@@ -37,7 +37,7 @@ let configureRoutes (app : IApplicationBuilder) =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
-                    route "/media/video/list" >=> getVideoList ()
+                    route "/media/video/list" >=> getVideoList videoPath
                     routef "/media/video/%s" <| httpHandlerParam getVideo
                     route "/"                 >=> htmlFile "webroot/index.html" 
                 ]       
