@@ -1,13 +1,19 @@
 module Requests
 
 open Giraffe
+open Microsoft.AspNetCore.Http
 open System.IO
 
+open Configuration
 open Utils
 
 type Files  = {
     Files: string[]    
 }
+
+let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
+    ctx.SetHttpHeader("Content-Type", contentType)
+    next ctx
 
 let getVideoList () =
     let getName (fileInfo: FileInfo) = fileInfo.Name
@@ -22,10 +28,7 @@ let getVideoList () =
     // TODO send error html and log error
     | Err e    -> text "No output"
 
-let streamVideo (file: string): HttpHandler =
-    let path = sprintf "/home/uwe/Videos/%s.mp4" file
-    (fun () -> streamFile true path None None)()
-    
-     
-        
-        
+let getVideoFile path file = 
+    let video = sprintf "%s/%s.mp4" path file
+    setContentType "video/mp4" >=> streamFile true video None None
+

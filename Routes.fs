@@ -7,6 +7,7 @@ open System.Threading.Tasks
 
 open Configuration
 open Requests
+open Utils
 
 let configureRoutes (app : IApplicationBuilder) = 
     let skip : HttpFuncResult = Task.FromResult None
@@ -28,13 +29,16 @@ let configureRoutes (app : IApplicationBuilder) =
 
     let allHosts (next: HttpFunc) (ctx: HttpContext) =
         next ctx
-    
+
+    let videoPath = getVideoPath () |> Option.defaultValue ""
+    let getVideo =  getVideoFile videoPath
+
     let routes =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
                     route "/media/video/list" >=> getVideoList ()
-                    routef "/media/video/%s" streamVideo 
+                    routef "/media/video/%s" <| httpHandlerParam getVideo
                     route "/"                 >=> htmlFile "webroot/index.html" 
                 ]       
             secureHost "fritz.uriegel.de"     >=> text "Zur Fritzbox"
@@ -42,3 +46,4 @@ let configureRoutes (app : IApplicationBuilder) =
         ]
     
     app.UseGiraffe routes      
+    

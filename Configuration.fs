@@ -7,6 +7,7 @@ open Microsoft.AspNetCore.Server.Kestrel.Https
 open Utils
 
 let getIntranetHost () = getEnvironmentVariable "INTRANET_HOST"
+let getVideoPath    () = getEnvironmentVariable "VIDEO_PATH"
 
 let configureKestrel (options: KestrelServerOptions) = 
     let getCertificateFromFile = 
@@ -23,8 +24,8 @@ let configureKestrel (options: KestrelServerOptions) =
         options.ServerCertificate <- getCertificateFromFile () |> Option.defaultValue null
     let httpsListenOptions (options: ListenOptions) = options.UseHttps(httpsOptions)|> ignore
     let getPortFromEnvironment = getEnvironmentVariable >=>? parseInt 
-    let httpPort () = getPortFromEnvironment "SERVER_PORT" |> Option.defaultValue 80
+    let httpPort  () = getPortFromEnvironment "SERVER_PORT"     |> Option.defaultValue 80
     let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
 
     options.ListenAnyIP(httpPort ())
-    options.ListenAnyIP(httpsPort (), httpsListenOptions)
+    options.ListenAnyIP(httpsPort (), httpsListenOptions)   

@@ -1,5 +1,6 @@
 module Utils
 
+open Giraffe
 open System.Security.Cryptography.X509Certificates
 
 type Response<'a> = 
@@ -90,3 +91,6 @@ let getDirectories path =
 // TODO from FSharpUtils
 let icompare a b = 
     System.String.Compare (a, b, System.StringComparison.CurrentCultureIgnoreCase)
+
+// TODO Giraffe
+let httpHandlerParam httpHandler param: HttpHandler = (fun () -> httpHandler(param))()
