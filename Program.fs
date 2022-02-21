@@ -3,8 +3,7 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open System.Text.Json
-open System.Text.Json.Serialization
-
+    
 open Logging
 open Routes
 

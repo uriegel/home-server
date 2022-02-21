@@ -61,15 +61,15 @@ let exceptionToResponse func =
 
 let parseInt (str: string) = 
     match System.Int32.TryParse str with
-    | true,int -> Some int
-    | _        -> None
+    | true, int -> Some int
+    | _         -> None
 
 let retrieveEnvironmentVariable key =
     exceptionToOption (fun () -> System.Environment.GetEnvironmentVariable key)  
 
 let getEnvironmentVariableLogged =
     let logToConsole (key, value) = printfn "Reading environment %s: %s" key value
-    (withInputVar retrieveEnvironmentVariable) 
+    withInputVar retrieveEnvironmentVariable 
         >=>? switch (tee logToConsole) 
         >=>? omitInputVar
 
