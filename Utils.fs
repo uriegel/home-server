@@ -88,6 +88,11 @@ let getFiles path =
 let getDirectories path = 
     exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
 
+let existsFile file = System.IO.File.Exists file    
+
+let getExistingFile file = 
+    if existsFile file then Some file else None 
+
 // TODO from FSharpUtils
 let icompare a b = 
     System.String.Compare (a, b, System.StringComparison.CurrentCultureIgnoreCase)

@@ -38,7 +38,7 @@ let configureRoutes (app : IApplicationBuilder) =
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
                     route "/media/video/list" >=> getVideoList videoPath
-                    routef "/media/video/%s" <| httpHandlerParam getVideo
+                    routef "/media/video/%s"   <| httpHandlerParam getVideo
                     route "/"                 >=> htmlFile "webroot/index.html" 
                 ]       
             secureHost "fritz.uriegel.de"     >=> text "Zur Fritzbox"

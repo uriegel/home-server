@@ -29,6 +29,8 @@ let getVideoList path =
     | Err e    -> text "No output"
 
 let getVideoFile path file = 
-    let video = sprintf "%s/%s.mp4" path file
+    let getMp4File file = sprintf "%s/%s.mp4" path file
+    let getMkvFile file = sprintf "%s/%s.mkv" path file
+    let video = getExistingFile <| getMp4File file |> Option.defaultValue (getMkvFile file)
     setContentType "video/mp4" >=> streamFile true video None None
 
