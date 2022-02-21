@@ -11,11 +11,11 @@ type Files  = {
 
 let getVideoList () =
     let getName (fileInfo: FileInfo) = fileInfo.Name
-    let getFileNames (fileList: FileInfo[]) = Ok(
+    let getFileNames (fileList: FileInfo[]) = 
         fileList
         |> Array.map getName
-        |> Array.sortWith icompare)
-    let getList = getFiles >=>! getFileNames
+        |> Array.sortWith icompare
+    let getList = getFiles >=>! switchResponse getFileNames
     
     match getList "/home/uwe/Videos" with
     | Ok value -> json { Files = value }

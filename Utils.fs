@@ -16,11 +16,9 @@ let (>=>!) switch1 switch2 x =
     | Ok s -> switch2 s
     | Err e   -> Err e
 
-let switch f x =
-    f x |> Some 
+let switch f x = f x |> Some 
 
-let switchResponse f x =
-    f x |> Ok 
+let switchResponse f x = f x |> Ok 
 
 let tee f x =
     f x |> ignore
