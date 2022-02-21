@@ -33,12 +33,12 @@ let configureRoutes (app : IApplicationBuilder) =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
-                    route "/media/video/list"     >=> getVideoList ()
-                    route "/media/video/Vietnam1" >=> streamVideo ()
-                    route "/"                     >=> htmlFile "webroot/index.html" 
+                    route "/media/video/list" >=> getVideoList ()
+                    routef "/media/video/%s" streamVideo 
+                    route "/"                 >=> htmlFile "webroot/index.html" 
                 ]       
-            secureHost "fritz.uriegel.de"         >=> text "Zur Fritzbox"
-            allHosts                              >=> text "Falscher Host"
+            secureHost "fritz.uriegel.de"     >=> text "Zur Fritzbox"
+            allHosts                          >=> text "Falscher Host"
         ]
     
     app.UseGiraffe routes      
