@@ -22,3 +22,5 @@ let getVideoList () =
     // TODO send error html and log error
     | Err e    -> text "No output"
 
+let streamVideo () =
+    streamFile true "/home/uwe/Videos/Vietnam1.mp4" None None
