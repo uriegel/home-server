@@ -34,3 +34,15 @@ let getVideoFile path file =
     let video = getExistingFile <| getMp4File file |> Option.defaultValue (getMkvFile file)
     setContentType "video/mp4" >=> streamFile true video None None
 
+let getMusicList path =
+    let getName (fileInfo: DirectoryInfo) = fileInfo.Name
+    let getDirNames (fileList: DirectoryInfo[]) = 
+        fileList
+        |> Array.map getName
+        |> Array.sortWith icompare
+    let getList = getDirectories >=>! switchResponse getDirNames
+    
+    match getList path with
+    | Ok value -> json { Files = value }
+    // TODO send error html and log error
+    | Err e    -> text "No output"

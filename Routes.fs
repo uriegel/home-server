@@ -31,18 +31,31 @@ let configureRoutes (app : IApplicationBuilder) =
         next ctx
 
     let videoPath = getVideoPath () |> Option.defaultValue ""
+    let musicPath = getMusicPath () |> Option.defaultValue ""
     let getVideo =  getVideoFile videoPath
+
+
+    let routefu () (routeHandler : string -> HttpHandler) : HttpHandler =
+        fun (next : HttpFunc) (ctx : HttpContext) ->
+            Some (SubRouting.getNextPartOfPath ctx)
+            |> function
+                | None      -> skipPipeline
+                | Some args -> routeHandler args next ctx    
 
     let routes =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
-                    route "/media/video/list" >=> getVideoList videoPath
-                    routef "/media/video/%s"   <| httpHandlerParam getVideo
-                    route "/"                 >=> htmlFile "webroot/index.html" 
+                    route  "/media/video/list"     >=> warbler (fun _ -> getVideoList videoPath)
+                    routef "/media/video/%s"        <| httpHandlerParam getVideo
+                    subRoute "/media/music"
+                        (choose [
+                            routefu ()              <| httpHandlerParam getMusicList 
+                        ])                      
+                    route  "/"                     >=> htmlFile "webroot/index.html" 
                 ]       
-            secureHost "fritz.uriegel.de"     >=> text "Zur Fritzbox"
-            allHosts                          >=> text "Falscher Host"
+            secureHost "fritz.uriegel.de"          >=> text "Zur Fritzbox"
+            allHosts                               >=> text "Falscher Host"
         ]
     
     app.UseGiraffe routes      

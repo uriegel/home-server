@@ -8,6 +8,7 @@ open Utils
 
 let getIntranetHost () = getEnvironmentVariable "INTRANET_HOST"
 let getVideoPath    () = getEnvironmentVariable "VIDEO_PATH"
+let getMusicPath    () = getEnvironmentVariable "MUSIC_PATH"
 
 let configureKestrel (options: KestrelServerOptions) = 
     let getCertificateFromFile = 
