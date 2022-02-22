@@ -11,6 +11,8 @@ type Files  = {
     Files: string[]    
 }
 
+type DirectoryEmptyException() = inherit System.Exception()
+
 let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
     ctx.SetHttpHeader("Content-Type", contentType)
     next ctx
@@ -34,15 +36,23 @@ let getVideoFile path file =
     let video = getExistingFile <| getMp4File file |> Option.defaultValue (getMkvFile file)
     setContentType "video/mp4" >=> streamFile true video None None
 
-let getMusicList path =
+let getMusicList root path =
     let getName (fileInfo: DirectoryInfo) = fileInfo.Name
     let getDirNames (fileList: DirectoryInfo[]) = 
         fileList
         |> Array.map getName
         |> Array.sortWith icompare
-    let getList = getDirectories >=>! switchResponse getDirNames
-    
-    match getList path with
-    | Ok value -> json { Files = value }
+    let getArrayWhenNotEmpty e arr = if not (arr |> Array.isEmpty) then Ok(arr) else Err(e)
+    let getWhenDirectoryNotEmpty = getArrayWhenNotEmpty (DirectoryEmptyException ())
+    let getListFromPathParts = 
+        combinePath 
+        >=>! getDirectories 
+        >=>! switchResponse getDirNames
+        >=>! getWhenDirectoryNotEmpty
+
+    match getListFromPathParts [|root; path|] with
+    | Ok value                                         -> json { Files = value }
     // TODO send error html and log error
-    | Err e    -> text "No output"
+    | Err e when 
+        e.GetType () = typeof<DirectoryEmptyException> -> skip
+    | Err e                                            -> text "No output"

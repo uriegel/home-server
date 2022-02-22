@@ -34,14 +34,6 @@ let configureRoutes (app : IApplicationBuilder) =
     let musicPath = getMusicPath () |> Option.defaultValue ""
     let getVideo =  getVideoFile videoPath
 
-
-    let routefu () (routeHandler : string -> HttpHandler) : HttpHandler =
-        fun (next : HttpFunc) (ctx : HttpContext) ->
-            Some (SubRouting.getNextPartOfPath ctx)
-            |> function
-                | None      -> skipPipeline
-                | Some args -> routeHandler args next ctx    
-
     let routes =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
@@ -50,7 +42,7 @@ let configureRoutes (app : IApplicationBuilder) =
                     routef "/media/video/%s"        <| httpHandlerParam getVideo
                     subRoute "/media/music"
                         (choose [
-                            routefu ()              <| httpHandlerParam getMusicList 
+                            routePathes ()          <| httpHandlerParam (getMusicList musicPath)
                         ])                      
                     route  "/"                     >=> htmlFile "webroot/index.html" 
                 ]       

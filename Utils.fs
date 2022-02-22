@@ -1,6 +1,7 @@
 module Utils
 
 open Giraffe
+open Microsoft.AspNetCore.Http
 open System.Security.Cryptography.X509Certificates
 
 type Response<'a> = 
@@ -89,13 +90,21 @@ let getDirectories path =
     exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
 
 let existsFile file = System.IO.File.Exists file    
-
-let getExistingFile file = 
-    if existsFile file then Some file else None 
+let getExistingFile file = if existsFile file then Some file else None 
+let combinePath (pathes: string[]) = exceptionToResponse (fun () -> System.IO.Path.Combine pathes)
 
 // TODO from FSharpUtils
 let icompare a b = 
     System.String.Compare (a, b, System.StringComparison.CurrentCultureIgnoreCase)
 
 // TODO Giraffe
+let skip (_: HttpFunc) (__: HttpContext) = System.Threading.Tasks.Task.FromResult None
+
 let httpHandlerParam httpHandler param: HttpHandler = (fun () -> httpHandler(param))()
+
+let routePathes () (routeHandler : string -> HttpHandler) : HttpHandler =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        Some (SubRouting.getNextPartOfPath ctx)
+        |> function
+            | None      -> skipPipeline
+            | Some subpath -> routeHandler subpath[1..] next ctx    
