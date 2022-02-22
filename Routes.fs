@@ -47,7 +47,7 @@ let configureRoutes (app : IApplicationBuilder) =
                         ])                      
                     route  "/"                     >=> htmlFile "webroot/index.html" 
                 ]       
-            secureHost "fritz.uriegel.de"          >=> text "Zur Fritzbox"
+            secureHost "fritz.uriegel.de"          >=> ReverseProxy.handler 
             allHosts                               >=> text "Falscher Host"
         ]
     
