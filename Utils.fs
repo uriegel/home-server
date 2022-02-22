@@ -114,5 +114,5 @@ let routePathes () (routeHandler : string -> HttpHandler) : HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         Some (SubRouting.getNextPartOfPath ctx)
         |> function
-            | None      -> skipPipeline
             | Some subpath -> routeHandler subpath[1..] next ctx    
+            | None         -> skipPipeline
