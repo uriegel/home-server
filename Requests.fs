@@ -27,7 +27,7 @@ let getVideoList path =
     match getList path with
     | Ok value -> json { Files = value }
     // TODO send error html and log error
-    | Err e    -> text "No output"
+    | Err _    -> text "No output"
 
 let getVideoFile path file = 
     let getMp4File file = sprintf "%s/%s.mp4" path file
@@ -53,4 +53,10 @@ let getMusicList root path =
     | Ok value                                      -> json { Files = value }
     | Err e when e :? NotADirectoryException = true -> skip
     // TODO send error html and log error
-    | _                                         -> text "No output"
+    | _                                             -> text "No output"
+
+let getMusicFile root path =
+    match combinePath [| root; path |] with
+    | Ok path -> setContentType "audio/mp3" >=> streamFile true path None None
+    | Err _   -> text "No audio file" 
+    

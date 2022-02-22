@@ -43,6 +43,7 @@ let configureRoutes (app : IApplicationBuilder) =
                     subRoute "/media/music"
                         (choose [
                             routePathes ()          <| httpHandlerParam (getMusicList musicPath)
+                            routePathes ()          <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
                     route  "/"                     >=> htmlFile "webroot/index.html" 
                 ]       
