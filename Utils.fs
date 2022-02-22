@@ -89,9 +89,17 @@ let getFiles path =
 let getDirectories path = 
     exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
 
+let getFileSystemInfos path = 
+    let getAsInfo n = n :> System.IO.FileSystemInfo
+    let getFiles path = System.IO.DirectoryInfo(path).GetFiles() |> Array.map getAsInfo
+    let getDirectories path = System.IO.DirectoryInfo(path).GetDirectories() |> Array.map getAsInfo
+    let getFileSystemInfos path = Array.concat [|getFiles path; getDirectories path |] 
+    exceptionToResponse (fun () -> getFileSystemInfos path)
+
 let existsFile file = System.IO.File.Exists file    
 let getExistingFile file = if existsFile file then Some file else None 
 let combinePath (pathes: string[]) = exceptionToResponse (fun () -> System.IO.Path.Combine pathes)
+let isDirectory (path: string) = System.IO.Directory.Exists path
 
 // TODO from FSharpUtils
 let icompare a b = 

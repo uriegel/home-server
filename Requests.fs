@@ -4,14 +4,13 @@ open Giraffe
 open Microsoft.AspNetCore.Http
 open System.IO
 
-open Configuration
 open Utils
 
 type Files  = {
     Files: string[]    
 }
 
-type DirectoryEmptyException() = inherit System.Exception()
+type NotADirectoryException() = inherit System.Exception()
 
 let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
     ctx.SetHttpHeader("Content-Type", contentType)
@@ -37,22 +36,21 @@ let getVideoFile path file =
     setContentType "video/mp4" >=> streamFile true video None None
 
 let getMusicList root path =
-    let getName (fileInfo: DirectoryInfo) = fileInfo.Name
-    let getDirNames (fileList: DirectoryInfo[]) = 
+    let getName (fileInfo: FileSystemInfo) = fileInfo.Name
+    let getDirNames (fileList: FileSystemInfo[]) = 
         fileList
         |> Array.map getName
         |> Array.sortWith icompare
-    let getArrayWhenNotEmpty e arr = if not (arr |> Array.isEmpty) then Ok(arr) else Err(e)
-    let getWhenDirectoryNotEmpty = getArrayWhenNotEmpty (DirectoryEmptyException ())
+    
+    let checkDirectory path = if isDirectory path then Ok(path) else Err(NotADirectoryException())
     let getListFromPathParts = 
         combinePath 
-        >=>! getDirectories 
+        >=>! checkDirectory
+        >=>! getFileSystemInfos 
         >=>! switchResponse getDirNames
-        >=>! getWhenDirectoryNotEmpty
 
     match getListFromPathParts [|root; path|] with
-    | Ok value                                         -> json { Files = value }
+    | Ok value                                      -> json { Files = value }
+    | Err e when e :? NotADirectoryException = true -> skip
     // TODO send error html and log error
-    | Err e when 
-        e.GetType () = typeof<DirectoryEmptyException> -> skip
-    | Err e                                            -> text "No output"
+    | _                                         -> text "No output"
