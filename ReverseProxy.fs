@@ -56,7 +56,7 @@ let handler (next: HttpFunc) (ctx: HttpContext) =
 
             ctx.Response.Headers.Remove("transfer-encoding") |> ignore
 
-        let msg = createTargetMessage ()
+        use msg = createTargetMessage ()
         use! responseMessage = httpClient.SendAsync(msg, HttpCompletionOption.ResponseHeadersRead, ctx.RequestAborted) 
         copyFromTargetResponseHeaders responseMessage
         do! responseMessage.Content.CopyToAsync(ctx.Response.Body) 
