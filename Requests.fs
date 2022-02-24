@@ -1,5 +1,7 @@
 module Requests
 
+open FSharpTools
+open FSharpTools.Functional
 open Giraffe
 open Microsoft.AspNetCore.Http
 open System.IO
@@ -21,7 +23,7 @@ let getVideoList path =
     let getFileNames (fileList: FileInfo[]) = 
         fileList
         |> Array.map getName
-        |> Array.sortWith icompare
+        |> Array.sortWith String.icompare
     let getList = getFiles >=>! switchResponse getFileNames
     
     match getList path with
@@ -40,7 +42,7 @@ let getMusicList root path =
     let getDirNames (fileList: FileSystemInfo[]) = 
         fileList
         |> Array.map getName
-        |> Array.sortWith icompare
+        |> Array.sortWith String.icompare
     
     let checkDirectory path = if isDirectory path then Ok(path) else Err(NotADirectoryException())
     let getListFromPathParts = 

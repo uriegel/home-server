@@ -38,17 +38,17 @@ let configureRoutes (app : IApplicationBuilder) =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
-                    route  "/media/video/list"     >=> warbler (fun _ -> getVideoList videoPath)
-                    routef "/media/video/%s"        <| httpHandlerParam getVideo
+                    route  "/media/video/list" >=> warbler (fun _ -> getVideoList videoPath)
+                    routef "/media/video/%s"    <| httpHandlerParam getVideo
                     subRoute "/media/music"
                         (choose [
-                            routePathes ()          <| httpHandlerParam (getMusicList musicPath)
-                            routePathes ()          <| httpHandlerParam (getMusicFile musicPath)
+                            routePathes ()      <| httpHandlerParam (getMusicList musicPath)
+                            routePathes ()      <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
-                    route  "/"                     >=> htmlFile "webroot/index.html" 
+                    route  "/"                 >=> htmlFile "webroot/index.html" 
                 ]       
-            secureHost "fritz.uriegel.de"          >=> ReverseProxy.handler 
-            allHosts                               >=> text "Falscher Host"
+            secureHost "fritz.uriegel.de"      >=> ReverseProxy.handler 
+            allHosts                           >=> text "Falscher Host"
         ]
     
     app.UseGiraffe routes      

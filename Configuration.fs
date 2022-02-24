@@ -1,5 +1,6 @@
 module Configuration
 
+open FSharpTools.Functional
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Server.Kestrel.Core
 open Microsoft.AspNetCore.Server.Kestrel.Https
