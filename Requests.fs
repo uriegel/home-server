@@ -31,7 +31,7 @@ let getVideoList path =
     match getList path with
     | Ok value -> json { Files = value }
     // TODO send error html and log error
-    | Err _    -> text "No output"
+    | Error _  -> text "No output"
 
 open Giraffe
 
@@ -50,7 +50,7 @@ let getMusicList root path =
         |> Array.map getName
         |> Array.sortWith String.icompare
     
-    let checkDirectory path = if isDirectory path then Ok(path) else Err(NotADirectoryException() :> System.Exception)
+    let checkDirectory path = if isDirectory path then Ok(path) else Error(NotADirectoryException() :> System.Exception)
     let getListFromPathParts = 
         combinePath 
         >=> checkDirectory
@@ -59,7 +59,7 @@ let getMusicList root path =
 
     match getListFromPathParts [|root; path|] with
     | Ok value                                      -> json { Files = value }
-    | Err e when e :? NotADirectoryException = true -> skip
+    | Error e when e :? NotADirectoryException = true -> skip
     // TODO send error html and log error
     | _                                             -> text "No output"
 
@@ -68,5 +68,5 @@ open Giraffe
 let getMusicFile root path =
     match combinePath [| root; path |] with
     | Ok path -> setContentType "audio/mp3" >=> streamFile true path None None
-    | Err _   -> text "No audio file" 
+    | Error _ -> text "No audio file" 
     
