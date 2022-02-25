@@ -2,6 +2,8 @@ module Utils
 
 open Giraffe
 open FSharpTools.Functional
+open FSharpRailway.Helpers
+open FSharpRailway.Option
 open Microsoft.AspNetCore.Http
 open System.Security.Cryptography.X509Certificates
 
@@ -16,8 +18,8 @@ let retrieveEnvironmentVariable key =
 let getEnvironmentVariableLogged =
     let logToConsole (key, value) = printfn "Reading environment %s: %s" key value
     withInputVar retrieveEnvironmentVariable 
-        >=>? switch (tee logToConsole) 
-        >=>? omitInputVar
+        >=> switch (tee logToConsole) 
+        >=> omitInputVar
 
 let getEnvironmentVariable = memoize getEnvironmentVariableLogged
 
@@ -27,22 +29,23 @@ let getCertificateFromFile certPath keyPath =
 let pathCombine subPath path =
     exceptionToOption (fun () -> System.IO.Path.Combine (path, subPath))
 
+open FSharpRailway.Result
 let getFiles path = 
-    exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetFiles())
+    exceptionToResult (fun () -> System.IO.DirectoryInfo(path).GetFiles())
 
 let getDirectories path = 
-    exceptionToResponse (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
+    exceptionToResult (fun () -> System.IO.DirectoryInfo(path).GetDirectories())
 
 let getFileSystemInfos path = 
     let getAsInfo n = n :> System.IO.FileSystemInfo
     let getFiles path = System.IO.DirectoryInfo(path).GetFiles() |> Array.map getAsInfo
     let getDirectories path = System.IO.DirectoryInfo(path).GetDirectories() |> Array.map getAsInfo
     let getFileSystemInfos path = Array.concat [|getFiles path; getDirectories path |] 
-    exceptionToResponse (fun () -> getFileSystemInfos path)
+    exceptionToResult (fun () -> getFileSystemInfos path)
 
 let existsFile file = System.IO.File.Exists file    
 let getExistingFile file = if existsFile file then Some file else None 
-let combinePath (pathes: string[]) = exceptionToResponse (fun () -> System.IO.Path.Combine pathes)
+let combinePath (pathes: string[]) = exceptionToResult (fun () -> System.IO.Path.Combine pathes)
 let isDirectory (path: string) = System.IO.Directory.Exists path
 
 // TODO Giraffe
