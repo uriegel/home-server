@@ -1,11 +1,11 @@
 open Giraffe
 open Microsoft.AspNetCore.Builder
+open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
-open Microsoft.AspNetCore.Hosting
 open System
-open System.Text.Encodings.Web;
+open System.Text.Encodings.Web
 open System.Text.Json
 open System.Text.Json.Serialization
 
@@ -21,6 +21,8 @@ let configureServices (services : IServiceCollection) =
     jsonOptions.Converters.Add(JsonFSharpConverter())
     jsonOptions.DefaultIgnoreCondition <- JsonIgnoreCondition.WhenWritingNull
     services
+        .AddSingleton(jsonOptions) 
+        .AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
         .AddResponseCompression()
         .AddGiraffe()
     |> ignore
