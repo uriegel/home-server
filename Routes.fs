@@ -51,5 +51,7 @@ let configureRoutes (app : IApplicationBuilder) =
             allHosts                           >=> text "Falscher Host"
         ]
     
-    app.UseGiraffe routes      
+    app
+        .UseResponseCompression()
+        .UseGiraffe routes      
     

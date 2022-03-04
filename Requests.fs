@@ -58,10 +58,10 @@ let getMusicList root path =
         >=> switch getDirNames
 
     match getListFromPathParts [|root; path|] with
-    | Ok value                                      -> json { Files = value }
+    | Ok value                                        -> json { Files = value }
     | Error e when e :? NotADirectoryException = true -> skip
     // TODO send error html and log error
-    | _                                             -> text "No output"
+    | _                                               -> text "No output"
 
 open Giraffe
 
