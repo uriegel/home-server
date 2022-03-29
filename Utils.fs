@@ -43,14 +43,5 @@ let existsFile file = System.IO.File.Exists file
 let getExistingFile file = if existsFile file then Some file else None 
 let isDirectory (path: string) = System.IO.Directory.Exists path
 
-// TODO Giraffe
-let skip (_: HttpFunc) (__: HttpContext) = System.Threading.Tasks.Task.FromResult None
 
-let httpHandlerParam httpHandler param: HttpHandler = (fun () -> httpHandler(param))()
 
-let routePathes () (routeHandler : string -> HttpHandler) : HttpHandler =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
-        Some (SubRouting.getNextPartOfPath ctx)
-        |> function
-            | Some subpath -> routeHandler subpath[1..] next ctx    
-            | None         -> skipPipeline

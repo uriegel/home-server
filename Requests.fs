@@ -42,6 +42,7 @@ let getVideoFile path file =
     setContentType "video/mp4" >=> streamFile true video None None
 
 open FSharpRailway.Result    
+open GiraffeTools
 
 let getMusicList root path =
     let getName (fileInfo: FileSystemInfo) = fileInfo.Name
