@@ -1,6 +1,7 @@
 module Configuration
 
 open FSharpRailway.Option
+open FSharpTools
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Server.Kestrel.Core
 open Microsoft.AspNetCore.Server.Kestrel.Https
@@ -15,7 +16,8 @@ let configureKestrel (options: KestrelServerOptions) =
     let getCertificateFromFile = 
         let makeCertFileName certFile = 
             let getLetsEncryptDirectory () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
-            getLetsEncryptDirectory >=> pathCombine certFile 
+            let combineWithCertFile = combine2Pathes certFile 
+            getLetsEncryptDirectory >> Option.map combineWithCertFile
         let makeCertificatePath = makeCertFileName "cert.pem" 
         let makeKeyPath = makeCertFileName "key.pem"
         let getCertificate () = makeCertificatePath ()
@@ -25,7 +27,7 @@ let configureKestrel (options: KestrelServerOptions) =
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
         options.ServerCertificate <- getCertificateFromFile () |> Option.defaultValue null
     let httpsListenOptions (options: ListenOptions) = options.UseHttps(httpsOptions)|> ignore
-    let getPortFromEnvironment = getEnvironmentVariable >=> parseInt 
+    let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
     let httpPort  () = getPortFromEnvironment "SERVER_PORT"     |> Option.defaultValue 80
     let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
 

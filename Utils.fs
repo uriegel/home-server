@@ -1,23 +1,22 @@
 module Utils
 
 open Giraffe
+open FSharpTools
 open FSharpTools.Functional
 open FSharpRailway.Helpers
 open FSharpRailway.Option
 open Microsoft.AspNetCore.Http
 open System.Security.Cryptography.X509Certificates
 
-let parseInt (str: string) = 
-    match System.Int32.TryParse str with
-    | true, int -> Some int
-    | _         -> None
+// FSharpTools
+let combine2Pathes subPath path = 
+    [| subPath; path |] |> Directory.combinePathes
+    
 
-let retrieveEnvironmentVariable key =
-    exceptionToOption (fun () -> System.Environment.GetEnvironmentVariable key)  
 
 let getEnvironmentVariableLogged =
     let logToConsole (key, value) = printfn "Reading environment %s: %s" key value
-    withInputVar retrieveEnvironmentVariable 
+    withInputVar String.retrieveEnvironmentVariable 
         >=> switch (tee logToConsole) 
         >=> omitInputVar
 
@@ -25,9 +24,6 @@ let getEnvironmentVariable = memoize getEnvironmentVariableLogged
 
 let getCertificateFromFile certPath keyPath =
     exceptionToOption (fun () -> X509Certificate2.CreateFromPemFile (certPath, keyPath))
-
-let pathCombine subPath path =
-    exceptionToOption (fun () -> System.IO.Path.Combine (path, subPath))
 
 open FSharpRailway.Result
 let getFiles path = 
@@ -45,7 +41,6 @@ let getFileSystemInfos path =
 
 let existsFile file = System.IO.File.Exists file    
 let getExistingFile file = if existsFile file then Some file else None 
-let combinePath (pathes: string[]) = exceptionToResult (fun () -> System.IO.Path.Combine pathes)
 let isDirectory (path: string) = System.IO.Directory.Exists path
 
 // TODO Giraffe

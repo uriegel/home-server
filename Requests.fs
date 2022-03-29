@@ -52,8 +52,8 @@ let getMusicList root path =
     
     let checkDirectory path = if isDirectory path then Ok(path) else Error(NotADirectoryException() :> System.Exception)
     let getListFromPathParts = 
-        combinePath 
-        >=> checkDirectory
+        Directory.combinePathes 
+        >> checkDirectory
         >=> getFileSystemInfos 
         >=> switch getDirNames
 
@@ -61,12 +61,11 @@ let getMusicList root path =
     | Ok value                                        -> json { Files = value }
     | Error e when e :? NotADirectoryException = true -> skip
     // TODO send error html and log error
-    | _                                               -> text "No output"
+    | Error _                                         -> text "No output"
 
 open Giraffe
 
 let getMusicFile root path =
-    match combinePath [| root; path |] with
-    | Ok path -> setContentType "audio/mp3" >=> streamFile true path None None
-    | Error _ -> text "No audio file" 
+    let path = [| root; path |] |> Directory.combinePathes  
+    setContentType "audio/mp3" >=> streamFile true path None None
     
