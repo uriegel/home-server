@@ -6,7 +6,7 @@ open Giraffe
 open Microsoft.AspNetCore.Http
 open System.IO
 
-open Utils
+open Directory
 
 type Files  = {
     Files: string[]    
@@ -51,9 +51,9 @@ let getMusicList root path =
         |> Array.map getName
         |> Array.sortWith String.icompare
     
-    let checkDirectory path = if isDirectory path then Ok(path) else Error(NotADirectoryException() :> System.Exception)
+    let checkDirectory path = if existsDirectory path then Ok(path) else Error(NotADirectoryException() :> System.Exception)
     let getListFromPathParts = 
-        Directory.combinePathes 
+        combinePathes 
         >> checkDirectory
         >=> getFileSystemInfos 
         >=> switch getDirNames

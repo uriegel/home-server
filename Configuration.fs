@@ -7,6 +7,8 @@ open Microsoft.AspNetCore.Server.Kestrel.Core
 open Microsoft.AspNetCore.Server.Kestrel.Https
 
 open Utils
+open Directory
+open FSharpTools
 
 let getIntranetHost () = getEnvironmentVariable "INTRANET_HOST"
 let getVideoPath    () = getEnvironmentVariable "VIDEO_PATH"
@@ -23,7 +25,7 @@ let configureKestrel (options: KestrelServerOptions) =
         let getCertificate () = makeCertificatePath ()
         let getKey () = makeKeyPath () 
         let getCertValuePair () = OptionFrom2Options (getCertificate ()) (getKey ())
-        getCertValuePair >=> fun (a, b) -> getCertificateFromFile a b
+        getCertValuePair >=> fun (a, b) -> Security.getCertificateFromFile a b
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
         options.ServerCertificate <- getCertificateFromFile () |> Option.defaultValue null
     let httpsListenOptions (options: ListenOptions) = options.UseHttps(httpsOptions)|> ignore
