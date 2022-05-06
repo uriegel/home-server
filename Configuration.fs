@@ -34,4 +34,7 @@ let configureKestrel (options: KestrelServerOptions) =
     let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
 
     options.ListenAnyIP(httpPort ())
-    options.ListenAnyIP(httpsPort (), httpsListenOptions)   
+    try
+        options.ListenAnyIP(httpsPort (), httpsListenOptions)
+    with
+        | e -> printfn "HTTPS error: %s" <| e.ToString () 
