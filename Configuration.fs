@@ -12,6 +12,7 @@ open FSharpTools
 
 let getIntranetHost () = getEnvironmentVariable "INTRANET_HOST"
 let getVideoPath    () = getEnvironmentVariable "VIDEO_PATH"
+let getPicturePath    () = getEnvironmentVariable "PICTURE_PATH"
 let getMusicPath    () = getEnvironmentVariable "MUSIC_PATH"
 
 let configureKestrel (options: KestrelServerOptions) = 

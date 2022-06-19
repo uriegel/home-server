@@ -44,7 +44,7 @@ let getVideoFile path file =
 open FSharpRailway.Result    
 open GiraffeTools
 
-let getMusicList root path =
+let getFileList root path =
     let getName (fileInfo: FileSystemInfo) = fileInfo.Name
     let getDirNames (fileList: FileSystemInfo[]) = 
         fileList
@@ -65,6 +65,10 @@ let getMusicList root path =
     | Error _                                         -> text "No output"
 
 open Giraffe
+
+let getPictureFile root path =
+    let path = [| root; path |] |> Directory.combinePathes  
+    setContentType "image/jpg" >=> streamFile false path None None
 
 let getMusicFile root path =
     let path = [| root; path |] |> Directory.combinePathes  

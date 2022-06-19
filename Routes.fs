@@ -30,6 +30,7 @@ let configureRoutes (app : IApplicationBuilder) =
         next ctx
 
     let videoPath = getVideoPath () |> Option.defaultValue ""
+    let picturePath = getPicturePath () |> Option.defaultValue ""
     let musicPath = getMusicPath () |> Option.defaultValue ""
     let getVideo =  getVideoFile videoPath
 
@@ -39,9 +40,14 @@ let configureRoutes (app : IApplicationBuilder) =
                 choose [  
                     route  "/media/video/list" >=> warbler (fun _ -> getVideoList videoPath)
                     routef "/media/video/%s"    <| httpHandlerParam getVideo
+                    subRoute "/media/pics"
+                        (choose [
+                            routePathes ()      <| httpHandlerParam (getFileList picturePath)
+                            routePathes ()      <| httpHandlerParam (getPictureFile picturePath)
+                        ])                      
                     subRoute "/media/music"
                         (choose [
-                            routePathes ()      <| httpHandlerParam (getMusicList musicPath)
+                            routePathes ()      <| httpHandlerParam (getFileList musicPath)
                             routePathes ()      <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
                     route  "/"                 >=> htmlFile "webroot/index.html" 
