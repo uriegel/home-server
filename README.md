@@ -103,6 +103,9 @@ sudo journalctl --rotate
 sudo journalctl --vacuum-time=2weeks
 ```
 
+## HTTP 3
+```https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/http3?view=aspnetcore-6.0```
+
 ## uhubctl
 
 Completely shutdown usb (with ethernet):

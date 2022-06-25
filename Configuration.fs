@@ -29,7 +29,9 @@ let configureKestrel (options: KestrelServerOptions) =
         getCertValuePair >=> fun (a, b) -> Security.getCertificateFromFile a b
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
         options.ServerCertificate <- getCertificateFromFile () |> Option.defaultValue null
-    let httpsListenOptions (options: ListenOptions) = options.UseHttps(httpsOptions)|> ignore
+    let httpsListenOptions (options: ListenOptions) = 
+        options.Protocols <- HttpProtocols.Http1AndHttp2AndHttp3    
+        options.UseHttps(httpsOptions) |> ignore
     let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
     let httpPort  () = getPortFromEnvironment "SERVER_PORT"     |> Option.defaultValue 80
     let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
