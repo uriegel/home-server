@@ -106,6 +106,16 @@ sudo journalctl --vacuum-time=2weeks
 ## HTTP 3
 ```https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/http3?view=aspnetcore-6.0```
 
+```
+curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+
+sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
+
+sudo apt-get update
+
+sudo apt install libmsquic=1.9*
+```
+
 ## uhubctl
 
 Completely shutdown usb (with ethernet):

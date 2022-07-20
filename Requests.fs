@@ -41,6 +41,10 @@ let getVideoFile path file =
     let video = getExistingFile <| getMp4File file |> Option.defaultValue (getMkvFile file)
     setContentType "video/mp4" >=> streamFile true video None None
 
+let getLetsEncryptToken token = 
+    // TODO stream token
+    text "No output"
+
 open FSharpRailway.Result    
 open GiraffeTools
 
