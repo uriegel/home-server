@@ -21,12 +21,9 @@ let configureKestrel (options: KestrelServerOptions) =
         let makeCertFileName certFile = 
             let combineWithCertFile = attachSubPath certFile 
             getLetsEncryptPath >> Option.map combineWithCertFile
-        let makeCertificatePath = makeCertFileName "cert.pem" 
-        let makeKeyPath = makeCertFileName "key.pem"
-        let getCertificate () = makeCertificatePath ()
-        let getKey () = makeKeyPath () 
-        let getCertValuePair () = OptionFrom2Options (getCertificate ()) (getKey ())
-        getCertValuePair >=> fun (a, b) -> Security.getCertificateFromFile a b
+        let getCertificate (file: string) = Some(new System.Security.Cryptography.X509Certificates.X509Certificate2(file, "uriegel"))
+        makeCertFileName "certificate.pfx" >=> getCertificate
+        
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
         options.ServerCertificate <- getCertificateFromFile () |> Option.defaultValue null
     let httpsListenOptions (options: ListenOptions) = 
