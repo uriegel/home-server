@@ -34,6 +34,11 @@ let configureRoutes (app : IApplicationBuilder) =
     let musicPath =   getMusicPath ()   |> Option.defaultValue ""
     let getVideo =    getVideoFile videoPath
 
+    let letsEncrypt = 
+        choose [  
+            routef "/.well-known/acme-challenge/%s"          <| httpHandlerParam getLetsEncryptToken
+        ]
+
     let routes =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
@@ -50,20 +55,11 @@ let configureRoutes (app : IApplicationBuilder) =
                             routePathes ()      <| httpHandlerParam (getFileList musicPath)
                             routePathes ()      <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
-                    route  "/"                 >=> htmlFile "webroot/index.html" 
+                    route  "/"           >=> htmlFile "webroot/index.html" 
                 ]  
-            host "uriegel.de"                  >=> 
-                choose [  
-                    routef "/.well-known/acme-challenge/%s"          <| httpHandlerParam getLetsEncryptToken
-                ]
-            host "fritz.uriegel.de"            >=> 
-                choose [  
-                    routef "/.well-known/acme-challenge/%s"          <| httpHandlerParam getLetsEncryptToken
-                ]
-            host "familie.uriegel.de"          >=> 
-                choose [  
-                    routef "/.well-known/acme-challenge/%s"          <| httpHandlerParam getLetsEncryptToken
-                ]
+            host "uriegel.de"                  >=> letsEncrypt
+            host "fritz.uriegel.de"            >=> letsEncrypt
+            host "familie.uriegel.de"          >=> letsEncrypt
             secureHost "fritz.uriegel.de"      >=> ReverseProxy.handler 
             allHosts                           >=> text "Falscher Host"
         ]
