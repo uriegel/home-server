@@ -34,10 +34,7 @@ let configureRoutes (app : IApplicationBuilder) =
     let musicPath =   getMusicPath ()   |> Option.defaultValue ""
     let getVideo =    getVideoFile videoPath
 
-    let letsEncrypt = 
-        choose [  
-            routef "/.well-known/acme-challenge/%s"          <| httpHandlerParam getLetsEncryptToken
-        ]
+    let letsEncrypt = choose [ routef "/.well-known/acme-challenge/%s" <| httpHandlerParam getLetsEncryptToken ]
 
     let routes =
         choose [
