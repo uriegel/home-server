@@ -42,8 +42,13 @@ let getVideoFile path file =
     setContentType "video/mp4" >=> streamFile true video None None
 
 let getLetsEncryptToken token = 
-    // TODO stream token
-    text "No output"
+    let makeTokenFileName tokenFile = 
+        let combineWithToken = attachSubPath tokenFile
+        Configuration.getLetsEncryptPath >> Option.map combineWithToken
+    let makeTokenPath = makeTokenFileName "token" 
+
+    let path = makeTokenPath () |> Option.defaultValue ""
+    setContentType "text/plain" >=> streamFile false path None None
 
 open FSharpRailway.Result    
 open GiraffeTools

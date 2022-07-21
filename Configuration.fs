@@ -19,7 +19,7 @@ let getLetsEncryptPath () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
 let configureKestrel (options: KestrelServerOptions) = 
     let getCertificateFromFile = 
         let makeCertFileName certFile = 
-            let combineWithCertFile = combine2Pathes certFile 
+            let combineWithCertFile = attachSubPath certFile 
             getLetsEncryptPath >> Option.map combineWithCertFile
         let makeCertificatePath = makeCertFileName "cert.pem" 
         let makeKeyPath = makeCertFileName "key.pem"
