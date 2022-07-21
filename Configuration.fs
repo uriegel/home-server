@@ -41,3 +41,23 @@ let configureKestrel (options: KestrelServerOptions) =
         options.ListenAnyIP(httpsPort (), httpsListenOptions)
     with
         | e -> printfn "HTTPS error: %s" <| e.ToString () 
+
+
+
+// TODO reload Certificate
+// There is a possibility to reload the certificate without restarting. basically there is a callback mechanism which loads the certificate for each request.
+
+// .UseKestrel(options =>
+//  {
+//    options.ConfigureHttpsDefaults(o =>
+//    {
+//        o.ServerCertificateSelector = (context, dnsName) =>
+//        {
+//           return GetCertificateFromPath();
+//        };
+//     });
+//  });
+
+// since it calls this GetCertificateFromPath method for each request so you have to cache the certificate somehow inside the GetCertificateFromPath() method and only read when it is changed.
+
+// it should be possible with some way by checking modified date or something.
