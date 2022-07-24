@@ -52,6 +52,8 @@ let configureRoutes (app : IApplicationBuilder) =
                             routePathes ()      <| httpHandlerParam (getFileList musicPath)
                             routePathes ()      <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
+                    route  "/accessdisk" >=> warbler (fun _ -> accessDisk ())
+                    route  "/releasedisk" >=> warbler (fun _ -> releaseDisk ())
                     route  "/"           >=> htmlFile "webroot/index.html" 
                 ]  
             host "uriegel.de"                  >=> letsEncrypt

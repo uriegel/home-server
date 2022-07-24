@@ -73,6 +73,28 @@ let getFileList root path =
     // TODO send error html and log error
     | Error _                                         -> text "No output"
 
+open System.Diagnostics
+open FSharpRailway.Option
+
+let accessDisk () =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+//    match getList path with
+//    | Ok value -> json { Files = value }
+    // TODO send error html and log error
+//    | Error _  -> text "No output"
+        task {
+            // TODO usb port
+            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -p 5 -a 1"
+            return! text result next ctx
+        }
+
+let releaseDisk () =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        task {
+            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -p 5 -a 0"
+            return! text result next ctx
+        }
+
 open Giraffe
 
 let getPictureFile root path =
@@ -82,4 +104,3 @@ let getPictureFile root path =
 let getMusicFile root path =
     let path = [| root; path |] |> Directory.combinePathes  
     setContentType "audio/mp3" >=> streamFile true path None None
-    
