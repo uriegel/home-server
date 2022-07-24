@@ -10,11 +10,13 @@ open Utils
 open Directory
 open FSharpTools
 
-let getIntranetHost    () = getEnvironmentVariable "INTRANET_HOST"
-let getVideoPath       () = getEnvironmentVariable "VIDEO_PATH"
-let getPicturePath     () = getEnvironmentVariable "PICTURE_PATH"
-let getMusicPath       () = getEnvironmentVariable "MUSIC_PATH"
-let getLetsEncryptPath () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
+let getIntranetHost     () = getEnvironmentVariable "INTRANET_HOST"
+let getVideoPath        () = getEnvironmentVariable "VIDEO_PATH"
+let getPicturePath      () = getEnvironmentVariable "PICTURE_PATH"
+let getMusicPath        () = getEnvironmentVariable "MUSIC_PATH"
+let getLetsEncryptPath  () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
+let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
+let usbPort             () = getPortFromEnvironment "USB_MEDIA_PORT"  |> Option.defaultValue 1
 
 let configureKestrel (options: KestrelServerOptions) = 
     let getCertificateFromFile = 
@@ -33,10 +35,10 @@ let configureKestrel (options: KestrelServerOptions) =
     let httpsListenOptions (options: ListenOptions) = 
         options.Protocols <- HttpProtocols.Http1AndHttp2AndHttp3    
         options.UseHttps(httpsOptions) |> ignore
-    let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
+    
     let httpPort  () = getPortFromEnvironment "SERVER_PORT"     |> Option.defaultValue 80
     let httpsPort () = getPortFromEnvironment "SERVER_TLS_PORT" |> Option.defaultValue 443
-
+    
     options.ListenAnyIP(httpPort ())
     try
         options.ListenAnyIP(httpsPort (), httpsListenOptions)

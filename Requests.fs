@@ -75,23 +75,24 @@ let getFileList root path =
 
 open System.Diagnostics
 open FSharpRailway.Option
+open Configuration
 
+// TODO call with guid from app => collect guids
 let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
-//    match getList path with
-//    | Ok value -> json { Files = value }
-    // TODO send error html and log error
-//    | Error _  -> text "No output"
         task {
-            // TODO usb port
-            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -p 5 -a 1"
-            return! text result next ctx
+            let! result = Process.runCmd "/usr/sbin/uhubctl" (sprintf "-l 1-1 -p %d -a 1" <| usbPort ())
+            // TODO not working
+            let! mountResult = Process.runCmd "/usr/bin/mount" "-a"
+            let completeResult = sprintf "%s\n%s" result mountResult
+            return! text completeResult next ctx
         }
 
+// TODO call with guid from app => remove guid, when guids are emtpy, release disk
 let releaseDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -p 5 -a 0"
+            let! result = Process.runCmd "/usr/sbin/uhubctl" (sprintf "-l 1-1 -p %d -a 0" <| usbPort ())
             return! text result next ctx
         }
 
