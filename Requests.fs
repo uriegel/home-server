@@ -82,7 +82,6 @@ let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let! result = Process.runCmd "/usr/sbin/uhubctl" (sprintf "-l 1-1 -p %d -a 1" <| usbPort ())
-            // TODO not working
             let! mountResult = Process.runCmd "/usr/bin/mount" "-a"
             let completeResult = sprintf "%s\n%s" result mountResult
             return! text completeResult next ctx
