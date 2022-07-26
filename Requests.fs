@@ -82,6 +82,7 @@ let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 1 -p 2"
+            do! Async.Sleep(6000)
             let! mountResult = Process.runCmd "/usr/bin/mount" "-a"
             let completeResult = sprintf "%s\n%s" result mountResult
             return! text completeResult next ctx
