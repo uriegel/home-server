@@ -81,7 +81,7 @@ open Configuration
 let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let! result = Process.runCmd "/usr/sbin/uhubctl" (sprintf "-l 1-1 -p %d -a 1" <| usbPort ())
+            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 1 -p 2"
             let! mountResult = Process.runCmd "/usr/bin/mount" "-a"
             let completeResult = sprintf "%s\n%s" result mountResult
             return! text completeResult next ctx
@@ -91,7 +91,7 @@ let accessDisk () =
 let releaseDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let! result = Process.runCmd "/usr/sbin/uhubctl" (sprintf "-l 1-1 -p %d -a 0" <| usbPort ())
+            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 0 -p 2 -r 500"
             return! text result next ctx
         }
 
