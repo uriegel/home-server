@@ -77,6 +77,20 @@ open System.Diagnostics
 open FSharpRailway.Option
 open Configuration
 
+let registerDisk () =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        task {
+            printfn "registered"
+            return! text "registered" next ctx
+        }
+
+let unregisterDisk () =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        task {
+            printfn "unregistered"
+            return! text "unregistered" next ctx
+        }
+
 // TODO call with guid from app => collect guids
 let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->

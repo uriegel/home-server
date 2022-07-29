@@ -44,23 +44,25 @@ let configureRoutes (app : IApplicationBuilder) =
                     routef "/media/video/%s"    <| httpHandlerParam getVideo
                     subRoute "/media/pics"
                         (choose [
-                            routePathes ()      <| httpHandlerParam (getFileList picturePath)
-                            routePathes ()      <| httpHandlerParam (getPictureFile picturePath)
+                            routePathes ()          <| httpHandlerParam (getFileList picturePath)
+                            routePathes ()          <| httpHandlerParam (getPictureFile picturePath)
                         ])                      
                     subRoute "/media/music"
                         (choose [
-                            routePathes ()      <| httpHandlerParam (getFileList musicPath)
-                            routePathes ()      <| httpHandlerParam (getMusicFile musicPath)
+                            routePathes ()          <| httpHandlerParam (getFileList musicPath)
+                            routePathes ()          <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
-                    route  "/accessdisk" >=> warbler (fun _ -> accessDisk ())
-                    route  "/releasedisk" >=> warbler (fun _ -> releaseDisk ())
-                    route  "/"           >=> htmlFile "webroot/index.html" 
+                    route  "/accessdisk"     >=> warbler (fun _ -> accessDisk ())
+                    route  "/releasedisk"    >=> warbler (fun _ -> releaseDisk ())
+                    route  "/registerdisk"   >=> warbler (fun _ -> registerDisk ())
+                    route  "/unregisterdisk" >=> warbler (fun _ -> unregisterDisk ())
+                    route  "/"               >=> htmlFile "webroot/index.html" 
                 ]  
-            host "uriegel.de"                  >=> letsEncrypt
-            host "fritz.uriegel.de"            >=> letsEncrypt
-            host "familie.uriegel.de"          >=> letsEncrypt
-            secureHost "fritz.uriegel.de"      >=> ReverseProxy.handler 
-            allHosts                           >=> text "Falscher Host"
+            host "uriegel.de"                       >=> letsEncrypt
+            host "fritz.uriegel.de"                 >=> letsEncrypt
+            host "familie.uriegel.de"               >=> letsEncrypt
+            secureHost "fritz.uriegel.de"           >=> ReverseProxy.handler 
+            allHosts                                >=> text "Falscher Host"
         ]
     
     app
