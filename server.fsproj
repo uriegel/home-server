@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Include="Utils.fs" />
     <Compile Include="Configuration.fs" />
+    <Compile Include="DiskAccess.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="ReverseProxy.fs" />
     <Compile Include="Requests.fs" />

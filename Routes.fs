@@ -52,8 +52,6 @@ let configureRoutes (app : IApplicationBuilder) =
                             routePathes ()               <| httpHandlerParam (getFileList musicPath)
                             routePathes ()               <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
-                    route  "/accessdisk"           >=> warbler (fun _ -> accessDisk ())
-                    route  "/releasedisk"          >=> warbler (fun _ -> releaseDisk ())
                     route  "/media/registerdisk"   >=> warbler (fun _ -> registerDisk ())
                     route  "/media/unregisterdisk" >=> warbler (fun _ -> unregisterDisk ())
                     route  "/"                     >=> htmlFile "webroot/index.html" 

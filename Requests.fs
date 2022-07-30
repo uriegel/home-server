@@ -81,6 +81,7 @@ let registerDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             printfn "registered"
+            let! count = DiskAccess.register () 
             return! text "registered" next ctx
         }
 
@@ -88,26 +89,8 @@ let unregisterDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             printfn "unregistered"
+            DiskAccess.unregister () |> ignore
             return! text "unregistered" next ctx
-        }
-
-// TODO call with guid from app => collect guids
-let accessDisk () =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
-        task {
-            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 1 -p 2"
-            do! Async.Sleep(6000)
-            let! mountResult = Process.runCmd "/usr/bin/mount" "-a"
-            let completeResult = sprintf "%s\n%s" result mountResult
-            return! text completeResult next ctx
-        }
-
-// TODO call with guid from app => remove guid, when guids are emtpy, release disk
-let releaseDisk () =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
-        task {
-            let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 0 -p 2 -r 500"
-            return! text result next ctx
         }
 
 open Giraffe
