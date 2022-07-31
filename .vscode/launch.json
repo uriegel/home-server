@@ -13,7 +13,7 @@
             "stopAtEntry": false,
             "console": "integratedTerminal",
             "env": {
-                "VIDEO_PATH": "/home/uwe/Videos",
+                "VIDEO_PATH": "/Daten/Videos/",
                 "PICTURE_PATH": "/media/uwe/Home/Bilder/Fotos",
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",

@@ -77,20 +77,20 @@ open System.Diagnostics
 open FSharpRailway.Option
 open Configuration
 
-let registerDisk () =
+let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            printfn "registered"
-            let! count = DiskAccess.register () 
-            return! text "registered" next ctx
+            printfn "access disk"
+            do! DiskAccess.access () 
+            return! text "disk accessed" next ctx
         }
 
-let unregisterDisk () =
+let diskNeeded () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            printfn "unregistered"
-            DiskAccess.unregister () |> ignore
-            return! text "unregistered" next ctx
+            printfn "disk needed"
+            DiskAccess.needed ()
+            return! text "Disk shutdown delayed" next ctx
         }
 
 open Giraffe
