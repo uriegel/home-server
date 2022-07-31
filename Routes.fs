@@ -58,7 +58,8 @@ let configureRoutes (app : IApplicationBuilder) =
                 ]  
             host "uriegel.de"                         >=> letsEncrypt
             host "fritz.uriegel.de"                   >=> letsEncrypt
-            host "familie.uriegel.de"                 >=> letsEncrypt
+            //host "familie.uriegel.de"                 >=> letsEncrypt
+            host "familie.uriegel.de"                 >=> ReverseProxy.handler 
             secureHost "fritz.uriegel.de"             >=> ReverseProxy.handler 
             allHosts                                  >=> text "Falscher Host"
         ]
