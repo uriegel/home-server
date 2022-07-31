@@ -7,8 +7,6 @@ open System.Collections.Generic
 open System.Linq
 open Microsoft.Extensions.Primitives
 open System.Net.Http
-open System.Net.Http.Headers
-open System.Net
 
 let handler (next: HttpFunc) (ctx: HttpContext) =
     let httpClient = new HttpClient()
@@ -31,16 +29,9 @@ let handler (next: HttpFunc) (ctx: HttpContext) =
         let requestMessage = new HttpRequestMessage(getMethod (), buildTargetUri ())
 
         let addHeader (header: KeyValuePair<string, StringValues>) =
-
-            // if String.Compare (header.Key, "if-modified-since", true) = 0 then
-            //     printfn "%s %O" header.Key header.Value
-
-
             requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()) 
             |> ignore
 
-        requestMessage.Headers.IfModifiedSince <- System.Nullable()
-        
         ctx.Request.Headers
         |> Seq.iter addHeader
         
