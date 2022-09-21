@@ -29,10 +29,10 @@ let configureRoutes (app : IApplicationBuilder) =
     let allHosts (next: HttpFunc) (ctx: HttpContext) =
         next ctx
 
-    let videoPath =   getVideoPath ()   |> Option.defaultValue ""
-    let picturePath = getPicturePath () |> Option.defaultValue ""
-    let musicPath =   getMusicPath ()   |> Option.defaultValue ""
-    let getVideo =    getVideoFile videoPath
+    let videoPath =       getVideoPath ()       |> Option.defaultValue ""
+    let picturePath =     getPicturePath ()     |> Option.defaultValue ""
+    let musicPath =       getMusicPath ()       |> Option.defaultValue ""
+    let getVideo =                 getVideoFile videoPath
 
     let letsEncrypt = choose [ routef "/.well-known/acme-challenge/%s" <| httpHandlerParam getLetsEncryptToken ]
 
@@ -42,6 +42,7 @@ let configureRoutes (app : IApplicationBuilder) =
                 choose [  
                     route  "/media/video/list" >=> warbler (fun _ -> getVideoList videoPath)
                     routef "/media/video/%s"   <| httpHandlerParam getVideo
+                    route  "/media/taufe"      >=> warbler (fun _ -> getPicturesZipFile picturePath)
                     subRoute "/media/pics"
                         (choose [
                             routePathes ()            <| httpHandlerParam (getFileList picturePath)
@@ -61,6 +62,10 @@ let configureRoutes (app : IApplicationBuilder) =
             //host "familie.uriegel.de"                 >=> letsEncrypt
             host "familie.uriegel.de"                 >=> ReverseProxy.handler 
             secureHost "fritz.uriegel.de"             >=> ReverseProxy.handler 
+            secureHost "uriegel.de"                   >=> 
+                choose [  
+                    route  "/media/taufe"      >=> warbler (fun _ -> getPicturesZipFile picturePath)                    
+                ]
             allHosts                                  >=> text "Falscher Host"
         ]
     

@@ -102,3 +102,7 @@ let getPictureFile root path =
 let getMusicFile root path =
     let path = [| root; path |] |> Directory.combinePathes  
     setContentType "audio/mp3" >=> streamFile true path None None
+
+let getPicturesZipFile path =
+    let path = [| path; "taufe.zip" |] |> Directory.combinePathes  
+    setContentType "application/zip" >=> streamFile false path None None
