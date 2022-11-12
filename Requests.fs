@@ -35,12 +35,6 @@ let getVideoList path =
 
 open Giraffe
 
-let getVideoFile path file = 
-    let getMp4File file = sprintf "%s/%s.mp4" path file
-    let getMkvFile file = sprintf "%s/%s.mkv" path file
-    let video = getExistingFile <| getMp4File file |> Option.defaultValue (getMkvFile file)
-    setContentType "video/mp4" >=> streamFile true video None None
-
 let getLetsEncryptToken token = 
     let makeTokenFileName tokenFile = 
         let combineWithToken = attachSubPath tokenFile
@@ -94,6 +88,10 @@ let diskNeeded () =
         }
 
 open Giraffe
+
+let getVideoFile root path =
+    let path = [| root; path |] |> Directory.combinePathes  
+    setContentType "video/mp4" >=> streamFile true path None None
 
 let getPictureFile root path =
     let path = [| root; path |] |> Directory.combinePathes  

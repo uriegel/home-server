@@ -3,11 +3,9 @@ module Routes
 open Giraffe
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Http
-open System.Threading.Tasks
 
 open Configuration
 open Requests
-open Utils
 open GiraffeTools
 
 let configureRoutes (app : IApplicationBuilder) = 
@@ -40,9 +38,12 @@ let configureRoutes (app : IApplicationBuilder) =
         choose [
             host <| (getIntranetHost () |> Option.defaultValue "") >=>
                 choose [  
-                    route  "/media/video/list" >=> warbler (fun _ -> getVideoList videoPath)
-                    routef "/media/video/%s"   <| httpHandlerParam getVideo
                     route  "/media/taufe"      >=> warbler (fun _ -> getPicturesZipFile picturePath)
+                    subRoute "/media/video"
+                        (choose [
+                            routePathes ()            <| httpHandlerParam (getFileList videoPath)
+                            routePathes ()            <| httpHandlerParam (getVideoFile videoPath)
+                        ])                      
                     subRoute "/media/pics"
                         (choose [
                             routePathes ()            <| httpHandlerParam (getFileList picturePath)
