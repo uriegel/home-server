@@ -21,7 +21,7 @@
                 "INTRANET_HOST": "illmatic",
                 "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-uweb",
                 "MEDIA_MOUNT_PATH": "/media/video",
-                "USB_MEDIA_PORT": "4"
+                // "USB_MEDIA_PORT": "2"
             },            
             "args": [],
             "cwd": "${workspaceFolder}"

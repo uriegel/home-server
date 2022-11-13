@@ -1,36 +1,52 @@
 module DiskAccess
 open FSharpTools
+open Configuration
 
-let private switchDiskOff _ = 
+let private switchDiskOff port = 
     async {
         printfn "switching disk off..."
-        let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 0 -p 2 -r 500"
+        let! result = Process.runCmd "/usr/sbin/uhubctl" <| (sprintf "-l 1-1 -a 0 -p %d -r 500" port)
         printfn "disk switched off\n%s" result
     } |> Async.Start
 
 let private createTimer () =
-    let timer = new System.Timers.Timer 300_000
-    timer.AutoReset <- false
-    timer.Elapsed.Add switchDiskOff
-    timer
+    let createTimer port = 
+        let timer = new System.Timers.Timer 300_000
+        timer.AutoReset <- false
+        timer.Elapsed.Add (fun _ -> switchDiskOff port) 
+        timer, port
+
+    getUsbPort ()
+    |> Option.map createTimer
 
 let private shutdownTimer = createTimer ()
 
 let access () =
-    async {
-        printfn "accessing disk..."
-        let! result = Process.runCmd "/usr/sbin/uhubctl" "-l 1-1 -a 1 -p 2"
-        do! Async.Sleep(6000)
-        let! mountResult =  Process.runCmd "/usr/bin/mount" "-a"
+    let access (timer: System.Timers.Timer, port) =
+        async {
+            printfn "accessing disk..."
+            let! result = Process.runCmd "/usr/sbin/uhubctl" <| (sprintf "-l 1-1 -a 1 -p %d" port)
+            do! Async.Sleep(6000)
+            let! mountResult =  Process.runCmd "/usr/bin/mount" "-a"
 
-        if shutdownTimer.Enabled then
-            shutdownTimer.Stop ()
-        shutdownTimer.Start ()
-        printfn "%s\n%s" result mountResult
+            if timer.Enabled then
+                timer.Stop ()
+            timer.Start ()
+            printfn "%s\n%s" result mountResult
+        }
+
+    async {
+        do! 
+            shutdownTimer 
+            |> Utils.AsyncOption.iter access 
     }
 
 let needed () =
-    if shutdownTimer.Enabled then
-        shutdownTimer.Stop ()
-        shutdownTimer.Start ()
+    let needed (timer: System.Timers.Timer, _) = 
+        if timer.Enabled then
+            timer.Stop ()
+            timer.Start ()
+
+    shutdownTimer
+    |> Option.iter needed
 
