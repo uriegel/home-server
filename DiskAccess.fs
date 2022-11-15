@@ -1,7 +1,7 @@
 module DiskAccess
 open FSharpTools
 open Configuration
-open Utils.AsyncOption
+open Option
 
 let private switchDiskOff port = 
     async {
@@ -39,7 +39,7 @@ let access () =
     async {
         do! 
             shutdownTimer 
-            |> iter access 
+            |> iterAsync access 
     }
 
 let needed () =

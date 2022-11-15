@@ -8,7 +8,6 @@ open Microsoft.AspNetCore.Server.Kestrel.Https
 
 open Utils
 open Directory
-open FSharpTools
 
 let getIntranetHost     () = getEnvironmentVariable "INTRANET_HOST"
 let getVideoPath        () = getEnvironmentVariable "VIDEO_PATH"
