@@ -1,11 +1,12 @@
 module DiskAccess
 open FSharpTools
 open Configuration
+open Utils.AsyncOption
 
 let private switchDiskOff port = 
     async {
         printfn "switching disk off..."
-        let! result = Process.runCmd "/usr/sbin/uhubctl" <| (sprintf "-l 1-1 -a 0 -p %d -r 500" port)
+        let! result = Process.asyncRunCmd "/usr/sbin/uhubctl" <| (sprintf "-l 1-1 -a 0 -p %d -r 500" port)
         printfn "disk switched off\n%s" result
     } |> Async.Start
 
@@ -25,9 +26,9 @@ let access () =
     let access (timer: System.Timers.Timer, port) =
         async {
             printfn "accessing disk..."
-            let! result = Process.runCmd "/usr/sbin/uhubctl" <| (sprintf "-l 1-1 -a 1 -p %d" port)
+            let! result = Process.asyncRunCmd "/usr/sbin/uhubctl" <| (sprintf "-l 1-1 -a 1 -p %d" port)
             do! Async.Sleep(6000)
-            let! mountResult =  Process.runCmd "/usr/bin/mount" "-a"
+            let! mountResult =  Process.asyncRunCmd "/usr/bin/mount" "-a"
 
             if timer.Enabled then
                 timer.Stop ()
@@ -38,7 +39,7 @@ let access () =
     async {
         do! 
             shutdownTimer 
-            |> Utils.AsyncOption.iter access 
+            |> iter access 
     }
 
 let needed () =

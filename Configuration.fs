@@ -1,7 +1,7 @@
 module Configuration
 
-open FSharpRailway.Option
 open FSharpTools
+open FSharpTools.Option
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Server.Kestrel.Core
 open Microsoft.AspNetCore.Server.Kestrel.Https

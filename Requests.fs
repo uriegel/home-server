@@ -1,6 +1,5 @@
 module Requests
 
-open FSharpRailway
 open FSharpTools
 open Giraffe
 open Microsoft.AspNetCore.Http
@@ -18,7 +17,7 @@ let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
     ctx.SetHttpHeader("Content-Type", contentType)
     next ctx
 
-open FSharpRailway.Result
+open FSharpTools.Result
 
 let getVideoList path =
     let getName (fileInfo: FileInfo) = fileInfo.Name
@@ -44,7 +43,7 @@ let getLetsEncryptToken token =
     let path = makeTokenPath () |> Option.defaultValue ""
     setContentType "text/plain" >=> streamFile false path None None
 
-open FSharpRailway.Result    
+open FSharpTools.Result
 open GiraffeTools
 
 let getFileList root path =
@@ -68,7 +67,7 @@ let getFileList root path =
     | Error _                                         -> text "No output"
 
 open System.Diagnostics
-open FSharpRailway.Option
+open FSharpTools.Option
 open Configuration
 
 let accessDisk () =
