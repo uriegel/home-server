@@ -14,14 +14,7 @@ let getEnvironmentVariableLogged =
 
 let getEnvironmentVariable = memoize getEnvironmentVariableLogged
 
-// TODO move to FSharpTools together with FSharpRailway
-module AsyncOption =
 
-    let iter action option = async {
-        match option with
-        | Some o -> do! action o
-        | None        -> ()
-    }
 
 
 
