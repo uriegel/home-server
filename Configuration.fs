@@ -26,7 +26,7 @@ let configureKestrel (options: KestrelServerOptions) =
         makeCertFileName "certificate.pfx" >=> getCertificate
 
     let getCertificate () = 
-        // Memoize this call, reset it every day
+        // TODO Memoize this call, reset it every day
         getCertificateFromFile () |> Option.defaultValue null
         
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
