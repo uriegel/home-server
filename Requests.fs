@@ -38,7 +38,7 @@ let getLetsEncryptToken token =
     let makeTokenFileName tokenFile = 
         let combineWithToken = attachSubPath tokenFile
         Configuration.getLetsEncryptPath >> Option.map combineWithToken
-    let makeTokenPath = makeTokenFileName "token" 
+    let makeTokenPath = makeTokenFileName token 
 
     let path = makeTokenPath () |> Option.defaultValue ""
     setContentType "text/plain" >=> streamFile false path None None
