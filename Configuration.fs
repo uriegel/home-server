@@ -1,6 +1,9 @@
 module Configuration
 
+open System
+open System.IO
 open FSharpTools
+open FSharpTools.Functional
 open FSharpTools.Option
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Server.Kestrel.Core
@@ -17,12 +20,23 @@ let getLetsEncryptPath  () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
 let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
 let getUsbPort          () = getPortFromEnvironment "USB_MEDIA_PORT" 
 
+let getPfxPassword = 
+    let getPfxPassword () = 
+        let readAllText path = File.ReadAllText path
+
+        if OperatingSystem.IsLinux () then "/etc" else System.Environment.GetFolderPath System.Environment.SpecialFolder.CommonApplicationData
+        |> Directory.attachSubPath "letsencrypt-uweb"
+        |> readAllText
+        |> String.trim
+    memoizeSingle getPfxPassword
+
 let configureKestrel (options: KestrelServerOptions) = 
+
     let getCertificateFromFile = 
         let makeCertFileName certFile = 
             let combineWithCertFile = attachSubPath certFile 
             getLetsEncryptPath >> Option.map combineWithCertFile
-        let getCertificate (file: string) = Some(new System.Security.Cryptography.X509Certificates.X509Certificate2(file, "uriegel"))
+        let getCertificate (file: string) = Some(new System.Security.Cryptography.X509Certificates.X509Certificate2(file, getPfxPassword ()))
         makeCertFileName "certificate.pfx" >=> getCertificate
 
     let getCertificate () = 
