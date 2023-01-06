@@ -41,17 +41,17 @@ let configureRoutes (app : IApplicationBuilder) =
                     route  "/media/taufe"      >=> warbler (fun _ -> getPicturesZipFile picturePath)
                     subRoute "/media/video"
                         (choose [
-                            routePathes ()            <| httpHandlerParam (getFileList videoPath)
+                            routePathes ()            <| httpHandlerParam (getDirectoryItems videoPath)
                             routePathes ()            <| httpHandlerParam (getVideoFile videoPath)
                         ])                      
                     subRoute "/media/pics"
                         (choose [
-                            routePathes ()            <| httpHandlerParam (getFileList picturePath)
+                            routePathes ()            <| httpHandlerParam (getDirectoryItems picturePath)
                             routePathes ()            <| httpHandlerParam (getPictureFile picturePath)
                         ])                      
                     subRoute "/media/music"
                         (choose [
-                            routePathes ()            <| httpHandlerParam (getFileList musicPath)
+                            routePathes ()            <| httpHandlerParam (getDirectoryItems musicPath)
                             routePathes ()            <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
                     route  "/media/accessdisk" >=> warbler (fun _ -> accessDisk ())
@@ -67,7 +67,7 @@ let configureRoutes (app : IApplicationBuilder) =
                 choose [  
                     route  "/media/taufe"      >=> warbler (fun _ -> getPicturesZipFile picturePath)                    
                 ]
-            allHosts                                  >=> text "Falscher Host"
+            allHosts                                  >=> ServerErrors.NOT_IMPLEMENTED "Not implemented"
         ]
     
     app

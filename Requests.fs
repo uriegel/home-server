@@ -7,8 +7,9 @@ open System.IO
 
 open Directory
 
-type Files  = {
-    Files: string[]    
+type DirectoryItems = {
+    Directories: string[]    
+    Files:       string[]    
 }
 
 type NotADirectoryException() = inherit System.Exception()
@@ -18,19 +19,6 @@ let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
     next ctx
 
 open FSharpTools.Result
-
-let getVideoList path =
-    let getName (fileInfo: FileInfo) = fileInfo.Name
-    let getFileNames (fileList: FileInfo[]) = 
-        fileList
-        |> Array.map getName
-        |> Array.sortWith String.icompare
-    let getList = getFiles >=> switch getFileNames
-    
-    match getList path with
-    | Ok value -> json { Files = value }
-    // TODO send error html and log error
-    | Error _  -> text "No output"
 
 open Giraffe
 
@@ -46,22 +34,35 @@ let getLetsEncryptToken token =
 open FSharpTools.Result
 open GiraffeTools
 
-let getFileList root path =
-    let getName (fileInfo: FileSystemInfo) = fileInfo.Name
-    let getDirNames (fileList: FileSystemInfo[]) = 
-        fileList
-        |> Array.map getName
-        |> Array.sortWith String.icompare
+let getDirectoryItems root path =
+
+    let getFileSystemInfos path = 
+        let getName n = 
+            let getName (fileInfo: FileSystemInfo) = fileInfo.Name
+            n :> FileSystemInfo
+            |> getName
+        let getFiles path = 
+            DirectoryInfo(path).GetFiles() 
+            |> Array.map getName
+            |> Array.sortWith String.icompare
+        let getDirectories path = 
+            DirectoryInfo(path).GetDirectories() 
+            |> Array.map getName
+            |> Array.sortWith String.icompare
+        let getFileSystemInfos path = { 
+            Directories = getDirectories path
+            Files = getFiles path
+        }
+        exceptionToResult (fun () -> getFileSystemInfos path)
     
     let checkDirectory path = if existsDirectory path then Ok(path) else Error(NotADirectoryException() :> System.Exception)
     let getListFromPathParts = 
         combinePathes 
         >> checkDirectory
         >=> getFileSystemInfos 
-        >=> switch getDirNames
 
     match getListFromPathParts [|root; path|] with
-    | Ok value                                        -> json { Files = value }
+    | Ok value                                        -> json { Files = value.Files; Directories = value.Directories }
     | Error e when e :? NotADirectoryException = true -> skip
     // TODO send error html and log error
     | Error _                                         -> text "No output"
