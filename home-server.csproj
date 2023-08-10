@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetExtensions" Version="2.1.0" />
-    <PackageReference Include="CsTools" Version="4.4.0" />
+    <PackageReference Include="AspNetExtensions" Version="3.0.0" />
   </ItemGroup>
 
 </Project>

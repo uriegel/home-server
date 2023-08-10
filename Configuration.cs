@@ -12,10 +12,10 @@ static class Configuration
         = Memoize<string>(Init, false);
 }
 
-static class StringExtensions
+static class Extensions
 {
     public static Option<string> GetEnvironmentVariableWithLogging(this string key)
         => key
-            .GetEnvironmentVariableOption()
+            .GetEnvironmentVariable()
             .SideEffect(v => Console.WriteLine($"Reading environment {key}: {v}"));
 }
