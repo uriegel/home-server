@@ -42,7 +42,7 @@ After=network.target
 Environment=PATH=$PATH:/home/uwe/dotnet
 Environment=export DOTNET_ROOT=/home/uwe/dotnet
 Environment=SERVER_PORT=8080
-Environment=SERVER_TLS_PORT=4433
+Environment=SERVER_TLS_PORT=443
 Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
 Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
