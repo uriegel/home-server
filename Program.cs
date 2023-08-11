@@ -18,7 +18,6 @@ WebApplication
             ))
             .ConfigureServices(services =>
                 services
-                    .When(true, s => s.AddCors())
                     .AddResponseCompression())
             .ConfigureLogging(builder =>
                 builder
@@ -27,7 +26,8 @@ WebApplication
                     .AddDebug()))
     .Build()
     .WithResponseCompression()
-
     .WithRouting()
-    .WithFileServer("", "webroot")
+    .WithHost("localhost")
+        .GetApp()
+    .WithFileServer("/test", "webroot")
     .Run();
