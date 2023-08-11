@@ -1,7 +1,6 @@
 ﻿using AspNetExtensions;
 using CsTools.Extensions;
 using LinqTools;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using static System.Console;
 
 WriteLine("Launching home server...");
@@ -70,4 +69,4 @@ WebApplication
     .WithHost("uriegel.de")
         .WithMapGet("/web", () => "Das ist die Standard Webseite")
         .GetApp()
-    .Start();
+    .Run();
