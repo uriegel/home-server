@@ -3,6 +3,7 @@ using CsTools.Extensions;
 using LinqTools;
 using static Configuration;
 using static Extensions;
+using static LinqTools.ChooseExtensions;
 
 static class Requests
 {
@@ -39,9 +40,9 @@ static class Requests
         => context.StreamRangeFile(path);
 
     public static Func<Predicate<string>, Func<string, Task>, SwitchType<string, Task>> Switch 
-        = Extensions.SwitchType<string, Task>.Switch;
+        = SwitchType<string, Task>.Switch;
     public static Func<Func<string, Task>, SwitchType<string, Task>> Default 
-        = Extensions.SwitchType<string, Task>.Default;
+        = SwitchType<string, Task>.Default;
 
     record DirectoryContent(string[] Directories, string[] Files);
 }

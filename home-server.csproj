@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetExtensions" Version="3.2.1" />
+    <PackageReference Include="AspNetExtensions" Version="3.3.1" />
   </ItemGroup>
 
 </Project>
