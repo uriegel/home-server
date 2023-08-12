@@ -8,6 +8,9 @@ static class Extensions
                 .SideEffect(c => c.Response.ContentType = "text/plain; charset=utf-8")
                 .Response.WriteAsync(notFound);
 
+    public static TResult With<T, R, TResult>(this T t, Func<T, R> selector, Func<R, TResult> resultSelector)
+        => resultSelector(selector(t));
+
     public static Task NotFound(HttpContext context)
         => NotFound(context, "Du möchtest auf etwas zugreifen, was ich nicht finden kann!");
 
@@ -15,7 +18,7 @@ static class Extensions
         => new StreamReader(File.OpenRead(path))
             .Use(f => f.ReadToEnd());
 
-    public static Option<TResult> Choose<TResult, T>(this T t, params SwitchType<TResult, T>[] switches)
+    public static Option<TResult> Choose<TResult, T>(this T t, params SwitchType<T, TResult>[] switches)
         where TResult : notnull
         => switches
             .FirstOrNone(s => s.Predicate(t))
@@ -33,11 +36,11 @@ static class Extensions
                 .FirstOrDefault(predicate)
                 .FromNullable();
 
-   public record SwitchType<TResult, T>(Predicate<T> Predicate, Func<T, TResult> Selector)
+   public record SwitchType<T, TResult>(Predicate<T> Predicate, Func<T, TResult> Selector)
     {
-        public static SwitchType<TResult, T> Switch(Predicate<T> predicate, Func<T, TResult> selector)
+        public static SwitchType<T, TResult> Switch(Predicate<T> predicate, Func<T, TResult> selector)
             => new(predicate, selector);
-        public static SwitchType<TResult, T> Default(Func<T, TResult> selector)
+        public static SwitchType<T, TResult> Default(Func<T, TResult> selector)
             => new(_ => true, selector);
     };
 }

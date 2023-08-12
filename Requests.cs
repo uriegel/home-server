@@ -10,19 +10,34 @@ static class Requests
             .GetOrDefault("")
             .AppendPath(context.GetRouteValue("path") as string ?? "")
             .Choose(
-                Switch(IsDirectory, ServeVideoDirectory),
+                Switch(IsDirectory, p => ServeVideoDirectory(context, p)),
                 Switch(IsFile, ServeVideoFile),
                 Default(_ => NotFound(context)))
             .GetOrDefault(1.ToAsync());
 
-    static bool IsDirectory(string path) => Directory.Exists(path).SideEffect(Console.WriteLine);
-    static bool IsFile(string path) => File.Exists(path).SideEffect(Console.WriteLine);
+    static bool IsDirectory(string path) => Directory.Exists(path);
+    static bool IsFile(string path) => File.Exists(path);
 
-    static Task ServeVideoDirectory(string path) => "Ist Verzeichnis".SideEffect(Console.WriteLine).ToAsync();
+    static Task ServeVideoDirectory(HttpContext context, string path)
+        => context.Response.WriteAsJsonAsync<DirectoryContent>(
+                path
+                    .With(
+                        p => new DirectoryInfo(p),
+                        i => new DirectoryContent(
+                            i.GetDirectories()
+                                .Select(n => n.Name)
+                                .ToArray(),
+                            i.GetFiles()
+                                .Select(n => n.Name)
+                                .ToArray()
+                    )));
+
     static Task ServeVideoFile(string path) => "Ist Datei".SideEffect(Console.WriteLine).ToAsync();
 
-    public static Func<Predicate<string>, Func<string, Task>, SwitchType<Task, string>> Switch 
-        = Extensions.SwitchType<Task, string>.Switch;
-    public static Func<Func<string, Task>, SwitchType<Task, string>> Default 
-        = Extensions.SwitchType<Task, string>.Default;
+    public static Func<Predicate<string>, Func<string, Task>, SwitchType<string, Task>> Switch 
+        = Extensions.SwitchType<string, Task>.Switch;
+    public static Func<Func<string, Task>, SwitchType<string, Task>> Default 
+        = Extensions.SwitchType<string, Task>.Default;
+
+    record DirectoryContent(string[] Directories, string[] Files);
 }
