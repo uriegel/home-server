@@ -1,7 +1,9 @@
 ﻿using AspNetExtensions;
 using CsTools.Extensions;
 using LinqTools;
+
 using static System.Console;
+using static Configuration;
 
 WriteLine("Launching home server...");
 
@@ -11,9 +13,9 @@ WebApplication
         webHostBuilder
             .ConfigureKestrel(options => options.ListenAnyIP(
                 Configuration
-                    .GetEnvironmentVariable("SERVER_PORT")
+                    .GetEnvironmentVariable(ServerPort)
                     .SelectMany(StringExtensions.ParseInt)
-                    .GetOrDefault(8080)
+                    .GetOrDefault(80)
             ))
             .ConfigureServices(services =>
                 services
@@ -44,11 +46,13 @@ WebApplication
         webHostBuilder
             .ConfigureKestrel(options => options.ListenAnyIP(
                 Configuration
-                    .GetEnvironmentVariable("SERVER_TLS_PORT")
+                    .GetEnvironmentVariable(ServerTlsPort)
                     .SelectMany(StringExtensions.ParseInt)
-                    .GetOrDefault(4433), options => {
+                    .GetOrDefault(443), options => {
                         options.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-                        options.UseHttps(options => options.ServerCertificateSelector = (a, b) => null);
+                        options.UseHttps(options 
+                            => options.ServerCertificateSelector = (_, __) 
+                                => Certificate.Get());
                     }
             ))
             .ConfigureServices(services =>
@@ -67,6 +71,6 @@ WebApplication
     .WithHost("familie.uriegel.de")
         .GetApp()
     .WithHost("uriegel.de")
-        .WithMapGet("/web", () => "Das ist die Standard Webseite")
+        .WithMapGet("/web", () => "Default Web Site")
         .GetApp()
     .Run();
