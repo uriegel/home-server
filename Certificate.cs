@@ -31,7 +31,7 @@ static class Certificate
     static Func<string> GetPfxPassword { get; } = Memoize(InitPfxPassword);
 
     static X509Certificate2 ReadCertificate(this string fileName)
-        => new X509Certificate2(fileName, GetPfxPassword().SideEffect(Console.WriteLine));
+        => new X509Certificate2(fileName, GetPfxPassword());
 
     static Func<string, string> getFileContent = name =>
         GetEnvironmentVariable(LetsEncryptDir)

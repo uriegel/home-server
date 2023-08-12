@@ -1,16 +1,17 @@
+using LinqTools;
 using static CsTools.ProcessCmd;
 using static System.Console;
 using static Configuration;
-using LinqTools;
+using static CsTools.Core;
 
 static class DiskAccess
 {
     public static async Task AccessDisk(HttpContext context)
     {
         WriteLine("Accessing disk");
-        var result = await RunAsync("/usr/sbin/uhubctl", $"-l 1-1 -a 1 -p {GetEnvironmentVariable(UsbMediaPort)}");
+        var result = await Try(() =>  RunAsync("/usr/sbin/uhubctl", $"-l 1-1 -a 1 -p {GetEnvironmentVariable(UsbMediaPort)}"), e => $"{e}");
         await Task.Delay(6000);
-        var mountResult = await RunAsync("/usr/bin/mount", "-a");
+        var mountResult = await Try(() =>  RunAsync("/usr/bin/mount", "-a"), e => $"{e}");
         await context.Response.WriteAsync("Disk accessed");
         if (diskShutdownTimer.Enabled)
             diskShutdownTimer.Stop();
@@ -38,7 +39,7 @@ static class DiskAccess
         }.SideEffect(t => t.Elapsed += async (s, e) =>
         {
             WriteLine("Switching disk off...");
-            var result = await RunAsync("/usr/sbin/uhubctl", $"-l 1-1 -a 0 -p {GetEnvironmentVariable(UsbMediaPort)} -r 500");
+            var result = await Try(() =>  RunAsync("/usr/sbin/uhubctl", $"-l 1-1 -a 0 -p {GetEnvironmentVariable(UsbMediaPort)} -r 500"), e => $"{e}");
             WriteLine("disk switched off");
             WriteLine(result);
         });

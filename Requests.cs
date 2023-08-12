@@ -27,9 +27,11 @@ static class Requests
                         i => new DirectoryContent(
                             i.GetDirectories()
                                 .Select(n => n.Name)
+                                .OrderBy(n => n)
                                 .ToArray(),
                             i.GetFiles()
                                 .Select(n => n.Name)
+                                .OrderBy(n => n)
                                 .ToArray()
                     )));
 
