@@ -10,6 +10,7 @@ static class Configuration
     public const string ServerTlsPort = "SERVER_TLS_PORT";
     public const string IntranetHost = "INTRANET_HOST";
     public const string VideoPath = "VIDEO_PATH";
+    public const string UsbMediaPort = "USB_MEDIA_PORT";
 
     static Func<string, Option<string>, Option<string>> Init {get; } 
         = (key, _) => key.GetEnvironmentVariableWithLogging();

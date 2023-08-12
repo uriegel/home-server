@@ -1,3 +1,4 @@
+using AspNetExtensions;
 using CsTools.Extensions;
 using LinqTools;
 using static Configuration;
@@ -11,7 +12,7 @@ static class Requests
             .AppendPath(context.GetRouteValue("path") as string ?? "")
             .Choose(
                 Switch(IsDirectory, p => ServeVideoDirectory(context, p)),
-                Switch(IsFile, ServeVideoFile),
+                Switch(IsFile, p => ServeVideoFile(context, p)),
                 Default(_ => NotFound(context)))
             .GetOrDefault(1.ToAsync());
 
@@ -32,7 +33,8 @@ static class Requests
                                 .ToArray()
                     )));
 
-    static Task ServeVideoFile(string path) => "Ist Datei".SideEffect(Console.WriteLine).ToAsync();
+    static Task ServeVideoFile(HttpContext context, string path) 
+        => context.StreamRangeFile(path);
 
     public static Func<Predicate<string>, Func<string, Task>, SwitchType<string, Task>> Switch 
         = Extensions.SwitchType<string, Task>.Switch;

@@ -5,6 +5,7 @@ using LinqTools;
 using static System.Console;
 using static Configuration;
 using static Requests;
+using static DiskAccess;
 
 WriteLine("Launching home server...");
 
@@ -30,6 +31,8 @@ WebApplication
     .WithRouting()
     .WithHost(GetEnvironmentVariable(IntranetHost).GetOrDefault(Environment.MachineName))
         .WithMapGet("/media/video/{**path}", ServeVideo)
+        .WithMapGet("/media/accessdisk", AccessDisk)
+        .WithMapGet("/media/diskneeded", DiskNeeded)
         .GetApp()
     .WithHost("fritz.uriegel.de")
         .LetsEncrypt()
