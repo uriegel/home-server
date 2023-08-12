@@ -4,6 +4,7 @@ using LinqTools;
 
 using static System.Console;
 using static Configuration;
+using static Requests;
 
 WriteLine("Launching home server...");
 
@@ -12,10 +13,9 @@ WebApplication
     .ConfigureWebHost(webHostBuilder =>
         webHostBuilder
             .ConfigureKestrel(options => options.ListenAnyIP(
-                Configuration
-                    .GetEnvironmentVariable(ServerPort)
-                    .SelectMany(StringExtensions.ParseInt)
-                    .GetOrDefault(80)
+                GetEnvironmentVariable(ServerPort)
+                .SelectMany(StringExtensions.ParseInt)
+                .GetOrDefault(80)
             ))
             .ConfigureServices(services =>
                 services
@@ -28,6 +28,9 @@ WebApplication
     .Build()
     .WithResponseCompression()
     .WithRouting()
+    .WithHost(GetEnvironmentVariable(IntranetHost).GetOrDefault(Environment.MachineName))
+        .WithMapGet("/media/video/{**path}", ServeVideo)
+        .GetApp()
     .WithHost("fritz.uriegel.de")
         .LetsEncrypt()
         .GetApp()
