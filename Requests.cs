@@ -51,7 +51,7 @@ static class Requests
     static Task SendFile(HttpContext context, string path)
         => File
             .OpenRead(path)
-            .Use(f => context.SendStream(f, null, path));
+            .UseAsync(f => context.SendStream(f.SideEffect(f => Console.WriteLine(f.Length)), null, path.SideEffect(Console.WriteLine)));
 
     static Func<Predicate<string>, Func<string, Task>, SwitchType<string, Task>> Switch 
         = SwitchType<string, Task>.Switch;
