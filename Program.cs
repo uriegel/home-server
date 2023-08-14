@@ -76,6 +76,7 @@ WebApplication
     .WithResponseCompression()
     .WithRouting()
     .WithHost("fritz.uriegel.de")
+        .WithReverseProxy("", "http://fritz.box")
         .GetApp()
     .WithHost("familie.uriegel.de")
         .GetApp()
