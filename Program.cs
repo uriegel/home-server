@@ -23,7 +23,7 @@ WebApplication
                     .AddResponseCompression())
             .ConfigureLogging(builder =>
                 builder
-                    .AddFilter(a => a == LogLevel.Warning)
+                    .AddFilter(a => a == LogLevel.Trace)
                     .AddConsole()
                     .AddDebug()))
     .Build()
@@ -35,6 +35,7 @@ WebApplication
         .WithMapGet("/media/music/{**path}", ServeMusic)
         .WithMapGet("/media/accessdisk", AccessDisk)
         .WithMapGet("/media/diskneeded", DiskNeeded)
+        .WithJsonPost<CommanderEngine.Input, CommanderEngine.RemoteItem[]>("/getfiles", CommanderEngine.GetFiles)
         .GetApp()
     .WithHost("fritz.uriegel.de")
         .LetsEncrypt()
