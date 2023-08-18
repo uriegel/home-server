@@ -1,4 +1,6 @@
 using LinqTools;
+using static LinqTools.ChooseExtensions;
+using static Requests;
 
 static class CommanderEngine
 {
@@ -23,6 +25,13 @@ static class CommanderEngine
                             (new DateTimeOffset(f.LastWriteTime).ToUnixTimeMilliseconds()))))
                     .ToArray()
                     .ToAsync());
+
+    public static Task Serve(HttpContext context)
+        => ("/" + context.GetRouteValue("path") as string)
+            .Choose(
+                Switch(_ => true, p => p.SendFile(context)),
+                Default(p => p.SendFile(context)))
+            .GetOrDefault(1.ToAsync());                
 
     public record Input(string path);
     public record RemoteItem(
