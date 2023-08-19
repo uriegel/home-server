@@ -34,7 +34,15 @@ static class CommanderEngine
             .OpenRead(path!.path)
             .UseAsync(f => context.SendStream(f, null, path!.path));
     }
-        
+
+    public static Task PostFile(HttpContext context)
+        => File
+            .OpenWrite("/" + context.Request.Query["path"].ToString())
+            .UseAsync(f => context.Request.Body.CopyToAsync(f));
+
+            // TODO large files will not be copied
+            // TODO copy file attributes for copy to remote and copy from remote
+
     public static Task Serve(HttpContext context)
         => ("/" + context.GetRouteValue("path") as string)
             .Choose(

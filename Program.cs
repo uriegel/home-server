@@ -37,6 +37,7 @@ WebApplication
         .WithMapGet("/media/diskneeded", DiskNeeded)
         .WithJsonPost<CommanderEngine.Input, CommanderEngine.RemoteItem[]>("/remote/getfiles", CommanderEngine.GetFiles)
         .WithMapPost("remote/getfile", CommanderEngine.GetFile)
+        .WithMapPost("remote/postfile", CommanderEngine.PostFile)
         .WithMapGet("/remote/{**path}", CommanderEngine.Serve)
         .GetApp()
     .WithHost("fritz.uriegel.de")
