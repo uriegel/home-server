@@ -1,3 +1,4 @@
+using AspNetExtensions;
 using LinqTools;
 using static LinqTools.ChooseExtensions;
 using static Requests;
@@ -28,11 +29,12 @@ static class CommanderEngine
 
     public static async Task GetFile(HttpContext context)                    
     {
-        var affe = await context.Request.ReadFromJsonAsync<CommanderEngine.Input>();
-        var aff = affe;
+        var path = await context.Request.ReadFromJsonAsync<CommanderEngine.Input>();
+        await File
+            .OpenRead(path!.path)
+            .UseAsync(f => context.SendStream(f, null, path!.path));
     }
         
-
     public static Task Serve(HttpContext context)
         => ("/" + context.GetRouteValue("path") as string)
             .Choose(

@@ -22,7 +22,7 @@ static class Requests
     public static Task SendFile(this string path, HttpContext context)
         => File
             .OpenRead(path)
-            .UseAsync(f => context.SendStream(f, null, path.SideEffect(Console.WriteLine)));
+            .UseAsync(f => context.SendStream(f, null, path));
 
     static Task Serve(HttpContext context, string environmentPath, Func<string, HttpContext, Task> serveFile)
         => GetEnvironmentVariable(environmentPath)
