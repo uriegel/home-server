@@ -26,6 +26,13 @@ static class CommanderEngine
                     .ToArray()
                     .ToAsync());
 
+    public static async Task GetFile(HttpContext context)                    
+    {
+        var affe = await context.Request.ReadFromJsonAsync<CommanderEngine.Input>();
+        var aff = affe;
+    }
+        
+
     public static Task Serve(HttpContext context)
         => ("/" + context.GetRouteValue("path") as string)
             .Choose(
