@@ -38,10 +38,11 @@ static class CommanderEngine
     public static Task PostFile(HttpContext context)
         => File
             .OpenWrite("/" + context.Request.Query["path"].ToString())
-            .UseAsync(f => context.Request.Body.CopyToAsync(f));
+            .UseAsync(f => context.Request.BodyReader.CopyToAsync(f));
 
             // TODO large files will not be copied
             // TODO copy file attributes for copy to remote and copy from remote
+            // TODO Funktionales ConfigureKestrel
 
     public static Task Serve(HttpContext context)
         => ("/" + context.GetRouteValue("path") as string)

@@ -18,6 +18,7 @@ WebApplication
                 .SelectMany(StringExtensions.ParseInt)
                 .GetOrDefault(80)
             ))
+            .ConfigureKestrel(options => options.Limits.MaxRequestBodySize = null)
             .ConfigureServices(services =>
                 services
                     .AddResponseCompression())
