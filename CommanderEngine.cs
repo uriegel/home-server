@@ -40,7 +40,6 @@ static class CommanderEngine
             .OpenWrite("/" + context.Request.Query["path"].ToString())
             .UseAsync(f => context.Request.BodyReader.CopyToAsync(f));
 
-            // TODO large files will not be copied
             // TODO copy file attributes for copy to remote and copy from remote
             // TODO Funktionales ConfigureKestrel
 
