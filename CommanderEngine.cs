@@ -1,4 +1,5 @@
 using AspNetExtensions;
+using CsTools.Extensions;
 using LinqTools;
 using static LinqTools.ChooseExtensions;
 using static Requests;
@@ -30,18 +31,36 @@ static class CommanderEngine
     public static async Task GetFile(HttpContext context)                    
     {
         var path = await context.Request.ReadFromJsonAsync<CommanderEngine.Input>();
+        var fileDate = context.Response.Headers.TryAdd("x-file-date",
+                            (new DateTimeOffset(new FileInfo(path!.path).LastWriteTime).ToUnixTimeMilliseconds().ToString()));
         await File
             .OpenRead(path!.path)
             .UseAsync(f => context.SendStream(f, null, path!.path));
     }
 
-    public static Task PostFile(HttpContext context)
-        => File
-            .OpenWrite("/" + context.Request.Query["path"].ToString())
-            .UseAsync(f => context.Request.BodyReader.CopyToAsync(f));
-
-            // TODO copy file attributes for copy to remote and copy from remote
-            // TODO Funktionales ConfigureKestrel
+    public static async Task PostFile(HttpContext context)
+    {
+        var path = "/" +
+                context
+                    .Request
+                    .Query["path"]
+                    .ToString();
+        await File
+            .OpenWrite(path)
+            .UseAsync(f =>
+                context
+                    .Request
+                    .BodyReader
+                    .CopyToAsync(f));
+        context
+            .Request
+            .Headers["x-file-date"]
+            .FirstOrNone()
+            .SelectMany(s => s.ParseLong())
+            .WhenSome(l => l.SetLastWriteTime(path));
+    }
+    // TODO timestamps from remote and local are a little bit different
+    // TODO Funktionales ConfigureKestrel
 
     public static Task Serve(HttpContext context)
         => ("/" + context.GetRouteValue("path") as string)
@@ -49,6 +68,9 @@ static class CommanderEngine
                 Switch(_ => true, p => p.SendFile(context)),
                 Default(p => p.SendFile(context)))
             .GetOrDefault(1.ToAsync());                
+
+    static void SetLastWriteTime(this long unixTime, string targetFilename)
+        => File.SetLastWriteTime(targetFilename, unixTime.FromUnixTime());
 
     public record Input(string path);
     public record RemoteItem(
