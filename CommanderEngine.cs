@@ -59,7 +59,6 @@ static class CommanderEngine
             .SelectMany(s => s.ParseLong())
             .WhenSome(l => l.SetLastWriteTime(path));
     }
-    // TODO timestamps from remote and local are a little bit different
     // TODO Funktionales ConfigureKestrel
 
     public static Task Serve(HttpContext context)
