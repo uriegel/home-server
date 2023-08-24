@@ -13,12 +13,13 @@ WebApplication
     .CreateBuilder(args)
     .ConfigureWebHost(webHostBuilder =>
         webHostBuilder
-            .ConfigureKestrel(options => options.ListenAnyIP(
-                GetEnvironmentVariable(ServerPort)
-                .SelectMany(StringExtensions.ParseInt)
-                .GetOrDefault(80)
-            ))
-            .ConfigureKestrel(options => options.Limits.MaxRequestBodySize = null)
+            .ConfigureKestrel(options => 
+                options
+                    .UseListenAnyIP(
+                        GetEnvironmentVariable(ServerPort)
+                            .SelectMany(StringExtensions.ParseInt)
+                            .GetOrDefault(80))
+                    .UseLimits(limits => limits.SetMaxRequestBodySize(null)))
             .ConfigureServices(services =>
                 services
                     .AddResponseCompression())
