@@ -17,7 +17,7 @@ static class Requests
         => Serve(context, MusicPath, (p, c) => AspNetExtensions.Extensions.StreamRangeFile(c, p));
 
     public static Task GetZipFile(HttpContext context, string file)
-        => Serve(context, PicturePath.AppendPath(file), SendFile); 
+        => SendFile("/home/uwe".AppendPath(file), context); 
 
     public static Task SendFile(this string path, HttpContext context)
         => File

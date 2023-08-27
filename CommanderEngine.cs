@@ -46,7 +46,7 @@ static class CommanderEngine
                     .Query["path"]
                     .ToString();
         await File
-            .OpenWrite(path)
+            .Create(path)
             .UseAsync(f =>
                 context
                     .Request
