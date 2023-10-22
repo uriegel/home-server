@@ -1,5 +1,6 @@
 using AspNetExtensions;
 using CsTools.Extensions;
+using GtkDotNet;
 using LinqTools;
 using static Configuration;
 using static Extensions;
@@ -11,18 +12,37 @@ static class Requests
         => Serve(context, VideoPath, (p, c) => AspNetExtensions.Extensions.StreamRangeFile(c, p));
 
     public static Task ServePictures(HttpContext context)
-        => Serve(context, PicturePath, SendFile);
+        => Serve(context, PicturePath, SendMedia);
+
+    public static Task ServeThumbnail(HttpContext context)
+        => GetEnvironmentVariable(PicturePath)
+            .GetOrDefault("")
+            .AppendPath(context.GetRouteValue("path") as string ?? "")
+            .Choose(
+                Switch(IsFile, p => p.SendThumbnail(context)),
+                Default(_ => NotFound(context)))
+            .GetOrDefault(1.ToAsync());
 
     public static Task ServeMusic(HttpContext context)
         => Serve(context, MusicPath, (p, c) => AspNetExtensions.Extensions.StreamRangeFile(c, p));
 
     public static Task GetZipFile(HttpContext context, string file)
-        => SendFile("/home/uwe".AppendPath(file), context); 
+        => SendFile("/home/uwe".AppendPath(file), context);
 
+    static Task SendMedia(this string path, HttpContext context)
+        => path.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase)
+            ? AspNetExtensions.Extensions.StreamRangeFile(context, path)
+            : path.SendFile(context);
+    
     public static Task SendFile(this string path, HttpContext context)
         => File
             .OpenRead(path)
             .UseAsync(f => context.SendStream(f, null, path));
+
+    public static Task SendThumbnail(this string path, HttpContext context)
+        => GetThumbnail(path).Match(
+           th => context.SendStream(th, null),
+           () => NotFound(context));
 
     static Task Serve(HttpContext context, string environmentPath, Func<string, HttpContext, Task> serveFile)
         => GetEnvironmentVariable(environmentPath)
@@ -57,6 +77,18 @@ static class Requests
                                 .OrderBy(n => n)
                                 .ToArray()
                     )));
+
+    static Option<Stream> GetThumbnail(string filename)
+    {
+        var pb = Pixbuf.NewFromFile(filename);
+        Pixbuf.GetFileInfo(filename, out var w, out var h);
+        var newh = 64 * h / w;
+        var thumbnail = Pixbuf.Scale(pb, 64, newh, Interpolation.Bilinear);
+        GObject.Unref(pb);
+        var stream = Pixbuf.SaveJpgToBuffer(thumbnail);
+        GObject.Unref(thumbnail);
+        return stream.FromNullable();        
+    }
 
     record DirectoryContent(string[] Directories, string[] Files);
 }

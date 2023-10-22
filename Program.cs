@@ -34,6 +34,7 @@ WebApplication
     .WithHost(GetEnvironmentVariable(IntranetHost).GetOrDefault(Environment.MachineName))
         .WithMapGet("/media/video/{**path}", ServeVideo)
         .WithMapGet("/media/pics/{**path}", ServePictures)
+        .WithMapGet("/media/thumbnail/{**path}", ServeThumbnail)
         .WithMapGet("/media/music/{**path}", ServeMusic)
         .WithMapGet("/media/accessdisk", AccessDisk)
         .WithMapGet("/media/diskneeded", DiskNeeded)
