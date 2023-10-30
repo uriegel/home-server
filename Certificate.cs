@@ -39,7 +39,7 @@ static class Certificate
             .AppendPath(name)
             .ReadAllTextFromFilePath();
 
-    static Timer certificateResetter = new(
+    static readonly Timer certificateResetter = new(
         _ => Resetter.Reset(), 
         null, 
         TimeSpan.FromDays(1), 
