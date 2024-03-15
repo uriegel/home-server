@@ -39,9 +39,10 @@ static class Requests
             .UseAsync(f => context.SendStream(f, null, path));
 
     public static Task SendThumbnail(this string path, HttpContext context)
-        => GetThumbnail(path).Match(
-           th => context.SendStream(th, null),
-           () => NotFound(context));
+        => GetThumbnail(path)
+            .Match(
+                s => context.SendStream(s, null),
+                () => NotFound(context));
 
     static Task Serve(HttpContext context, string environmentPath, Func<string, HttpContext, Task> serveFile)
         => GetEnvironmentVariable(environmentPath)!

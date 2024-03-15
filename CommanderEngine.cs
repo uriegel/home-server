@@ -54,9 +54,9 @@ static class CommanderEngine
         context
             .Request
             .Headers["x-file-date"]
-            .FirstOrNone()
-            .SelectMany(s => s.ParseLong())
-            .WhenSome(l => l.SetLastWriteTime(path));
+            .FirstOrDefault()
+            ?.ParseLong()
+            ?.SetLastWriteTime(path);
     }
     // TODO Funktionales ConfigureKestrel
 
