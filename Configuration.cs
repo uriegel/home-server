@@ -1,5 +1,4 @@
 using CsTools.Extensions;
-using LinqTools;
 
 using static CsTools.Functional.Memoization;
 
@@ -14,15 +13,15 @@ static class Configuration
     public const string MusicPath = "MUSIC_PATH";
     public const string UsbMediaPort = "USB_MEDIA_PORT";
 
-    static Func<string, Option<string>, Option<string>> Init {get; } 
+    static Func<string, string?, string?> Init {get; } 
         = (key, _) => key.GetEnvironmentVariableWithLogging();
 
-    public static Func<string, Option<string>> GetEnvironmentVariable { get; }
-        = Memoize<string>(Init, false);
+    public static Func<string, string?> GetEnvironmentVariable { get; }
+        = Memoize(Init, false);
 
-    static Option<string> GetEnvironmentVariableWithLogging(this string key)
+    static string GetEnvironmentVariableWithLogging(this string key)
         => key
-            .GetEnvironmentVariable()
+            .GetEnvironmentVariable()!
             .SideEffect(v => Console.WriteLine($"Reading environment {key}: {v}"));
 }
 

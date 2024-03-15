@@ -1,10 +1,10 @@
 using AspNetExtensions;
 using CsTools.Extensions;
+using CsTools.Functional;
 using GtkDotNet;
-using LinqTools;
 using static Configuration;
+using static CsTools.Functional.ChooseExtensions;
 using static Extensions;
-using static LinqTools.ChooseExtensions;
 
 static class Requests
 {
@@ -16,12 +16,11 @@ static class Requests
 
     public static Task ServeThumbnail(HttpContext context)
         => GetEnvironmentVariable(PicturePath)
-            .GetOrDefault("")
             .AppendPath(context.GetRouteValue("path") as string ?? "")
             .Choose(
                 Switch(IsFile, p => p.SendThumbnail(context)),
                 Default(_ => NotFound(context)))
-            .GetOrDefault(1.ToAsync());
+            ?? 1.ToAsync();
 
     public static Task ServeMusic(HttpContext context)
         => Serve(context, MusicPath, (p, c) => AspNetExtensions.Extensions.StreamRangeFile(c, p));
@@ -45,14 +44,13 @@ static class Requests
            () => NotFound(context));
 
     static Task Serve(HttpContext context, string environmentPath, Func<string, HttpContext, Task> serveFile)
-        => GetEnvironmentVariable(environmentPath)
-            .GetOrDefault("")
+        => GetEnvironmentVariable(environmentPath)!
             .AppendPath(context.GetRouteValue("path") as string ?? "")
             .Choose(
                 Switch(IsDirectory, p => ServeDirectory(context, p)),
                 Switch(IsFile, p => serveFile(p, context)),
                 Default(_ => NotFound(context)))
-            .GetOrDefault(1.ToAsync());
+            ?? 1.ToAsync();
 
     public static Func<Predicate<string>, Func<string, Task>, SwitchType<string, Task>> Switch 
         = SwitchType<string, Task>.Switch;
@@ -78,16 +76,13 @@ static class Requests
                                 .ToArray()
                     )));
 
-    static Option<Stream> GetThumbnail(string filename)
+    static Stream? GetThumbnail(string filename)
     {
         var pb = Pixbuf.NewFromFile(filename);
-        Pixbuf.GetFileInfo(filename, out var w, out var h);
+        var (w, h) = Pixbuf.GetFileInfo(filename);
         var newh = 64 * h / w;
         var thumbnail = Pixbuf.Scale(pb, 64, newh, Interpolation.Bilinear);
-        GObject.Unref(pb);
-        var stream = Pixbuf.SaveJpgToBuffer(thumbnail);
-        GObject.Unref(thumbnail);
-        return stream.FromNullable();        
+        return Pixbuf.SaveJpgToBuffer(thumbnail);
     }
 
     record DirectoryContent(string[] Directories, string[] Files);

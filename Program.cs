@@ -1,6 +1,5 @@
 ﻿using AspNetExtensions;
 using CsTools.Extensions;
-using LinqTools;
 
 using static System.Console;
 using static Configuration;
@@ -17,8 +16,8 @@ WebApplication
                 options
                     .UseListenAnyIP(
                         GetEnvironmentVariable(ServerPort)
-                            .SelectMany(StringExtensions.ParseInt)
-                            .GetOrDefault(80))
+                            ?.ParseInt()
+                            ?? 80)
                     .UseLimits(limits => limits.SetMaxRequestBodySize(null)))
             .ConfigureServices(services =>
                 services
@@ -31,7 +30,7 @@ WebApplication
     .Build()
     .WithResponseCompression()
     .WithRouting()
-    .WithHost(GetEnvironmentVariable(IntranetHost).GetOrDefault(Environment.MachineName))
+    .WithHost(GetEnvironmentVariable(IntranetHost) ?? Environment.MachineName)
         .WithMapGet("/media/video/{**path}", ServeVideo)
         .WithMapGet("/media/pics/{**path}", ServePictures)
         .WithMapGet("/media/thumbnail/{**path}", ServeThumbnail)
@@ -62,8 +61,7 @@ WebApplication
             .ConfigureKestrel(options => options.ListenAnyIP(
                 Configuration
                     .GetEnvironmentVariable(ServerTlsPort)
-                    .SelectMany(StringExtensions.ParseInt)
-                    .GetOrDefault(443), options => {
+                    ?.ParseInt() ?? 443, options => {
                         options.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
                         options.UseHttps(options 
                             => options.ServerCertificateSelector = (_, __) 

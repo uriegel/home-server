@@ -1,6 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
 using CsTools.Extensions;
-using LinqTools;
 
 using static CsTools.Functional.Memoization;
 using static Configuration;
@@ -16,28 +15,26 @@ static class Certificate
     static Resetter Resetter { get; } = new Resetter();
     static X509Certificate2 InitCertificate()
         => GetEnvironmentVariable(LetsEncryptDir)
-            .GetOrDefault("")
-            .AppendPath("certificate.pfx")
-            .ReadCertificate();
+            ?.AppendPath("certificate.pfx")
+            ?.ReadCertificate()!;
 
     static string InitPfxPassword()
         => (OperatingSystem.IsLinux()
             ? "/etc"
             : Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData))
-            .AppendPath("letsencrypt-uweb")
-            .ReadAllTextFromFilePath()
-            .Trim();
+            ?.AppendPath("letsencrypt-uweb")
+            ?.ReadAllTextFromFilePath()
+            ?.Trim()!;
 
-    static Func<string> GetPfxPassword { get; } = Memoize(InitPfxPassword);
+    static Func<string?> GetPfxPassword { get; } = Memoize(InitPfxPassword);
 
     static X509Certificate2 ReadCertificate(this string fileName)
         => new X509Certificate2(fileName, GetPfxPassword());
 
     static Func<string, string> getFileContent = name =>
         GetEnvironmentVariable(LetsEncryptDir)
-            .GetOrDefault("")
-            .AppendPath(name)
-            .ReadAllTextFromFilePath();
+            ?.AppendPath(name)
+            ?.ReadAllTextFromFilePath()!;
 
     static readonly Timer certificateResetter = new(
         _ => Resetter.Reset(), 

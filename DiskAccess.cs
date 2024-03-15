@@ -1,8 +1,8 @@
-using LinqTools;
 using static CsTools.ProcessCmd;
 using static System.Console;
 using static Configuration;
 using static CsTools.Core;
+using CsTools.Extensions;
 
 static class DiskAccess
 {

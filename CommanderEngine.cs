@@ -1,7 +1,6 @@
 using AspNetExtensions;
 using CsTools.Extensions;
-using LinqTools;
-using static LinqTools.ChooseExtensions;
+using CsTools.Functional;
 using static Requests;
 
 static class CommanderEngine
@@ -66,7 +65,7 @@ static class CommanderEngine
             .Choose(
                 Switch(_ => true, p => p.SendFile(context)),
                 Default(p => p.SendFile(context)))
-            .GetOrDefault(1.ToAsync());                
+            ?? 1.ToAsync();                
 
     static void SetLastWriteTime(this long unixTime, string targetFilename)
         => File.SetLastWriteTime(targetFilename, unixTime.FromUnixTime());
