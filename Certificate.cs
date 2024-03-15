@@ -7,8 +7,7 @@ using static Configuration;
 static class Certificate
 {
     public static WebApplicationWithHost LetsEncrypt(this WebApplicationWithHost app)
-        => app.SideEffect(_ => app.WithMapGet("/.well-known/acme-challenge/{secret}", 
-                                                (string secret) => getFileContent($"{secret}")));
+        => app.SideEffect(_ => app.WithMapGet("/.well-known/acme-challenge/{secret}", GetFileContent));
 
     public static Func<X509Certificate2> Get { get; } = Memoize(InitCertificate, Resetter);
 
@@ -24,17 +23,18 @@ static class Certificate
             : Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData))
             ?.AppendPath("letsencrypt-uweb")
             ?.ReadAllTextFromFilePath()
-            ?.Trim()!;
+            ?.Trim() 
+            ?? "";
 
-    static Func<string?> GetPfxPassword { get; } = Memoize(InitPfxPassword);
+    static Func<string> GetPfxPassword { get; } = Memoize(InitPfxPassword);
 
     static X509Certificate2 ReadCertificate(this string fileName)
-        => new X509Certificate2(fileName, GetPfxPassword());
+        => new(fileName, GetPfxPassword());
 
-    static Func<string, string> getFileContent = name =>
+    static readonly Func<string, string?> GetFileContent = name =>
         GetEnvironmentVariable(LetsEncryptDir)
             ?.AppendPath(name)
-            ?.ReadAllTextFromFilePath()!;
+            ?.ReadAllTextFromFilePath();
 
     static readonly Timer certificateResetter = new(
         _ => Resetter.Reset(), 

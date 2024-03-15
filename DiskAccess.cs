@@ -61,5 +61,5 @@ static class DiskAccess
             diskShutdownTimer?.Stop();
         });
 
-    static System.Timers.Timer diskShutdownTimer;
+    static readonly System.Timers.Timer diskShutdownTimer;
 }

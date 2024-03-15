@@ -15,7 +15,7 @@ static class CommanderEngine
                             0,
                             true,
                             (i.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden || d.Name.StartsWith('.'),
-                            (new DateTimeOffset(d.LastWriteTime).ToUnixTimeMilliseconds())))
+                            new DateTimeOffset(d.LastWriteTime).ToUnixTimeMilliseconds()))
                     .Concat(i
                         .GetFiles()
                         .Select(f => new RemoteItem(
@@ -23,7 +23,7 @@ static class CommanderEngine
                             f.Length,
                             false,
                             (f.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden || f.Name.StartsWith('.'),
-                            (new DateTimeOffset(f.LastWriteTime).ToUnixTimeMilliseconds()))))
+                            new DateTimeOffset(f.LastWriteTime).ToUnixTimeMilliseconds())))
                     .ToArray()
                     .ToAsync());
 
@@ -31,7 +31,7 @@ static class CommanderEngine
     {
         var path = await context.Request.ReadFromJsonAsync<CommanderEngine.Input>();
         var fileDate = context.Response.Headers.TryAdd("x-file-date",
-                            (new DateTimeOffset(new FileInfo(path!.path).LastWriteTime).ToUnixTimeMilliseconds().ToString()));
+                            new DateTimeOffset(new FileInfo(path!.path).LastWriteTime).ToUnixTimeMilliseconds().ToString());
         await File
             .OpenRead(path!.path)
             .UseAsync(f => context.SendStream(f, null, path!.path));

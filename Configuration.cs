@@ -19,9 +19,9 @@ static class Configuration
     public static Func<string, string?> GetEnvironmentVariable { get; }
         = Memoize(Init, false);
 
-    static string GetEnvironmentVariableWithLogging(this string key)
+    static string? GetEnvironmentVariableWithLogging(this string key)
         => key
-            .GetEnvironmentVariable()!
-            .SideEffect(v => Console.WriteLine($"Reading environment {key}: {v}"));
+            .GetEnvironmentVariable()
+            ?.SideEffect(v => Console.WriteLine($"Reading environment {key}: {v}"));
 }
 
