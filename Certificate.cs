@@ -9,13 +9,13 @@ static class Certificate
     public static WebApplicationWithHost LetsEncrypt(this WebApplicationWithHost app)
         => app.SideEffect(_ => app.WithMapGet("/.well-known/acme-challenge/{secret}", GetFileContent));
 
-    public static Func<X509Certificate2> Get { get; } = Memoize(InitCertificate, Resetter);
+    public static Func<X509Certificate2?> Get { get; } = MemoizeMaybe(InitCertificate, Resetter);
 
     static Resetter Resetter { get; } = new Resetter();
-    static X509Certificate2 InitCertificate()
+    static X509Certificate2? InitCertificate()
         => GetEnvironmentVariable(LetsEncryptDir)
             ?.AppendPath("certificate.pfx")
-            ?.ReadCertificate()!;
+            ?.ReadCertificate();
 
     static string InitPfxPassword()
         => (OperatingSystem.IsLinux()

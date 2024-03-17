@@ -2,6 +2,7 @@ using AspNetExtensions;
 using CsTools.Extensions;
 using CsTools.Functional;
 using GtkDotNet;
+
 using static Configuration;
 using static CsTools.Functional.ChooseExtensions;
 using static Extensions;
@@ -39,13 +40,15 @@ static class Requests
             .UseAsync(f => context.SendStream(f, null, path));
 
     public static Task SendThumbnail(this string path, HttpContext context)
-        => GetThumbnail(path)
-            .Match(
-                s => context.SendStream(s, null),
-                () => NotFound(context));
-
+    {
+        var stream = GetThumbnail(path);
+        return stream != null
+            ? context.SendStream(stream, null)
+            : NotFound(context);
+    }
+    
     static Task Serve(HttpContext context, string environmentPath, Func<string, HttpContext, Task> serveFile)
-        => GetEnvironmentVariable(environmentPath)!
+        => GetEnvironmentVariable(environmentPath)
             .AppendPath(context.GetRouteValue("path") as string ?? "")
             .Choose(
                 Switch(IsDirectory, p => ServeDirectory(context, p)),
@@ -67,14 +70,12 @@ static class Requests
                     .With(
                         p => new DirectoryInfo(p),
                         i => new DirectoryContent(
-                            i.GetDirectories()
+                            [.. i.GetDirectories()
                                 .Select(n => n.Name)
-                                .OrderBy(n => n)
-                                .ToArray(),
-                            i.GetFiles()
+                                .OrderBy(n => n)],
+                            [.. i.GetFiles()
                                 .Select(n => n.Name)
-                                .OrderBy(n => n)
-                                .ToArray()
+                                .OrderBy(n => n)]
                     )));
 
     static Stream? GetThumbnail(string filename)

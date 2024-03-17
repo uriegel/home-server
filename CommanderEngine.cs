@@ -29,12 +29,15 @@ static class CommanderEngine
 
     public static async Task GetFile(HttpContext context)                    
     {
-        var path = await context.Request.ReadFromJsonAsync<CommanderEngine.Input>();
+        var path = await context.Request.ReadFromJsonAsync<Input>();
         var fileDate = context.Response.Headers.TryAdd("x-file-date",
-                            new DateTimeOffset(new FileInfo(path!.path).LastWriteTime).ToUnixTimeMilliseconds().ToString());
+                            new DateTimeOffset(new FileInfo(path?.path ?? "")
+                                                    .LastWriteTime)
+                                .ToUnixTimeMilliseconds()
+                                .ToString());
         await File
-            .OpenRead(path!.path)
-            .UseAsync(f => context.SendStream(f, null, path!.path));
+            .OpenRead(path?.path ?? "")
+            .UseAsync(f => context.SendStream(f, null, path?.path ?? ""));
     }
 
     public static async Task PostFile(HttpContext context)

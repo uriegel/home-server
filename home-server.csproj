@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetExtensions" Version="6.0.5" />
     <PackageReference Include="Gtk4DotNet" Version="5.3.7" />
-    <PackageReference Include="CsTools" Version="7.14.0" />
+    <PackageReference Include="CsTools" Version="7.14.6" />
   </ItemGroup>
 
 </Project>
