@@ -6,9 +6,10 @@ using static Configuration;
 
 static class Certificate
 {
-    public static WebApplicationWithHost LetsEncrypt(this WebApplicationWithHost app)
-        => app.SideEffect(_ => app.WithMapGet("/.well-known/acme-challenge/{secret}", GetFileContent));
-
+ public static WebApplicationWithHost LetsEncrypt(this WebApplicationWithHost app)
+        => app.SideEffect(_ => app.WithMapGet("/.well-known/acme-challenge/{secret}", 
+                                                (string secret) => GetFileContent($"{secret}")));
+                                                
     public static Func<X509Certificate2?> Get { get; } = MemoizeMaybe(InitCertificate, Resetter);
 
     static Resetter Resetter { get; } = new Resetter();
