@@ -33,7 +33,9 @@ static class Certificate
         => new(fileName, GetPfxPassword());
 
     static readonly Func<string, string?> GetFileContent = name =>
-        GetEnvironmentVariable(LetsEncryptDir)
+        name == "check"
+        ? "checked"
+        : GetEnvironmentVariable(LetsEncryptDir)
             ?.AppendPath(name)
             ?.ReadAllTextFromFilePath();
 
