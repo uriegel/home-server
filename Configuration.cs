@@ -1,8 +1,5 @@
-using AspNetExtensions;
-
 static class Configuration
 {
-    public const string LetsEncryptDir = LetsEncrypt.LETS_ENCRYPT_DIR;
     public const string ServerPort = "SERVER_PORT";
     public const string ServerTlsPort = "SERVER_TLS_PORT";
     public const string IntranetHost = "INTRANET_HOST";

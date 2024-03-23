@@ -55,7 +55,9 @@ WebApplication
     .WithHost("uriegel.de")
         .UseLetsEncryptValidation()
         .GetApp()
+#if DEBUG        
     .WithFileServer("/test", "webroot") // TODO only for hosts != withHost
+#endif
     .Start();
 
 WebApplication
