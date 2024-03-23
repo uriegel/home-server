@@ -1,13 +1,16 @@
 ﻿using AspNetExtensions;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using CsTools.Extensions;
 
 using static System.Console;
+using static CsTools.WithLogging;
 using static Configuration;
 using static Requests;
 using static DiskAccess;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 WriteLine("Launching home server...");
+
+// TODO reject connection when letsencryt is active or useReject
 
 WebApplication
     .CreateBuilder(args)
@@ -44,15 +47,15 @@ WebApplication
         .WithMapGet("/remote/{**path}", CommanderEngine.Serve)
         .GetApp()
     .WithHost("fritz.uriegel.de")
-        .LetsEncrypt()
+        .UseLetsEncryptValidation()
         .GetApp()
     .WithHost("familie.uriegel.de")
-        .LetsEncrypt()
+        .UseLetsEncryptValidation()
         .GetApp()
     .WithHost("uriegel.de")
-        .LetsEncrypt()
+        .UseLetsEncryptValidation()
         .GetApp()
-    .WithFileServer("/test", "webroot")
+    .WithFileServer("/test", "webroot") // TODO only for hosts != withHost
     .Start();
 
 WebApplication
@@ -61,16 +64,9 @@ WebApplication
         webHostBuilder
             .ConfigureKestrel(options => options.ListenAnyIP(
                 GetEnvironmentVariable(ServerTlsPort)
-                ?.ParseInt() ?? 443, 
-                
-                
-                // TODO to aspnetextensions
-                options => {
+                ?.ParseInt() ?? 443, options => {
                     options.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
-                    options.UseHttps(options 
-                        => options.ServerCertificateSelector = 
-                            (_, __) => 
-                                Certificate.Get());
+                    options.UseHttps(LetsEncrypt.Use);
                 }
             ))
             .ConfigureServices(services =>

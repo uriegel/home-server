@@ -3,8 +3,9 @@ using CsTools.Extensions;
 using CsTools.Functional;
 using GtkDotNet;
 
-using static Configuration;
 using static CsTools.Functional.ChooseExtensions;
+using static CsTools.WithLogging;
+using static Configuration;
 using static Extensions;
 
 static class Requests
