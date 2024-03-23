@@ -5,6 +5,7 @@ using static System.Console;
 using static Configuration;
 using static Requests;
 using static DiskAccess;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 WriteLine("Launching home server...");
 
@@ -59,14 +60,18 @@ WebApplication
     .ConfigureWebHost(webHostBuilder =>
         webHostBuilder
             .ConfigureKestrel(options => options.ListenAnyIP(
-                Configuration
-                    .GetEnvironmentVariable(ServerTlsPort)
-                    ?.ParseInt() ?? 443, options => {
-                        options.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-                        options.UseHttps(options 
-                            => options.ServerCertificateSelector = (_, __) 
-                                => Certificate.Get());
-                    }
+                GetEnvironmentVariable(ServerTlsPort)
+                ?.ParseInt() ?? 443, 
+                
+                
+                // TODO to aspnetextensions
+                options => {
+                    options.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
+                    options.UseHttps(options 
+                        => options.ServerCertificateSelector = 
+                            (_, __) => 
+                                Certificate.Get());
+                }
             ))
             .ConfigureServices(services =>
                 services

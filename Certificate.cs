@@ -9,14 +9,18 @@ static class Certificate
  public static WebApplicationWithHost LetsEncrypt(this WebApplicationWithHost app)
         => app.SideEffect(_ => app.WithMapGet("/.well-known/acme-challenge/{secret}", 
                                                 (string secret) => GetFileContent($"{secret}")));
-                                                
+    /// <summary>
+    /// Resetter has to be existent, otherwise MemoizeMaybe will be called with null!
+    /// </summary>
+    static Resetter Resetter { get; } = new Resetter();
+
     public static Func<X509Certificate2?> Get { get; } = MemoizeMaybe(InitCertificate, Resetter);
 
-    static Resetter Resetter { get; } = new Resetter();
     static X509Certificate2? InitCertificate()
         => GetEnvironmentVariable(LetsEncryptDir)
             ?.AppendPath("certificate.pfx")
-            ?.ReadCertificate();
+            ?.ReadCertificate()
+            ?.SideEffect(_ => StartCertificateTimer());
 
     static string InitPfxPassword()
         => (OperatingSystem.IsLinux()
@@ -39,11 +43,14 @@ static class Certificate
             ?.AppendPath(name)
             ?.ReadAllTextFromFilePath();
 
-    static readonly Timer certificateResetter = new(
-        _ => Resetter.Reset(), 
-        null, 
-        TimeSpan.FromDays(1), 
-        TimeSpan.FromDays(1)
-    );
+    static void StartCertificateTimer()
+        => certificateResetter ??= new(_ => Resetter.Reset(),
+                null,
+                // TimeSpan.FromDays(1), 
+                TimeSpan.FromMinutes(1),
+                TimeSpan.FromMinutes(1));
+                //TimeSpan.FromDays(1)
+        
+    static Timer? certificateResetter;
 }
 
