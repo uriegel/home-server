@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetExtensions" Version="7.1.3" />
-    <PackageReference Include="Gtk4DotNet" Version="5.3.7" />
+    <PackageReference Include="AspNetExtensions" Version="7.1.5" />
+    <PackageReference Include="Gtk4DotNet" Version="5.3.8" />
   </ItemGroup>
 
 </Project>
