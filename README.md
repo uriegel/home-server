@@ -39,8 +39,8 @@ Documentation=https://github.com/uriegel/home-server/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=PATH=$PATH:/home/uwe/dotnet
-Environment=export DOTNET_ROOT=/home/uwe/dotnet
+Environment=PATH=$PATH:/home/uwe/.dotnet
+Environment=export DOTNET_ROOT=/home/uwe/.dotnet
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=443
 Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
@@ -52,14 +52,11 @@ Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
 Environment=USB_MEDIA_PORT=5
 Type=simple
-#ExecStart=/home/uwe/server/home-server
-ExecStart=/home/uwe/dotnet/dotnet /home/uwe/giraffe/bin/Release/net6.0/server.dll
+ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/home-server/bin/Release/net8.0/server.dll
 User=root
 Group=root
 Restart=on-failure
-WorkingDirectory=/home/uwe/giraffe
-#Environment=AUTH_NAME=nnnnn
-#Environment=AUTH_PW=**********
+WorkingDirectory=/home/uwe/home-server
 
 [Install]
 WantedBy=multi-user.target
