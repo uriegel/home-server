@@ -90,7 +90,8 @@ Create file: ```sudo nano /etc/udev/rules.d/52-usb.rules```
 with the following content:
 
 ```
-SUBSYSTEM=="usb", DRIVER=="usb", MODE="0666", ATTR{idVendor}=="1234"
+SUBSYSTEM=="usb", DRIVER=="usb", MODE="0664", GROUP="uwe", ATTR{idVendor}=="0424"
+# or for all users: SUBSYSTEM=="usb", DRIVER=="usb", MODE="0666", ATTR{idVendor}=="1234"
 # Linux 6.0 or later (its ok to have this block present for older Linux kernels):
 SUBSYSTEM=="usb", DRIVER=="usb", \
   RUN="/bin/sh -c \"chmod -f 666 $sys$devpath/*-port*/disable || true\""
