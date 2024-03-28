@@ -2,7 +2,7 @@
 a home server for my Raspberry Pi 3
 
 ## Setup
-### Ubuntu 20.10 Server
+### Ubuntu 23.10 Server
 ```
 sudo apt update
 sudo apt upgrade
@@ -42,8 +42,7 @@ After=network.target
 Environment=PATH=$PATH:/home/uwe/.dotnet
 Environment=export DOTNET_ROOT=/home/uwe/.dotnet
 Environment=SERVER_PORT=8080
-Environment=SERVER_TLS_PORT=443
-Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
+Environment=SERVER_TLS_PORT=4433
 Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
@@ -52,9 +51,9 @@ Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
 Environment=USB_MEDIA_PORT=5
 Type=simple
-ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/home-server/bin/Release/net8.0/server.dll
-User=root
-Group=root
+ExecStart=/home/uwe/home-server/bin/Release/net8.0/server
+User=uwe
+Group=uwe
 Restart=on-failure
 WorkingDirectory=/home/uwe/home-server
 
@@ -70,14 +69,6 @@ sudo systemctl start home-server
 sudo systemctl status home-server
 ```
 
-Port 80 and port 443 on Linux:
-
-```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
-
-Now the program is not debuggable any more. To remove:
-
-```setcap -r /home/uwe/.dotnet/dotnet```
-
 ## Logging
 
 ``` sudo journalctl -u homeserver ```
@@ -89,6 +80,32 @@ journalctl --disk-usage
 sudo journalctl --rotate      
 sudo journalctl --vacuum-time=2weeks
 ```
+
+## Switching usb DRIVE ON and off
+
+Check environment variable USB_MEDIA_PORT in home-server.service.
+
+Create file: ```sudo nano /etc/udev/rules.d/52-usb.rules```
+
+with the following content:
+
+```
+SUBSYSTEM=="usb", DRIVER=="usb", MODE="0666", ATTR{idVendor}=="1234"
+# Linux 6.0 or later (its ok to have this block present for older Linux kernels):
+SUBSYSTEM=="usb", DRIVER=="usb", \
+  RUN="/bin/sh -c \"chmod -f 666 $sys$devpath/*-port*/disable || true\""
+```
+
+replace vendor id (1234) with the correct value retrieved by calling:
+
+```sudo uhubctl```
+
+From the result ```Port 1: 0503 power highspeed enable connect [4321:ec00]``` you get the vendor id of the USB hub from [vid:pid], in this example ```4321```
+
+Reboot or run 
+
+```sudo udevadm trigger --attr-match=subsystem=usb```
+
 
 ## HTTP 3
 ```https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/http3?view=aspnetcore-6.0```
@@ -102,6 +119,17 @@ sudo apt-get update
 
 sudo apt install libmsquic=1.9*
 ```
+
+## Deprecated
+
+
+Port 80 and port 443 on Linux:
+
+```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
+
+Now the program is not debuggable any more. To remove:
+
+```setcap -r /home/uwe/.dotnet/dotnet```
 
 ## uhubctl
 
@@ -127,8 +155,6 @@ make
 ls
 sudo make install
 ```
-
-## Deprecated
 
 Send external disk to sleep after some time (20s):
 
