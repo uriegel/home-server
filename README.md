@@ -11,7 +11,7 @@ sudo apt upgrade
 ### External USB disk
 
 ```
-LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
+LABEL=Videos   /media/video    ext4    defaults,nofail 0
 ```
 
 Then enter
@@ -43,24 +43,28 @@ Environment=PATH=$PATH:/home/uwe/.dotnet
 Environment=export DOTNET_ROOT=/home/uwe/.dotnet
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=4433
+Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
 Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
-Environment=USB_MEDIA_PORT=5
+Environment=USB_MEDIA_PORT=2
 Type=simple
-ExecStart=/home/uwe/home-server/bin/Release/net8.0/server
-User=uwe
-Group=uwe
+ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/home-server/bin/Release/net6.0/server.dll
+User=root
+Group=root
 Restart=on-failure
 WorkingDirectory=/home/uwe/home-server
+#Environment=AUTH_NAME=nnnnn
+#Environment=AUTH_PW=**********
 
 [Install]
 WantedBy=multi-user.target
-
 ```
+
+
 
 ```
 sudo systemctl daemon-reload
@@ -80,6 +84,30 @@ journalctl --disk-usage
 sudo journalctl --rotate      
 sudo journalctl --vacuum-time=2weeks
 ```
+
+## HTTP 3
+```https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/http3?view=aspnetcore-6.0```
+
+```
+curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+
+sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
+
+sudo apt-get update
+
+sudo apt install libmsquic=1.9*
+```
+
+## Deprecated
+
+
+Port 80 and port 443 on Linux:
+
+```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
+
+Now the program is not debuggable any more. To remove:
+
+```setcap -r /home/uwe/.dotnet/dotnet```
 
 ## Switching usb DRIVE ON and off
 
@@ -107,30 +135,6 @@ Reboot or run
 
 ```sudo udevadm trigger --attr-match=subsystem=usb```
 
-
-## HTTP 3
-```https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/http3?view=aspnetcore-6.0```
-
-```
-curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-
-sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
-
-sudo apt-get update
-
-sudo apt install libmsquic=1.9*
-```
-
-## Deprecated
-
-
-Port 80 and port 443 on Linux:
-
-```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
-
-Now the program is not debuggable any more. To remove:
-
-```setcap -r /home/uwe/.dotnet/dotnet```
 
 ## uhubctl
 
