@@ -1,12 +1,15 @@
 using AspNetExtensions;
 using CsTools.Extensions;
 using CsTools.Functional;
+using CsTools.HttpRequest;
 using static Requests;
+using static CsTools.Core;
 
 static class CommanderEngine
 {
-    public static Task<RemoteItem[]> GetFiles(Input input)
-        => input.path.With(
+    public static AsyncResult<RemoteItem[], RequestError> GetFiles(string? path) 
+        => Try(
+            () => ("/" + path).With(
                 p => new DirectoryInfo(p),
                 i => i
                         .GetDirectories()
@@ -24,20 +27,21 @@ static class CommanderEngine
                             false,
                             (f.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden || f.Name.StartsWith('.'),
                             new DateTimeOffset(f.LastWriteTime).ToUnixTimeMilliseconds())))
-                    .ToArray()
-                    .ToAsync());
+                    .ToArray()),
+            CatchRequestError)
+            .ToAsyncResult();
 
     public static async Task GetFile(HttpContext context)                    
     {
         var path = await context.Request.ReadFromJsonAsync<Input>();
         var fileDate = context.Response.Headers.TryAdd("x-file-date",
-                            new DateTimeOffset(new FileInfo(path?.path ?? "")
+                            new DateTimeOffset(new FileInfo(path?.Path ?? "")
                                                     .LastWriteTime)
                                 .ToUnixTimeMilliseconds()
                                 .ToString());
         await File
-            .OpenRead(path?.path ?? "")
-            .UseAsync(f => context.SendStream(f, null, path?.path ?? ""));
+            .OpenRead(path?.Path ?? "")
+            .UseAsync(f => context.SendStream(f, null, path?.Path ?? ""));
     }
 
     public static async Task PostFile(HttpContext context)
@@ -73,7 +77,15 @@ static class CommanderEngine
     static void SetLastWriteTime(this long unixTime, string targetFilename)
         => File.SetLastWriteTime(targetFilename, unixTime.FromUnixTime());
 
-    public record Input(string path);
+    static RequestError CatchRequestError(Exception e)
+        =>  e is DirectoryNotFoundException
+            ? new RequestError(404, "Nicht gefunden")
+            : e is UnauthorizedAccessException
+            ? new RequestError(403, "Verboten")
+            : new RequestError(400, "Abfragefehler");
+
+
+    public record Input(string Path);
     public record RemoteItem(
         string Name,
         long Size,
