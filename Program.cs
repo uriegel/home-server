@@ -42,7 +42,6 @@ WebApplication
         .WithMapGet("/media/accessdisk", AccessDisk)
         .WithMapGet("/media/diskneeded", DiskNeeded)
         .WithJsonGet("/getfiles/{**path}", CommanderEngine.GetFiles)
-        .WithMapPost("remote/getfile", CommanderEngine.GetFile)
         .WithMapPost("remote/postfile", CommanderEngine.PostFile)
         .WithMapGet("/getfile/{**path}", CommanderEngine.Serve)
         .WithMapGet("/downloadfile/{**path}", CommanderEngine.Serve)

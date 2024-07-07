@@ -68,11 +68,13 @@ static class CommanderEngine
     // TODO Funktionales ConfigureKestrel
 
     public static Task Serve(HttpContext context)
-        => ("/" + context.GetRouteValue("path") as string)
-            .Choose(
-                Switch(_ => true, p => p.SendFile(context)),
-                Default(p => p.SendFile(context)))
-            ?? 1.ToAsync();                
+        => $"/{context.GetRouteValue("path")}"
+            .Pipe(p => p.SendFile(
+                context
+                    .SideEffect(_ => context.Response.Headers.TryAdd("x-file-date",
+                                    new DateTimeOffset(new FileInfo(p).LastWriteTime)
+                                        .ToUnixTimeMilliseconds()
+                                        .ToString()))));
 
     static void SetLastWriteTime(this long unixTime, string targetFilename)
         => File.SetLastWriteTime(targetFilename, unixTime.FromUnixTime());
