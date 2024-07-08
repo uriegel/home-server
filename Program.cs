@@ -42,7 +42,7 @@ WebApplication
         .WithMapGet("/media/accessdisk", AccessDisk)
         .WithMapGet("/media/diskneeded", DiskNeeded)
         .WithJsonGet("/getfiles/{**path}", CommanderEngine.GetFiles)
-        .WithMapPost("remote/postfile", CommanderEngine.PostFile)
+        .WithMapPut("/putfile/{**path}", CommanderEngine.PutFile)
         .WithMapGet("/getfile/{**path}", CommanderEngine.Serve)
         .WithMapGet("/downloadfile/{**path}", CommanderEngine.Serve)
         .GetApp()
