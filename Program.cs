@@ -83,7 +83,7 @@ WebApplication
     .WithResponseCompression()
     .WithRouting()
     .WithHost("uriegel.de")
-        .WithMapPost("tracker/ping", Tracker.Ping)
+        .WithMapPost("superfit/login", SuperFit.Login)
         .WithMapGet("/", () => "Under construction")
         .GetApp()
     .WithHost("fritz.uriegel.de")
