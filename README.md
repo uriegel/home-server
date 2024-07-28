@@ -85,6 +85,18 @@ sudo journalctl --rotate
 sudo journalctl --vacuum-time=2weeks
 ```
 
+### Sqlite
+
+```
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet tool install --global dotnet-ef
+```
+
+```
+dotnet ef migrations add InitialCreate
+```
+
 ## HTTP 3
 ```https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/http3?view=aspnetcore-6.0```
 
