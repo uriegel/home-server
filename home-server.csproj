@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetExtensions" Version="7.3.0" />
+    <PackageReference Include="AspNetExtensions" Version="7.3.1" />
     <PackageReference Include="Gtk4DotNet" Version="6.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
