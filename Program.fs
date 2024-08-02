@@ -25,7 +25,7 @@ let configureServices (services : IServiceCollection) =
         
 
 // TODO check Giraffe 7.0.0
-        .AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
+//        .AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
 
 
         .AddResponseCompression()
