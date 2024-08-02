@@ -22,7 +22,12 @@ let configureServices (services : IServiceCollection) =
     jsonOptions.DefaultIgnoreCondition <- JsonIgnoreCondition.WhenWritingNull
     services
         .AddSingleton(jsonOptions) 
+        
+
+// TODO check Giraffe 7.0.0
         .AddSingleton<Json.ISerializer, SystemTextJson.Serializer>() 
+
+
         .AddResponseCompression()
         .AddGiraffe()
     |> ignore
