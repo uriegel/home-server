@@ -2,7 +2,7 @@
 a home server for my Raspberry Pi 3
 
 ## Setup
-### Ubuntu 20.10 Server
+### Ubuntu 23.10 Server
 ```
 sudo apt update
 sudo apt upgrade
@@ -11,7 +11,7 @@ sudo apt upgrade
 ### External USB disk
 
 ```
-LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
+LABEL=Videos   /media/video    ext4    defaults,nofail 0
 ```
 
 Then enter
@@ -39,8 +39,8 @@ Documentation=https://github.com/uriegel/home-server/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=PATH=$PATH:/home/uwe/dotnet
-Environment=export DOTNET_ROOT=/home/uwe/dotnet
+Environment=PATH=$PATH:/home/uwe/.dotnet
+Environment=export DOTNET_ROOT=/home/uwe/.dotnet
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=4433
 Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
@@ -50,14 +50,14 @@ Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
-Environment=USB_MEDIA_PORT=5
+Environment=USB_MEDIA_PORT=2
 Type=simple
 #ExecStart=/home/uwe/server/home-server
-ExecStart=/home/uwe/dotnet/dotnet /home/uwe/giraffe/bin/Release/net6.0/server.dll
+ExecStart=/home/uwe/.dotnet/dotnet /home/uwe/home-server/bin/Release/net8.0/server.dll
 User=root
 Group=root
 Restart=on-failure
-WorkingDirectory=/home/uwe/giraffe
+WorkingDirectory=/home/uwe/home-server
 #Environment=AUTH_NAME=nnnnn
 #Environment=AUTH_PW=**********
 
@@ -72,14 +72,6 @@ sudo systemctl enable home-server.service
 sudo systemctl start home-server
 sudo systemctl status home-server
 ```
-
-Port 80 and port 443 on Linux:
-
-```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
-
-Now the program is not debuggable any more. To remove:
-
-```setcap -r /home/uwe/.dotnet/dotnet```
 
 ## Logging
 

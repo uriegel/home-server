@@ -25,27 +25,6 @@
             },            
             "args": [],
             "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": ".NET Core Launch (Windows)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net8.0/server.dll",
-            "stopAtEntry": false,
-            "console": "integratedTerminal",
-            "env": {
-                "VIDEO_PATH": "d:\\Videos",
-                "PICTURE_PATH": "F:\\Bilder Rest",
-                "MUSIC_PATH": "F:\\Musik",
-                "SERVER_PORT": "8080",
-                "SERVER_TLS_PORT": "4433",
-                "INTRANET_HOST": "bronx",
-                "LETS_ENCRYPT_DIR": "C:\\Users\\urieg"
-            },            
-            "args": [],
-            "cwd": "${workspaceFolder}"
         }
-
     ]
 }

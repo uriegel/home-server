@@ -97,3 +97,7 @@ let getMusicFile root path =
 let getPicturesZipFile path =
     let path = [| path; "taufe.zip" |] |> combinePathes  
     setContentType "application/zip" >=> streamFile false path None None
+
+let getThumbnail root path =
+    let path = [| root; path |] |> combinePathes  
+    setContentType "image/jpg" >=> streamFile false path None None

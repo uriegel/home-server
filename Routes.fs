@@ -54,6 +54,9 @@ let configureRoutes (app : IApplicationBuilder) =
                             routePathes ()            <| httpHandlerParam (getDirectoryItems musicPath)
                             routePathes ()            <| httpHandlerParam (getMusicFile musicPath)
                         ])                      
+                    subRoute "/media/thumbnail"
+                        (routePathes ()               <| httpHandlerParam (getThumbnail picturePath))
+
                     route  "/media/accessdisk" >=> warbler (fun _ -> accessDisk ())
                     route  "/media/diskneeded" >=> warbler (fun _ -> diskNeeded ())
                     route  "/"                 >=> htmlFile "webroot/index.html" 
