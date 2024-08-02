@@ -100,5 +100,10 @@ let getPicturesZipFile path =
     setContentType "application/zip" >=> streamFile false path None None
 
 let getThumbnail root path =
-    let path = [| root; path |] |> combinePathes  
-    setContentType "image/jpg" >=> (getThumbnail path) >> sendAsync 
+    let getThumbnail path next (ctx: HttpContext) =
+        task {
+            let path = [| root; path |] |> combinePathes  
+            return! ctx.WriteStreamAsync (false, getThumbnail path, None, None)
+        }
+        
+    setContentType "image/jpg" >=> getThumbnail path
