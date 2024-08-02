@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net6.0/server.dll",
+            "program": "${workspaceFolder}/bin/Debug/net8.0/server.dll",
             "stopAtEntry": false,
             "console": "integratedTerminal",
             "env": {
@@ -18,7 +18,7 @@
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",
                 "SERVER_TLS_PORT": "4433",
-                "INTRANET_HOST": "illmatic",
+                "INTRANET_HOST": "pluto",
                 "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-uweb",
                 "MEDIA_MOUNT_PATH": "/media/video",
                 // "USB_MEDIA_PORT": "2"
@@ -31,7 +31,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net6.0/server.dll",
+            "program": "${workspaceFolder}/bin/Debug/net8.0/server.dll",
             "stopAtEntry": false,
             "console": "integratedTerminal",
             "env": {
