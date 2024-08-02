@@ -10,6 +10,7 @@
     <Compile Include="DiskAccess.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="ReverseProxy.fs" />
+    <Compile Include="Thumbnails.fs" />
     <Compile Include="Requests.fs" />
     <Compile Include="Routes.fs" />
     <Compile Include="Program.fs" />
@@ -19,5 +20,6 @@
     <PackageReference Include="Giraffe" Version="7.0.0" />
     <PackageReference Include="FSharp.SystemTextJson" Version="0.17.4" />
     <PackageReference Include="GiraffeTools" Version="1.0.0" />
+    <PackageReference Include="Gtk4DotNet" Version="6.1.0" />
   </ItemGroup>
 </Project>

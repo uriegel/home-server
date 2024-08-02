@@ -81,6 +81,7 @@ let diskNeeded () =
         }
 
 open Giraffe
+open Thumbnails
 
 let getVideoFile root path =
     let path = [| root; path |] |> combinePathes  
@@ -100,4 +101,4 @@ let getPicturesZipFile path =
 
 let getThumbnail root path =
     let path = [| root; path |] |> combinePathes  
-    setContentType "image/jpg" >=> streamFile false path None None
+    setContentType "image/jpg" >=> (getThumbnail path) >> sendAsync 
