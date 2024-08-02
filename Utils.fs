@@ -2,8 +2,8 @@ module Utils
 
 open FSharpTools
 open FSharpTools.Functional
-open Functional
 open Option
+open FSharpPlus
 
 let getEnvironmentVariableLogged =
     let logToConsole (key, value) = printfn "Reading environment %s: %s" key value

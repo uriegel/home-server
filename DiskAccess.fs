@@ -18,7 +18,7 @@ let private createTimer () =
         timer, port
 
     getUsbPort ()
-    |> Option.map createTimer
+    |> map createTimer
 
 let private shutdownTimer = createTimer ()
 
@@ -49,5 +49,5 @@ let needed () =
             timer.Start ()
 
     shutdownTimer
-    |> Option.iter needed
+    |> iter needed
 

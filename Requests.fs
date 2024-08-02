@@ -1,26 +1,23 @@
 module Requests
 
-open FSharpTools
-open Giraffe
-open Microsoft.AspNetCore.Http
 open System.IO
-
-open Directory
+open Microsoft.AspNetCore.Http
+open FSharpPlus
+open FSharpTools
+open FSharpTools.Directory
 
 type DirectoryItems = {
     Directories: string[]    
     Files:       string[]    
 }
 
+open Giraffe
+
 type NotADirectoryException() = inherit System.Exception()
 
 let setContentType contentType (next: HttpFunc) (ctx: HttpContext) =
     ctx.SetHttpHeader("Content-Type", contentType)
     next ctx
-
-open FSharpTools.Result
-
-open Giraffe
 
 let getLetsEncryptToken token = 
     let makeTokenFileName tokenFile = 
@@ -31,8 +28,8 @@ let getLetsEncryptToken token =
     let path = makeTokenPath () |> Option.defaultValue ""
     setContentType "text/plain" >=> streamFile false path None None
 
-open FSharpTools.Result
-open GiraffeTools
+open FSharpPlus
+open FSharpTools
 
 let getDirectoryItems root path =
 
@@ -53,7 +50,7 @@ let getDirectoryItems root path =
             Directories = getDirectories path
             Files = getFiles path
         }
-        exceptionToResult (fun () -> getFileSystemInfos path)
+        Result.catch (fun () -> getFileSystemInfos path)
     
     let checkDirectory path = if existsDirectory path then Ok(path) else Error(NotADirectoryException() :> System.Exception)
     let getListFromPathParts = 
@@ -62,14 +59,10 @@ let getDirectoryItems root path =
         >=> getFileSystemInfos 
 
     match getListFromPathParts [|root; path|] with
-    | Ok value                                        -> json { Files = value.Files; Directories = value.Directories }
-    | Error e when e :? NotADirectoryException = true -> skip
+    | Ok value -> json { Files = value.Files; Directories = value.Directories }
+    | Error e when e :? NotADirectoryException = true -> GiraffeTools.skip
     // TODO send error html and log error
-    | Error _                                         -> text "No output"
-
-open System.Diagnostics
-open FSharpTools.Option
-open Configuration
+    | Error _ -> text "No output"
 
 let accessDisk () =
     fun (next : HttpFunc) (ctx : HttpContext) ->
@@ -90,17 +83,17 @@ let diskNeeded () =
 open Giraffe
 
 let getVideoFile root path =
-    let path = [| root; path |] |> Directory.combinePathes  
+    let path = [| root; path |] |> combinePathes  
     setContentType "video/mp4" >=> streamFile true path None None
 
 let getPictureFile root path =
-    let path = [| root; path |] |> Directory.combinePathes  
+    let path = [| root; path |] |> combinePathes  
     setContentType "image/jpg" >=> streamFile false path None None
 
 let getMusicFile root path =
-    let path = [| root; path |] |> Directory.combinePathes  
+    let path = [| root; path |] |> combinePathes  
     setContentType "audio/mp3" >=> streamFile true path None None
 
 let getPicturesZipFile path =
-    let path = [| path; "taufe.zip" |] |> Directory.combinePathes  
+    let path = [| path; "taufe.zip" |] |> combinePathes  
     setContentType "application/zip" >=> streamFile false path None None

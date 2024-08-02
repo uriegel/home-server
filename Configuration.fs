@@ -5,6 +5,7 @@ open System.IO
 open FSharpTools
 open FSharpTools.Functional
 open FSharpTools.Option
+open FSharpPlus
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Server.Kestrel.Core
 open Microsoft.AspNetCore.Server.Kestrel.Https
@@ -36,7 +37,11 @@ let configureKestrel (options: KestrelServerOptions) =
         let makeCertFileName certFile = 
             let combineWithCertFile = attachSubPath certFile 
             getLetsEncryptPath >> Option.map combineWithCertFile
-        let getCertificate (file: string) = Some(new System.Security.Cryptography.X509Certificates.X509Certificate2(file, getPfxPassword ()))
+
+        // TODO
+        let test: string = getPfxPassword () "" 
+
+        let getCertificate (file: string) = Some(new System.Security.Cryptography.X509Certificates.X509Certificate2(file, test))
         makeCertFileName "certificate.pfx" >=> getCertificate
 
     let getCertificate () = 
