@@ -20,6 +20,8 @@ let getLetsEncryptPath  () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
 let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
 let getUsbPort          () = getPortFromEnvironment "USB_MEDIA_PORT" 
 
+let private resetter = Resetter (TimeSpan.FromDays 1)
+
 let getPfxPassword = 
     let getPfxPassword () = 
         let readAllText path = File.ReadAllText path
@@ -30,22 +32,24 @@ let getPfxPassword =
         |> String.trim 
     memoizeSingle getPfxPassword
 
-let configureKestrel (options: KestrelServerOptions) = 
 
-    let getCertificateFromFile = 
-        let makeCertFileName certFile = 
-            let combineWithCertFile = attachSubPath certFile 
-            getLetsEncryptPath >> Option.map combineWithCertFile
-
-        let getCertificate (file: string) = Some(new Security.Cryptography.X509Certificates.X509Certificate2(file, getPfxPassword ()))
-        makeCertFileName "certificate.pfx" >=> getCertificate
-
+let getCertificate = 
     let getCertificate () = 
-        // TODO Memoize this call, reset it every day
+        let getCertificateFromFile = 
+            let makeCertFileName certFile = 
+                let combineWithCertFile = attachSubPath certFile 
+                getLetsEncryptPath >> Option.map combineWithCertFile
+
+            let getCertificate (file: string) = Some(new Security.Cryptography.X509Certificates.X509Certificate2(file, getPfxPassword ()))
+            makeCertFileName "certificate.pfx" >=> getCertificate
+
         getCertificateFromFile () 
         |> Option.defaultValue null
         |> sideEffect (printfn "certificate: %O")
-        
+    memoizeSingleReset getCertificate resetter
+
+let configureKestrel (options: KestrelServerOptions) = 
+
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
         options.ServerCertificateSelector <- fun a b -> getCertificate ()
     let httpsListenOptions (options: ListenOptions) = 
