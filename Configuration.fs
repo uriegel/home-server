@@ -2,10 +2,9 @@ module Configuration
 
 open System
 open System.IO
+open FSharpPlus
 open FSharpTools
 open FSharpTools.Functional
-open FSharpTools.Option
-open FSharpPlus
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Server.Kestrel.Core
 open Microsoft.AspNetCore.Server.Kestrel.Https
@@ -26,9 +25,9 @@ let getPfxPassword =
         let readAllText path = File.ReadAllText path
 
         if OperatingSystem.IsLinux () then "/etc" else System.Environment.GetFolderPath System.Environment.SpecialFolder.CommonApplicationData
-        |> Directory.attachSubPath "letsencrypt-uweb"
+        |> attachSubPath "letsencrypt-uweb"
         |> readAllText
-        |> String.trim
+        |> String.trim 
     memoizeSingle getPfxPassword
 
 let configureKestrel (options: KestrelServerOptions) = 
@@ -38,10 +37,7 @@ let configureKestrel (options: KestrelServerOptions) =
             let combineWithCertFile = attachSubPath certFile 
             getLetsEncryptPath >> Option.map combineWithCertFile
 
-        // TODO
-        let test: string = getPfxPassword () "" 
-
-        let getCertificate (file: string) = Some(new System.Security.Cryptography.X509Certificates.X509Certificate2(file, test))
+        let getCertificate (file: string) = Some(new Security.Cryptography.X509Certificates.X509Certificate2(file, getPfxPassword ()))
         makeCertFileName "certificate.pfx" >=> getCertificate
 
     let getCertificate () = 
