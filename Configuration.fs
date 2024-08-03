@@ -42,7 +42,9 @@ let configureKestrel (options: KestrelServerOptions) =
 
     let getCertificate () = 
         // TODO Memoize this call, reset it every day
-        getCertificateFromFile () |> Option.defaultValue null
+        getCertificateFromFile () 
+        |> Option.defaultValue null
+        |> sideEffect (printfn "certificate: %O")
         
     let httpsOptions (options: HttpsConnectionAdapterOptions) = 
         options.ServerCertificateSelector <- fun a b -> getCertificate ()
