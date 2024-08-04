@@ -12,6 +12,9 @@ open System.Text.Json.Serialization
 open Logging
 open Routes
 
+DatabaseAccess.test ()
+
+
 printfn "Launching home server..."
 
 let configureServices (services : IServiceCollection) = 

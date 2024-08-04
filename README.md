@@ -73,6 +73,14 @@ sudo systemctl start home-server
 sudo systemctl status home-server
 ```
 
+## Setup Sqlite
+
+```
+cd Database/Migrations
+dotnet ef migrations add InitialCreate -c MigrationsContext
+dotnet ef database update -c MigrationsContext
+```
+
 ## Logging
 
 ``` sudo journalctl -u homeserver ```

@@ -22,4 +22,7 @@
     <PackageReference Include="GiraffeTools" Version="1.0.0" />
     <PackageReference Include="Gtk4DotNet" Version="6.1.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Database\Database.fsproj" />
+  </ItemGroup>
 </Project>
