@@ -4,16 +4,24 @@ open System
 open Database
 open System.Collections.Generic
 
+let location name latitude longitude timeStamp = 
+    {
+        Id = 0
+        Name = name
+        Latitude = latitude
+        Longitude = longitude
+        Timestamp = timeStamp
+    }
+
 let test () =
     use db = new HomeServerContext()
 
     printfn "Database path: %s" HomeServerContext.DBPath
 
-    // TODO auto created value ID
-    db.Add { Id = 0; Name = "UweRiegel"; Latitude = 2.09; Longitude = 2.9; Timestamp = DateTime.Now } |> ignore
-    db.Add { Id = 0; Name = "UweRiegel"; Latitude = 34.09; Longitude = 2.49; Timestamp = DateTime.Now } |> ignore
-    db.Add { Id = 0; Name = "UweRiegel"; Latitude = 35.09; Longitude = 2.39; Timestamp = DateTime.Now } |> ignore
-    db.Add { Id = 0; Name = "TinaRiegel"; Latitude = 33.09; Longitude = 1.39; Timestamp = DateTime.Now } |> ignore
+    db.Add <| location "UweRiegel" 2.09 2.9 DateTime.Now  |> ignore
+    db.Add <| location "UweRiegel" 34.09 2.49 DateTime.Now  |> ignore
+    db.Add <| location "UweRiegel" 35.09 2.39 DateTime.Now  |> ignore
+    db.Add <| location "UweRiegel" 33.09 1.39 DateTime.Now  |> ignore
     db.SaveChanges () |> ignore
 
     let locationPoints = 
