@@ -80,6 +80,21 @@ let diskNeeded () =
             return! text "Disk shutdown delayed" next ctx
         }
 
+type LoginInput = {
+    AndroidId: string
+}
+
+type LoginOutput = {
+    Registered: bool
+}
+
+
+let superfitLogin () = 
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        task {
+            let! input = ctx.BindJsonAsync<LoginInput> ()
+            return! json { Registered = true } next ctx
+        }
 open Giraffe
 open Thumbnails
 

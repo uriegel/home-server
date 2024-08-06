@@ -16,7 +16,7 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharpTools" Version="10.0.3" />
+    <PackageReference Include="FSharpTools.HttpRequests" Version="0.0.1-beta-1" />
     <PackageReference Include="Giraffe" Version="7.0.0" />
     <PackageReference Include="FSharp.SystemTextJson" Version="0.17.4" />
     <PackageReference Include="GiraffeTools" Version="1.0.0" />

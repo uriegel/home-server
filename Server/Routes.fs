@@ -30,7 +30,6 @@ let configureRoutes (app : IApplicationBuilder) =
     let videoPath =       getVideoPath ()       |> Option.defaultValue ""
     let picturePath =     getPicturePath ()     |> Option.defaultValue ""
     let musicPath =       getMusicPath ()       |> Option.defaultValue ""
-    let getVideo =                 getVideoFile videoPath
 
     let letsEncrypt = choose [ routef "/.well-known/acme-challenge/%s" <| httpHandlerParam getLetsEncryptToken ]
 
@@ -61,6 +60,11 @@ let configureRoutes (app : IApplicationBuilder) =
                     route  "/media/diskneeded" >=> warbler (fun _ -> diskNeeded ())
                     route  "/"                 >=> htmlFile "webroot/index.html" 
                 ]  
+            host "localhost"                          >=>
+                choose [  
+                    route  "/superfit/login" >=> warbler (fun _ -> superfitLogin ())
+                ]
+
             host "uriegel.de"                         >=> letsEncrypt
             host "fritz.uriegel.de"                   >=> letsEncrypt
             host "familie.uriegel.de"                 >=> letsEncrypt
