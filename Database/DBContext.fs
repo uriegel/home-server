@@ -16,6 +16,7 @@ type HomeServerContext() =
         with get() = 
             System.IO.Path.Join(Environment.GetFolderPath Environment.SpecialFolder.LocalApplicationData, 
                                 "home-server", 
+                                // TODO ensurePath exists
                                 "database.db")
 
     override this.OnConfiguring(optionsBuilder: DbContextOptionsBuilder) =

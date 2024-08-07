@@ -62,7 +62,7 @@ let configureRoutes (app : IApplicationBuilder) =
                 ]  
             host "localhost"                          >=>
                 choose [  
-                    route  "/superfit/login" >=> warbler (fun _ -> superfitLogin ())
+                    route  "/superfit/login"          >=> warbler (fun _ -> SuperfitLogin ())
                 ]
 
             host "uriegel.de"                         >=> letsEncrypt
@@ -72,7 +72,11 @@ let configureRoutes (app : IApplicationBuilder) =
             secureHost "fritz.uriegel.de"             >=> ReverseProxy.handler 
             secureHost "uriegel.de"                   >=> 
                 choose [  
-                    route  "/media/taufe"      >=> warbler (fun _ -> getPicturesZipFile picturePath)                    
+                    route  "/superfit/login"          >=> warbler (fun _ -> SuperfitLogin ())
+                ]
+            secureHost "familie.uriegel.de"           >=> 
+                choose [  
+                    route  "/media/taufe"             >=> warbler (fun _ -> getPicturesZipFile picturePath)                    
                 ]
             allHosts                                  >=> ServerErrors.NOT_IMPLEMENTED "Not implemented"
         ]

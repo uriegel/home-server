@@ -75,6 +75,11 @@ sudo systemctl status home-server
 
 ## Setup Sqlite
 
+Install the ef tool:
+```
+dotnet tool install --global dotnet-ef
+```
+then
 ```
 cd Database/Migrations
 dotnet ef migrations add InitialCreate -c MigrationsContext
@@ -83,7 +88,11 @@ dotnet ef database update -c MigrationsContext
 
 ## Logging
 
-``` sudo journalctl -u homeserver ```
+``` sudo journalctl -u homeserver```
+
+or
+
+```sudo systemctl status home-server -n200```
 
 Remove old logs:
 

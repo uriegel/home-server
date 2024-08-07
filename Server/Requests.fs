@@ -5,6 +5,7 @@ open Microsoft.AspNetCore.Http
 open FSharpPlus
 open FSharpTools
 open FSharpTools.Directory
+open Superfit
 
 type DirectoryItems = {
     Directories: string[]    
@@ -80,20 +81,12 @@ let diskNeeded () =
             return! text "Disk shutdown delayed" next ctx
         }
 
-type LoginInput = {
-    AndroidId: string
-}
-
-type LoginOutput = {
-    Registered: bool
-}
-
-
-let superfitLogin () = 
+let SuperfitLogin () = 
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let! input = ctx.BindJsonAsync<LoginInput> ()
-            return! json { Registered = true } next ctx
+            let result = Requests.login input
+            return! json result next ctx
         }
 open Giraffe
 open Thumbnails

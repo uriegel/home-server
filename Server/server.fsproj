@@ -24,5 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Database\Database.fsproj" />
+    <ProjectReference Include="..\Superfit\Superfit.fsproj" />
   </ItemGroup>
 </Project>

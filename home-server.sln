@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{EE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "Database\Migrations\Migrations.csproj", "{B3E1E8E7-6192-42B5-8953-6366673274CA}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Superfit", "Superfit\Superfit.fsproj", "{D5362641-A6CB-4DA0-A460-FE971E274B97}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{B3E1E8E7-6192-42B5-8953-6366673274CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3E1E8E7-6192-42B5-8953-6366673274CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3E1E8E7-6192-42B5-8953-6366673274CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5362641-A6CB-4DA0-A460-FE971E274B97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5362641-A6CB-4DA0-A460-FE971E274B97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5362641-A6CB-4DA0-A460-FE971E274B97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5362641-A6CB-4DA0-A460-FE971E274B97}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1A044345-7674-42CD-BD7B-3EB3772B3619} = {EEDA7BD7-9E37-4B55-9A92-0738DDA8D611}
