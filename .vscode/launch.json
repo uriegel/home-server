@@ -15,10 +15,11 @@
             "env": {
                 "VIDEO_PATH": "/home/uwe/Videos",
                 "PICTURE_PATH": "/daten/Bilder/Fotos",
+                "DOWNLOAD_PATH": "/home/uwe/Öffentlich",
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",
                 "SERVER_TLS_PORT": "4433",
-                "INTRANET_HOST": "pluto",
+                "INTRANET_HOST": "fedora",
                 "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-uweb",
                 "MEDIA_MOUNT_PATH": "/media/video",
                 // "USB_MEDIA_PORT": "2"

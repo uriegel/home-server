@@ -99,6 +99,10 @@ let getPictureFile root path =
     let path = [| root; path |] |> combinePathes  
     setContentType "image/jpg" >=> streamFile false path None None
 
+let downloadFile root path = 
+    let path = [| root; path |] |> combinePathes  
+    setContentType "application/octet-stream" >=> streamFile false path None None
+
 let getMusicFile root path =
     let path = [| root; path |] |> combinePathes  
     setContentType "audio/mp3" >=> streamFile true path None None

@@ -15,6 +15,7 @@ open Directory
 let getIntranetHost     () = getEnvironmentVariable "INTRANET_HOST"
 let getVideoPath        () = getEnvironmentVariable "VIDEO_PATH"
 let getPicturePath      () = getEnvironmentVariable "PICTURE_PATH"
+let getDownloadPath     () = getEnvironmentVariable "DOWNLOAD_PATH"
 let getMusicPath        () = getEnvironmentVariable "MUSIC_PATH"
 let getLetsEncryptPath  () = getEnvironmentVariable "LETS_ENCRYPT_DIR"
 let getPortFromEnvironment = getEnvironmentVariable >=> String.parseInt 
