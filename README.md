@@ -2,13 +2,13 @@
 a home server for my Raspberry Pi 3
 
 ## Setup
-### Ubuntu 20.10 Server
+### Ubuntu 23.10 Server on Raspi
 ```
 sudo apt update
 sudo apt upgrade
 ```
 
-### Cross compiling on Ubuntu 21.10 box
+### Cross compiling on Ubuntu 
 
 ``` 
 # Make sure GCC's linker for the target platform is installed on your
@@ -61,9 +61,10 @@ Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
 Environment=FRITZ_HOST=fritz.domain.de
 Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
+Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=MEDIA_MOUNT_PATH=/media/video
-Environment=USB_MEDIA_PORT=5
+Environment=USB_MEDIA_PORT=2
 Type=simple
 ExecStart=/home/uwe/server/home-server
 Restart=on-failure
@@ -82,14 +83,6 @@ sudo systemctl enable home-server.service
 sudo systemctl start home-server
 sudo systemctl status home-server
 ```
-
-Port 80 and port 443 on Linux:
-
-```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
-
-Now the program is not debuggable any more. To remove:
-
-```setcap -r /home/uwe/.dotnet/dotnet```
 
 ## Logging
 
@@ -129,6 +122,14 @@ sudo make install
 ```
 
 ## Deprecated
+
+Port 80 and port 443 on Linux:
+
+```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
+
+Now the program is not debuggable any more. To remove:
+
+```setcap -r /home/uwe/.dotnet/dotnet```
 
 Send external disk to sleep after some time (20s):
 
