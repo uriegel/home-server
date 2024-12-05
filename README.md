@@ -8,6 +8,12 @@ sudo apt update
 sudo apt upgrade
 ```
 
+On Fedora 41:
+
+```
+sudo dnf install pkg-config openssl-devel
+```
+
 ### Cross compiling on Ubuntu 
 
 ``` 

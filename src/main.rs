@@ -5,6 +5,8 @@ use home_server::https_server::start_https_server;
 use signal_hook::{iterator::Signals, consts::{SIGINT, SIGTERM}};
 use tokio::runtime::Runtime;
 
+// TODO update hyper, but then there are errors 
+
 fn main() -> Result<(), Box<dyn Error>> {
     println!("starting home server...");
 
