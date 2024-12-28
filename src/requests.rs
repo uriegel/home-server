@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use hyper::{Response, Body};
+use hyper::Response;
 use lexical_sort::natural_lexical_cmp;
 use serde::Serialize;
 use warp::Reply;
@@ -13,12 +13,12 @@ pub struct VideoList {
     files: Vec<String>
 }
 
-impl Reply for VideoList {
-    fn into_response(self) -> Response<Body> { 
-        let reply = warp::reply::json(&self);
-        reply.into_response()
-    }
-}
+// impl Reply for VideoList {
+//     fn into_response(self) -> Response<Body> { 
+//         let reply = warp::reply::json(&self);
+//         reply.into_response()
+//     }
+// }
 
 struct VideoFile {
     path: String,

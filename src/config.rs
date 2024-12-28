@@ -13,7 +13,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Result<Config, Box<dyn Error>> {
+    pub fn get() -> Result<Config, Box<dyn Error>> {
         let port_string = env::var("SERVER_PORT").map_err(|_| { "Please specify SERVER_PORT" })?;
         let port = port_string.parse::<u16>().map_err(|_| { "Could not parse server port"})?;
     
