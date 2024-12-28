@@ -5,8 +5,6 @@ use home_server::{config::Config, http_server::start_http_server};
 use signal_hook::{iterator::Signals, consts::{SIGINT, SIGTERM}};
 use tokio::runtime::Runtime;
 
-// TODO update hyper, but then there are errors 
-
 fn main() -> Result<(), Box<dyn Error>> {
     println!("starting home server...");
 
