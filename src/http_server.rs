@@ -1,7 +1,7 @@
 use tokio::runtime::Runtime;
-use warp::{filters::fs::{dir, File}, reply::Reply, Filter};
+use warp::{filters::{fs::{dir, File}, path::{tail, Tail}}, reply::Reply, Filter};
 
-use crate::{config::Config, warp_utils::add_headers};
+use crate::{config::Config, warp_utils::{add_headers, simple_file_send}};
 
 pub fn start_http_server(rt: &Runtime, config: Config) {
 
@@ -56,16 +56,16 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     //     .and(warp::any().map(move || { config.usb_media_port.clone() }))
     //     .and_then(access_media);
 
-    // let acme_challenge = config.lets_encrypt_dir.join("acme-challenge");
-    // let route_acme = 
-    //     warp::path(".well-known")
-    //     .and(warp::path("acme-challenge"))
-    //     .and(tail().map(move|token: Tail| {
-    //         let token_path = acme_challenge.join(token.as_str().to_string()).to_str().expect("Could not create token path").to_string();
-    //         println!("Serving lets encrypt token: {token_path}");
-    //         token_path
-    //     }))
-    //     .and_then(simple_file_send);
+    let acme_challenge = config.lets_encrypt_dir.join("acme-challenge");
+    let route_acme = 
+        warp::path(".well-known")
+        .and(warp::path("acme-challenge"))
+        .and(tail().map(move|token: Tail| {
+            let token_path = acme_challenge.join(token.as_str().to_string()).to_str().expect("Could not create token path").to_string();
+            println!("Serving lets encrypt token: {token_path}");
+            token_path
+        }))
+        .and_then(simple_file_send);
 
     // let dir = warp::fs::dir("webroot");
     // let with_headers = dir.map(|reply| {
@@ -85,14 +85,16 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
                 .map(add_headers)
         );
     
-    let routes = route_static;
+    let routes =
+
+        route_acme
         // route_get_video_list
         // .or(route_get_video)        
         // .or(route_music_directories)
         // .or(route_music)
         // .or(route_media_access)
-        // .or(route_acme)
-        // .or(route_static);    
+        //.or(route_acme)
+        .or(route_static);    
 
     rt.spawn(async move {
         warp::serve(routes)

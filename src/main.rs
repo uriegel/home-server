@@ -1,6 +1,5 @@
 use std::{thread, error::Error};
 use home_server::{config::Config, http_server::start_http_server};
-// use home_server::{http_server::start_http_server, config::Config};
 // use home_server::https_server::start_https_server;
 use signal_hook::{iterator::Signals, consts::{SIGINT, SIGTERM}};
 use tokio::runtime::Runtime;
