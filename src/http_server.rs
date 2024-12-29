@@ -2,7 +2,7 @@ use tokio::runtime::Runtime;
 use warp::{filters::{fs::{dir, File}, path::{tail, Tail}}, reply::Reply, Filter};
 use warp_range::filter_range;
 
-use crate::{config::Config, requests::{access_media, disk_needed, get_video, get_video_list}, warp_utils::{add_headers, simple_file_send}};
+use crate::{config::Config, requests::{access_media, disk_needed, get_video, get_media_list}, warp_utils::{add_headers, simple_file_send}};
 
 pub fn start_http_server(rt: &Runtime, config: Config) {
 
@@ -14,7 +14,7 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .and(warp::path("video"))
         .and(warp::path::tail())
         .and(warp::any().map(move || { video_path.to_string() }))
-        .and_then(get_video_list)
+        .and_then(get_media_list)
         .with(warp::compression::gzip());    
 
     let video_path = config.video_path.to_string();
@@ -27,26 +27,27 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .and(filter_range())
         .and_then(get_video);
         
+    let host_and_port = format!("{}:{}", config.intranet_host, config.port);
+    let music_path = config.music_path.to_string();
+    let route_get_music_list = 
+        warp::host::exact(&host_and_port)
+        .and(warp::path("media"))
+        .and(warp::path("music"))
+        .and(warp::path::tail())
+        .and(warp::any().map(move || { music_path.to_string() }))
+        .and_then(get_media_list)
+        .with(warp::compression::gzip());    
 
-    // let music_path_clone = config.music_path.to_string();
-    // let route_music_directories =
-    //     warp::host::exact(&host_and_port) 
-    //     .and(warp::path("media"))
-    //     .and(warp::path("music"))
-    //     .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
-    //     .and(warp::any().map(move || { music_path_clone.to_string() }))
-    //     .and_then(get_directory);        
-
-    // let music_path_clone = config.music_path.to_string();            
-    // let route_music =
-    //     warp::host::exact(&host_and_port) 
-    //     .and(warp::path("media"))
-    //     .and(warp::path("music"))
-    //     .and(warp::path::tail().map(|n: Tail| {n.as_str().to_string()}))
-    //     .and(warp::any().map(move || { music_path_clone.to_string() }))
-    //     .and(filter_range())
-    //     .and_then(get_music);
-            
+    let music_path = config.music_path.to_string();
+    let route_get_music =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("music"))
+        .and(warp::path::tail())
+        .and(warp::any().map(move || { music_path.to_string() }))
+        .and(filter_range())
+        .and_then(get_video);
+    
     let video_path_clone = config.video_path.to_string();        
     let media_mount_path_clone = config.media_mount_path.to_string();        
     let route_media_access =
@@ -95,9 +96,9 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     
     let routes =
         route_get_video
+        .or(route_get_music)        
         .or(route_get_video_list)        
-        // .or(route_music_directories)
-        // .or(route_music)
+        .or(route_get_music_list)        
         .or(route_media_disk_needed)
         .or(route_media_access)
         .or(route_acme)

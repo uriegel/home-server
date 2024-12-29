@@ -1,4 +1,4 @@
-use std::{fs::{self, ReadDir}};
+use std::fs::{self, ReadDir};
 
 use tokio::{process::Command, time::{sleep, Duration}};
 
