@@ -2,7 +2,7 @@ use tokio::runtime::Runtime;
 use warp::{filters::{fs::{dir, File}, path::{tail, Tail}}, reply::Reply, Filter};
 use warp_range::filter_range;
 
-use crate::{config::Config, requests::{get_video, get_video_list}, warp_utils::{add_headers, simple_file_send}};
+use crate::{config::Config, requests::{access_media, disk_needed, get_video, get_video_list}, warp_utils::{add_headers, simple_file_send}};
 
 pub fn start_http_server(rt: &Runtime, config: Config) {
 
@@ -47,16 +47,22 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     //     .and(filter_range())
     //     .and_then(get_music);
             
-    // let video_path_clone = config.video_path.to_string();        
-    // let media_mount_path_clone = config.media_mount_path.to_string();        
-    // let route_media_access =
-    //     warp::host::exact(&host_and_port) 
-    //     .and(warp::path("media"))
-    //     .and(warp::path("access"))
-    //     .and(warp::any().map(move || { video_path_clone.to_string() }))
-    //     .and(warp::any().map(move || { media_mount_path_clone.to_string() }))
-    //     .and(warp::any().map(move || { config.usb_media_port.clone() }))
-    //     .and_then(access_media);
+    let video_path_clone = config.video_path.to_string();        
+    let media_mount_path_clone = config.media_mount_path.to_string();        
+    let route_media_access =
+        warp::host::exact(&host_and_port) 
+            .and(warp::path("media"))
+            .and(warp::path("accessdisk"))
+            .and(warp::any().map(move || { video_path_clone.to_string() }))
+            .and(warp::any().map(move || { media_mount_path_clone.to_string() }))
+            .and(warp::any().map(move || { config.usb_media_port.clone() }))
+            .and_then(access_media);
+
+    let route_media_disk_needed =
+        warp::host::exact(&host_and_port) 
+            .and(warp::path("media"))
+            .and(warp::path("diskneeded"))
+            .and_then(disk_needed);
 
     let acme_challenge = config.lets_encrypt_dir.join("acme-challenge");
     let route_acme = 
@@ -92,7 +98,8 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .or(route_get_video_list)        
         // .or(route_music_directories)
         // .or(route_music)
-        // .or(route_media_access)
+        .or(route_media_disk_needed)
+        .or(route_media_access)
         .or(route_acme)
         .or(route_static);    
 
