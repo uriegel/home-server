@@ -1,12 +1,11 @@
-use std::{fs, path::Path};
+use std::{fs, path::{Path, PathBuf}};
 
-use hyper::Response;
 use lexical_sort::natural_lexical_cmp;
 use serde::Serialize;
-use warp::Reply;
+use warp::{filters::path::Tail, reply::Response, Reply};
 use warp_range::get_range_with_cb;
 
-use crate::media_access::{mount_device, self};
+//use crate::media_access::{mount_device, self};
 
 #[derive(Serialize)]
 pub struct VideoList {
@@ -37,15 +36,16 @@ pub struct DirectoryList {
 }
 
 impl Reply for DirectoryList {
-    fn into_response(self) -> Response<Body> { 
+    fn into_response(self) -> Response { 
         let reply = warp::reply::json(&self);
         reply.into_response()
     }
 }
 
-pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
+pub async fn get_video_list(sub_path: Tail, path: String)->Result<impl Reply, warp::Rejection> {
+    let path = PathBuf::from(path).join(decode_path(sub_path.as_str()));
     let entries = fs::read_dir(&path).map_err(reject)?;
-    media_access::i_am_alive();
+    //media_access::i_am_alive();
     let mut files: Vec<String> = entries.filter_map(|n| {
         n.ok().and_then(|n| {
             let is_file = n.metadata().ok().and_then(|n|{
@@ -57,20 +57,21 @@ pub async fn get_video_list(path: String)->Result<VideoList, warp::Rejection> {
     })
     .collect();
     files.sort_by(|a, b|natural_lexical_cmp(a, b));
-    Ok(VideoList{ files })
+    Ok(DirectoryList{ files }.into_response())
 }
 
-pub async fn get_video(file: String, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
-    let video = get_video_file(&path, file)?;
+pub async fn get_video(sub_path: Tail, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
+    let path = PathBuf::from(path).join(decode_path(sub_path.as_str()));
+    let video = get_video_file(&path)?;
     get_range_with_cb(range, &video.path, &video.media_type, |_| { 
-        media_access::i_am_alive();
+        // media_access::i_am_alive();
      }).await
 }
 
 pub async fn get_directory(path: String, root_path: String)->Result<DirectoryList, warp::Rejection> {
     let path = percent_encoding::percent_decode(path.as_bytes()).decode_utf8().unwrap().replace("+", " ");
     let path = &(root_path + "/" + &path);
-    media_access::i_am_alive();
+    // media_access::i_am_alive();
     if path.ends_with("mp3") {
         Err(warp::reject())
     } else {
@@ -90,7 +91,7 @@ pub async fn get_music(path: String, root_path: String, range: Option<String>)->
     if path.ends_with("mp3") {
         let range_file = get_music_file(&root_path, path.clone());
         get_range_with_cb(range, &range_file.path, &range_file.media_type, |_|{ 
-            media_access::i_am_alive();
+       //     media_access::i_am_alive();
          }).await
     } else {
         Err(warp::reject())
@@ -99,7 +100,7 @@ pub async fn get_music(path: String, root_path: String, range: Option<String>)->
 
 pub async fn access_media(path: String, media_mount_path: String, usb_media_port: u16)->Result<impl warp::Reply, warp::Rejection> {
     println!("Accessing media device");
-    mount_device(&path, media_mount_path, usb_media_port).await;
+    // mount_device(&path, media_mount_path, usb_media_port).await;
     Ok(warp::reply())
 }
     
@@ -108,35 +109,26 @@ fn reject(err: std::io::Error)->warp::Rejection {
     warp::reject()
 }
 
-fn get_video_file(path: &str, file: String) -> Result<VideoFile, warp::Rejection> {
-    fn combine_path(path: &str, file: String, ext: &str)->Option<String> {
-        let file_with_ext = file + ext;
-        let file = percent_encoding::percent_decode(file_with_ext.as_bytes()).decode_utf8().unwrap();
-        let path = Path::new(&path).join(file.to_string());
-        println!("Serving video {file}");
-
-        if path.exists() { Some(path.to_string_lossy().to_string())} else { None }
-    }
-    
-    if let Some(mp4) = combine_path(path, file.clone(),&".mp4") {
-        Ok(VideoFile{ path: mp4, media_type: "video/mp4".to_string() })
+fn get_video_file(path: &PathBuf) -> Result<VideoFile, warp::Rejection> {
+    if path.is_file() {
+        let path = path.to_string_lossy().to_string();
+        println!("Serving video {path}");
+        Ok(VideoFile{ path, media_type: "video/mp4".to_string() })
     } else {
-        if let Some(mkv) = combine_path(path, file, &".mkv") {
-            Ok(VideoFile{ path: mkv, media_type: "video/mp4".to_string() })
-        } else {
-            println!("Could not access video file");
-            Err(warp::reject())
-        }
+        Err(warp::reject())
     }
 }
 
 fn get_music_file(path: &str, file: String)->RangeFile {
-    let file = percent_encoding::percent_decode(file.as_bytes())
-        .decode_utf8()
-        .unwrap()
-        .replace("+", " ");
+    let file = decode_path(&file);
     let path = Path::new(&path).join(file.to_string());
     let path = path.to_string_lossy().to_string();
     RangeFile{ path, media_type: "audio/mp3".to_string() }
 }
 
+fn decode_path(file: &str)->String {
+    percent_encoding::percent_decode(file.as_bytes())
+        .decode_utf8()
+        .unwrap()
+        .replace("+", " ")
+}
