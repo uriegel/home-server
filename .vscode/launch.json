@@ -24,7 +24,7 @@
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",
                 "SERVER_TLS_PORT": "4433",
-                "INTRANET_HOST": "fedora",
+                "INTRANET_HOST": "illmatic",
                 "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-cert",
                 "MEDIA_MOUNT_PATH": "/media/video",
                 "USB_MEDIA_PORT": "4"
