@@ -1,11 +1,11 @@
 use std::path::Path;
 
 // use hyper::{header::HOST, HeaderMap};
-// use warp_reverse_proxy::{proxy_to_and_forward_response, extract_request_data_filter};
 use tokio::runtime::Runtime;
-use warp::{filters::fs::{dir, File}, reply::Reply, serve, Filter};
+use warp::{http::{header::HOST, HeaderMap}, serve, Filter};
+use warp_reverse_proxy::{extract_request_data_filter, proxy_to_and_forward_response};
 
-use crate::{config::Config, warp_utils::add_headers};
+use crate::config::Config;
 
 pub fn start_https_server(rt: &Runtime, config: Config) -> bool {
 
@@ -14,33 +14,22 @@ pub fn start_https_server(rt: &Runtime, config: Config) -> bool {
 //     //     dir("webroot")
 //     //     .map(add_headers);
 
-    //let request_filter = extract_request_data_filter();
-    // let fritz_proxy = warp::host::exact("fritz.uriegel.de")
-    //     .map(|| ("http://fritz.box/".to_string(), "".to_string()))
-    //     .untuple_one()
-    //     .and(request_filter)
-    //     .and_then(|pa, bp, uri, ps, m, headers: HeaderMap, body| {
-    //         let mut proxy_headers = headers.clone();
-    //         proxy_headers.remove(HOST);
-    //         proxy_headers.insert(HOST, "fritz.box".parse().unwrap());
-    //         proxy_to_and_forward_response(pa, bp, uri, ps, m, proxy_headers, body)
-    //     });
+    let request_filter = extract_request_data_filter();
+    let fritz_proxy = warp::host::exact("fritz.uriegel.de")
+        .map(|| ("http://fritz.box/".to_string(), "".to_string()))
+        .untuple_one()
+        .and(request_filter)
+        .and_then(|pa, bp, uri, ps, m, headers: HeaderMap, body| {
+            let mut proxy_headers = headers.clone();
+            proxy_headers.remove(HOST);
+            proxy_headers.insert(HOST, "fritz.box".parse().unwrap());
+            proxy_to_and_forward_response(pa, bp, uri, ps, m, proxy_headers, body)
+        });
 
-    // let routes = fritz_proxy; //.or(route_static);    
+    let routes = fritz_proxy; //.or(route_static);    
 
     let cert_file = config.lets_encrypt_dir.join("cert.pem");
     let key_file = config.lets_encrypt_dir.join("key.pem");
-
-
-    let host_and_port = format!("{}:{}", "uriegel.de", config.tls_port);
-    let route_static = 
-        warp::host::exact(&host_and_port) 
-        .and(dir("webroot2")
-                .map(|r: File|r.into_response())
-                .map(add_headers)
-        );
-
-    let routes = route_static;
 
     if Path::new(&cert_file).exists() && Path::new(&key_file).exists() {
         rt.spawn(async move {
