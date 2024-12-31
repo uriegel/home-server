@@ -27,6 +27,7 @@
                 "INTRANET_HOST": "illmatic",
                 "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-cert",
                 "MEDIA_MOUNT_PATH": "/media/video",
+                "PICTURE_PATH": "/daten/Bilder/Fotos",
                 "USB_MEDIA_PORT": "4"
             },            
             "args": [],

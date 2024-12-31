@@ -8,6 +8,7 @@ pub struct Config {
     pub media_mount_path: String,
     pub usb_media_port: u16,
     pub video_path: String,
+    pub picture_path: String,
     pub music_path: String,
     pub intranet_host: String
 }
@@ -36,9 +37,12 @@ impl Config {
         let music_path = env::var("MUSIC_PATH").map_err(|_| { "Please specify MUSIC_PATH" })?;
         println!("music path: {music_path}");
     
+        let picture_path = env::var("PICTURE_PATH").map_err(|_| { "Please specify PICTURE_PATH" })?;
+        println!("picture path: {picture_path}");
+
         let intranet_host = env::var("INTRANET_HOST").map_err(|_| { "Please specify INTRANET_HOST" })?;
         println!("intranet host: {intranet_host}");
 
-        Ok(Config { port, tls_port, lets_encrypt_dir, media_mount_path, usb_media_port, video_path, music_path, intranet_host})
+        Ok(Config { port, tls_port, lets_encrypt_dir, media_mount_path, usb_media_port, video_path, picture_path, music_path, intranet_host})
     }
 }

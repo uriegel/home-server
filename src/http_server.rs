@@ -2,7 +2,11 @@ use tokio::runtime::Runtime;
 use warp::{filters::{fs::{dir, File}, path::{tail, Tail}}, reply::Reply, Filter};
 use warp_range::filter_range;
 
-use crate::{config::Config, requests::{access_media, disk_needed, get_video, get_media_list}, warp_utils::{add_headers, simple_file_send}};
+use crate::{
+    config::Config, requests::{
+        access_media, disk_needed, get_media_list, get_picture, get_video
+    }, warp_utils::{add_headers, simple_file_send}
+};
 
 pub fn start_http_server(rt: &Runtime, config: Config) {
 
@@ -26,6 +30,25 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .and(warp::any().map(move || { video_path.to_string() }))
         .and(filter_range())
         .and_then(get_video);
+        
+    let picture_path = config.picture_path.to_string();
+    let route_get_picture_list =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("pics"))
+        .and(warp::path::tail())
+        .and(warp::any().map(move || { picture_path.to_string() }))
+        .and_then(get_media_list)
+        .with(warp::compression::gzip());    
+
+    let picture_path = config.picture_path.to_string();
+    let route_get_picture =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("pics"))
+        .and(warp::path::tail())
+        .and(warp::any().map(move || { picture_path.to_string() }))
+        .and_then(get_picture);
         
     let host_and_port = format!("{}:{}", config.intranet_host, config.port);
     let music_path = config.music_path.to_string();
@@ -96,8 +119,10 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     
     let routes =
         route_get_video
+        .or(route_get_picture)        
         .or(route_get_music)        
         .or(route_get_video_list)        
+        .or(route_get_picture_list)
         .or(route_get_music_list)        
         .or(route_media_disk_needed)
         .or(route_media_access)

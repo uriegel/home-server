@@ -2,6 +2,7 @@ use std::{fs, path::PathBuf};
 
 use lexical_sort::natural_lexical_cmp;
 use serde::Serialize;
+use tokio::{fs::File, io::AsyncReadExt};
 use warp::{filters::path::Tail, reply::Response, Reply};
 use warp_range::get_range_with_cb;
 
@@ -57,6 +58,29 @@ pub async fn get_video(sub_path: Tail, path: String, range: Option<String>) -> R
      }).await
 }
 
+pub async fn get_picture(sub_path: Tail, path: String) -> Result<impl warp::Reply, warp::Rejection> {
+    let path = PathBuf::from(path).join(decode_path(sub_path.as_str()));
+    if path.is_file() {
+        match File::open(&path).await {
+            Ok(mut file) => {
+                let mut contents = vec![];
+                if let Err(_) = file.read_to_end(&mut contents).await {
+                    return Err(warp::reject::not_found());
+                }
+                let response = warp::http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "image/jpeg")
+                    .body(contents)
+                    .unwrap();
+                Ok(response)
+            }
+            Err(_) => Err(warp::reject::not_found()),
+        }
+    } else {
+        Err(warp::reject::not_found())
+    }
+}
+     
 pub async fn access_media(_path: String, _media_mount_path: String, _usb_media_port: u16)->Result<impl warp::Reply, warp::Rejection> {
     println!("Accessing media device");
     // mount_device(&path, media_mount_path, usb_media_port).await;
