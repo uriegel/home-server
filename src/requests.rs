@@ -6,6 +6,8 @@ use tokio::{fs::File, io::AsyncReadExt};
 use warp::{filters::path::Tail, reply::Response, Reply};
 use warp_range::get_range_with_cb;
 
+use crate::thumbnail::create_thumbnail;
+
 struct VideoFile {
     path: String,
     media_type: String
@@ -68,7 +70,6 @@ pub async fn get_picture(sub_path: Tail, path: String) -> Result<impl warp::Repl
                     return Err(warp::reject::not_found());
                 }
                 let response = warp::http::Response::builder()
-                    .status(200)
                     .header("Content-Type", "image/jpeg")
                     .body(contents)
                     .unwrap();
@@ -78,6 +79,27 @@ pub async fn get_picture(sub_path: Tail, path: String) -> Result<impl warp::Repl
         }
     } else {
         Err(warp::reject::not_found())
+    }
+}
+
+pub async fn get_thumbnail(sub_path: Tail, path: String) -> Result<impl warp::Reply, warp::Rejection> {
+
+    fn get_thumbnail(path: PathBuf)->Option<Vec<u8>> {
+        if path.is_file() {
+            create_thumbnail(&path.to_string_lossy().to_string())
+        } else {
+            None
+        }
+    }
+
+    match get_thumbnail(PathBuf::from(path).join(decode_path(sub_path.as_str()))) {
+        Some(image) => {
+            Ok(warp::http::Response::builder()
+                .header("Content-Type", "image/jpeg")
+                .body(image)
+                .unwrap())
+        },
+        _ => Err(warp::reject::not_found())
     }
 }
      

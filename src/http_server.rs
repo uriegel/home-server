@@ -4,7 +4,7 @@ use warp_range::filter_range;
 
 use crate::{
     config::Config, requests::{
-        access_media, disk_needed, get_media_list, get_picture, get_video
+        access_media, disk_needed, get_media_list, get_picture, get_thumbnail, get_video
     }, warp_utils::{add_headers, simple_file_send}
 };
 
@@ -50,6 +50,15 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .and(warp::any().map(move || { picture_path.to_string() }))
         .and_then(get_picture);
         
+    let picture_path = config.picture_path.to_string();
+    let route_get_thumbnail =
+        warp::host::exact(&host_and_port) 
+        .and(warp::path("media"))
+        .and(warp::path("thumbnail"))
+        .and(warp::path::tail())
+        .and(warp::any().map(move || { picture_path.to_string() }))
+        .and_then(get_thumbnail);
+
     let host_and_port = format!("{}:{}", config.intranet_host, config.port);
     let music_path = config.music_path.to_string();
     let route_get_music_list = 
@@ -120,6 +129,7 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     let routes =
         route_get_video
         .or(route_get_picture)        
+        .or(route_get_thumbnail)
         .or(route_get_music)        
         .or(route_get_video_list)        
         .or(route_get_picture_list)
