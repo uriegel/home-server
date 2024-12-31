@@ -18,8 +18,11 @@ warp-range = "3.0"
 chrono = "0.4.39"
 signal-hook = "0.3"
 warp-reverse-proxy = "1.0.0"
-gdk-pixbuf = "0.20.7"
 
 # Pi 2/3/4 Added due to reqwest dependency problems when cross-compiling for RPi
 [target.armv7-unknown-linux-gnueabihf.dependencies]
 openssl = { version = "0.10", features = ["vendored"] }
+
+[target.aarch64-unknown-linux-gnu.dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
+
