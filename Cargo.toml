@@ -18,6 +18,7 @@ warp-range = "3.0"
 chrono = "0.4.39"
 signal-hook = "0.3"
 warp-reverse-proxy = "1.0.0"
+image = "0.25.5"
 
 # Pi 2/3/4 Added due to reqwest dependency problems when cross-compiling for RPi
 [target.armv7-unknown-linux-gnueabihf.dependencies]
