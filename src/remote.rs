@@ -1,5 +1,6 @@
-use std::{fs::{self, read_dir}, time::UNIX_EPOCH};
+use std::{fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
 
+use chrono::DateTime;
 use futures_util::{Stream, StreamExt};
 use serde::Serialize;
 use tokio::{fs::File, io::{AsyncReadExt, AsyncWriteExt}};
@@ -96,17 +97,18 @@ pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {
     Ok(warp::reply::json(&MetaData{size: metadata.0, time: metadata.1 }).into_response())
 }
 
-pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Buf, warp::Error>> + Unpin + Send + Sync, modified: Option<u64>)->Result<impl Reply, warp::Rejection> {
-
-
-    println!("Headder {modified:?}");
-
-
+pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Buf, warp::Error>> + Unpin + Send + Sync, modified: Option<i64>)->Result<impl Reply, warp::Rejection> {
     let path = decode_path(format!("/{}",  path.as_str()).as_str());
     let mut file = File::create(path).await.map_err(|e|reject(e, "Could not create file"))?;
     while let Some(buf) = body.next().await {
         let mut buf = buf.unwrap();
         file.write_all_buf( &mut buf).await.unwrap();
     }
+    let file = file.into_std().await;
+    modified
+        .and_then(|m |DateTime::from_timestamp_millis(m))
+        .map(|dt|SystemTime::from(dt))
+        .inspect(|m|{ let _ = file.set_modified(*m); });
+
     Ok("")
 }

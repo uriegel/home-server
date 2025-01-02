@@ -137,7 +137,7 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .and(warp::path("putfile"))
         .and(tail())
         .and(warp::body::stream())
-        .and(warp::header::optional::<u64>("x-file-date"))
+        .and(warp::header::optional::<i64>("x-file-date"))
         .and_then(upload_file);
 
     let route_get_file =
