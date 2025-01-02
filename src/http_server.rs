@@ -3,7 +3,7 @@ use warp::{filters::{fs::{dir, File}, path::{tail, Tail}}, reply::Reply, Filter}
 use warp_range::filter_range;
 
 use crate::{
-    config::Config, requests::{
+    config::Config, remote::get_files, requests::{
         access_media, disk_needed, get_media_list, get_picture, get_thumbnail, get_video
     }, warp_utils::{add_headers, simple_file_send}
 };
@@ -119,6 +119,12 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     //     response        
     // });
 
+    let route_get_files =
+        warp::host::exact(&host_and_port)
+        .and(warp::path("getfiles"))
+        .and(tail())
+        .and_then(get_files);
+
     let route_static = 
         warp::host::exact(&host_and_port) 
         .and(dir("webroot")
@@ -133,7 +139,8 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
         .or(route_get_music)        
         .or(route_get_video_list)        
         .or(route_get_picture_list)
-        .or(route_get_music_list)        
+        .or(route_get_music_list)
+        .or(route_get_files)        
         .or(route_media_disk_needed)
         .or(route_media_access)
         .or(route_acme)

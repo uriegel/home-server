@@ -6,7 +6,7 @@ pub fn i_am_alive() {
 
 }
 
-pub async fn mount_device(media_path: &str, media_mount_path: String, usb_media_port: u16) {
+pub async fn _mount_device(media_path: &str, media_mount_path: String, usb_media_port: u16) {
 
     match access_first_file(media_path) {
         true => println!("media device is accessible"),
