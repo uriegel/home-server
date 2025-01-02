@@ -1,6 +1,7 @@
 use std::{fs::read_dir, time::UNIX_EPOCH};
 
 use serde::Serialize;
+use tokio::{fs::File, io::AsyncReadExt};
 use warp::{filters::path::Tail, reply::Reply};
 
 use crate::requests::{decode_path, reject};
@@ -45,3 +46,31 @@ pub async fn get_files(path: Tail)->Result<impl Reply, warp::Rejection> {
         .collect::<Vec<_>>();
     Ok(warp::reply::json(&items).into_response())
 }
+
+pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
+    let path = decode_path(format!("/{}", path.as_str()).as_str());
+    match File::open(&path).await {
+        Ok(mut file) => {
+            let meta = file.metadata().await
+                        .ok()
+                        .and_then(|m|{
+                            m.modified()
+                                .ok()
+                                .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
+                                .map(|d|d.as_millis() as i64) 
+                            })
+                        .unwrap_or(0);
+            let mut contents = vec![];
+            if let Err(_) = file.read_to_end(&mut contents).await {
+                return Err(warp::reject::not_found());
+            }
+            let response = warp::http::Response::builder()
+                .header("x-file-date", meta.to_string())
+                .body(contents)
+                .unwrap();
+            Ok(response)
+        }
+        Err(_) => Err(warp::reject::not_found())
+    }
+}
+
