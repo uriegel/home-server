@@ -74,6 +74,7 @@ pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
             if let Err(_) = file.read_to_end(&mut contents).await {
                 return Err(warp::reject::not_found());
             }
+            // TODO use buffering
             let response = warp::http::Response::builder()
                 .header("x-file-date", meta.to_string())
                 .body(contents)
@@ -99,6 +100,9 @@ pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {
 
 pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Buf, warp::Error>> + Unpin + Send + Sync, modified: Option<i64>)->Result<impl Reply, warp::Rejection> {
     let path = decode_path(format!("/{}",  path.as_str()).as_str());
+
+    // TODO ensure that directory exists 
+
     let mut file = File::create(path).await.map_err(|e|reject(e, "Could not create file"))?;
     while let Some(buf) = body.next().await {
         let mut buf = buf.unwrap();
@@ -110,5 +114,5 @@ pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Bu
         .map(|dt|SystemTime::from(dt))
         .inspect(|m|{ let _ = file.set_modified(*m); });
 
-    Ok("")
+    Ok("file uploaded")
 }
