@@ -1,7 +1,9 @@
-use std::{fs::read_dir, time::UNIX_EPOCH};
+use std::{fs::{self, read_dir}, time::UNIX_EPOCH};
 
+use futures_util::{Stream, StreamExt};
 use serde::Serialize;
-use tokio::{fs::File, io::AsyncReadExt};
+use tokio::{fs::File, io::{AsyncReadExt, AsyncWriteExt}};
+use tokio_util::bytes::Buf;
 use warp::{filters::path::Tail, reply::Reply};
 
 use crate::requests::{decode_path, reject};
@@ -13,6 +15,13 @@ struct DirectoryItem {
     is_directory: bool,
     size: u64,  
     is_hidden: bool,
+    time: i64
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct MetaData {
+    size: i64, 
     time: i64
 }
 
@@ -74,3 +83,30 @@ pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
     }
 }
 
+pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {
+    let path = decode_path(format!("/{}", path.as_str()).as_str());
+    let metadata = fs::metadata(path).ok().map(|m|(
+        m.len() as i64, 
+        m.modified()
+            .ok()
+            .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
+            .map(|d|d.as_millis() as i64)
+            .unwrap_or(0)))
+        .unwrap_or((-1, 0));
+    Ok(warp::reply::json(&MetaData{size: metadata.0, time: metadata.1 }).into_response())
+}
+
+pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Buf, warp::Error>> + Unpin + Send + Sync, modified: Option<u64>)->Result<impl Reply, warp::Rejection> {
+
+
+    println!("Headder {modified:?}");
+
+
+    let path = decode_path(format!("/{}",  path.as_str()).as_str());
+    let mut file = File::create(path).await.map_err(|e|reject(e, "Could not create file"))?;
+    while let Some(buf) = body.next().await {
+        let mut buf = buf.unwrap();
+        file.write_all_buf( &mut buf).await.unwrap();
+    }
+    Ok("")
+}
