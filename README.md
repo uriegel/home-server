@@ -32,7 +32,79 @@ export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-
 cargo build --release --target=aarch64-unknown-linux-gnu
 ``` 
 
+### External USB disk
 
+```
+LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
+```
+
+Then enter
+
+```
+sudo mkdir /media/video
+```
+
+mount drive:
+
+```
+sudo mount -a
+```
+
+### Install as service
+
+```
+sudo nano /lib/systemd/system/home-server.service
+```
+
+```
+[Unit]
+Description=Home Server for serving videos to AMAZON FirePlayer
+Documentation=https://github.com/uriegel/home-server/blob/master/README.md
+After=network.target
+
+[Service]
+#Environment=PATH=$PATH:/home/uwe/.dotnet
+#Environment=export DOTNET_ROOT=/home/uwe/.dotnet
+Environment=SERVER_PORT=8080
+Environment=SERVER_TLS_PORT=4433
+Environment=FRITZ_HOST=fritz.domain.de
+Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
+Environment=DOWNLOAD_PATH=/home/uwe/Upload
+Environment=INTRANET_HOST=roxy
+Environment=VIDEO_PATH=/media/video/videos
+Environment=MUSIC_PATH=/media/video/Musik
+Environment=PICTURE_PATH=/media/video/Fotos
+Environment=MEDIA_MOUNT_PATH=/media/video
+Environment=USB_MEDIA_PORT=5
+Type=simple
+ExecStart=/home/uwe/home-server/home-server
+User=uwe
+Group=uwe
+Restart=on-failure
+WorkingDirectory=/home/uwe/home-server
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable home-server.service
+sudo systemctl start home-server
+sudo systemctl status home-server
+```
+
+## Logging
+
+``` sudo journalctl -u homeserver ```
+
+Remove old logs:
+
+```
+journalctl --disk-usage
+sudo journalctl --rotate      
+sudo journalctl --vacuum-time=2weeks
+```
 
 
 
@@ -65,77 +137,7 @@ On Fedora 41:
 ```
 sudo dnf install pkg-config openssl-devel
 ```
-### External USB disk
 
-```
-LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
-```
-
-Then enter
-
-```
-sudo mkdir /media/video
-```
-
-mount drive:
-
-```
-sudo mount -a
-```
-
-### Install as service
-
-```
-sudo nano /lib/systemd/system/home-server.service
-```
-
-```
-[Unit]
-Description=Home Server for serving videos to AMAZON FirePlayer
-Documentation=https://github.com/uriegel/home-server/blob/master/README.md
-After=network.target
-
-[Service]
-Environment=SERVER_PORT=8080
-Environment=SERVER_TLS_PORT=4433
-Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
-Environment=FRITZ_HOST=fritz.domain.de
-Environment=INTRANET_HOST=roxy
-Environment=VIDEO_PATH=/media/video/videos
-Environment=PICTURE_PATH=/media/video/Fotos
-Environment=MUSIC_PATH=/media/video/Musik
-Environment=MEDIA_MOUNT_PATH=/media/video
-Environment=USB_MEDIA_PORT=2
-Type=simple
-ExecStart=/home/uwe/server/home-server
-Restart=on-failure
-#WorkingDirectory=/home/uwe/server
-#Environment=AUTH_NAME=nnnnn
-#Environment=AUTH_PW=**********
-
-[Install]
-WantedBy=multi-user.target
-
-```
-
-```
-sudo systemctl daemon-reload
-sudo systemctl enable home-server.service
-sudo systemctl start home-server
-sudo systemctl status home-server
-```
-
-## Logging
-
-``` sudo journalctl -u homeserver ```
-
-Remove old logs:
-
-```
-journalctl --disk-usage
-sudo journalctl --rotate      
-sudo journalctl --vacuum-time=2weeks
-```
 
 ## uhubctl
 
