@@ -2,19 +2,23 @@
 a home server for my Raspberry Pi 3
 
 ## Setup
-### Ubuntu 23.10 Server on Raspi
-```
-sudo apt update
-sudo apt upgrade
-```
 
+### Cross compiling on Ubuntu/Linux Mint for 64bit
+
+Install Mint in Boxes
+
+Install rust
+
+On Ubuntu/Mint:
+
+```
+sudo apt install libssl-dev
+```
 On Fedora 41:
 
 ```
 sudo dnf install pkg-config openssl-devel
 ```
-
-### Cross compiling on Ubuntu for 64bit
 
 ``` 
 # Make sure GCC's linker for the target platform is installed on your
@@ -22,13 +26,18 @@ sudo dnf install pkg-config openssl-devel
 sudo apt install gcc-aarch64-linux-gnu
 # Install the standard library for the target platform
 rustup target add aarch64-unknown-linux-gnu
-# Create a hello-world program
-cargo new helloworld-rust && cd helloworld-rust
 # Tell cargo to use the linker you just installed rather than the default
 export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc
 # Build!
 cargo build --release --target=aarch64-unknown-linux-gnu
 ``` 
+
+
+
+
+
+## Legacy
+
 
 ### Cross compiling on Ubuntu for 32bit
 
@@ -45,6 +54,17 @@ export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=/usr/bin/arm-linux-gnue
 # Build!
 cargo build --target=armv7-unknown-linux-gnueabihf --release
 ``` 
+### Ubuntu 23.10 Server on Raspi
+```
+sudo apt update
+sudo apt upgrade
+```
+
+On Fedora 41:
+
+```
+sudo dnf install pkg-config openssl-devel
+```
 ### External USB disk
 
 ```
@@ -141,8 +161,6 @@ make
 ls
 sudo make install
 ```
-
-## Deprecated
 
 Port 80 and port 443 on Linux:
 
