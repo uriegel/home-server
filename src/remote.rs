@@ -1,5 +1,6 @@
-use std::{fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
+use std::{cmp::min, fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
 
+use async_stream::stream;
 use chrono::DateTime;
 use futures_util::{Stream, StreamExt};
 use serde::Serialize;
@@ -61,23 +62,31 @@ pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
     let path = decode_path(format!("/{}", path.as_str()).as_str());
     match File::open(&path).await {
         Ok(mut file) => {
-            let meta = file.metadata().await
-                        .ok()
-                        .and_then(|m|{
-                            m.modified()
+            let metadata = file.metadata().await.unwrap();
+            let modified = metadata.modified()
                                 .ok()
                                 .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
-                                .map(|d|d.as_millis() as i64) 
-                            })
-                        .unwrap_or(0);
-            let mut contents = vec![];
-            if let Err(_) = file.read_to_end(&mut contents).await {
-                return Err(warp::reject::not_found());
-            }
-            // TODO use buffering
+                                .map(|d|d.as_millis() as i64)
+                                .unwrap_or(0); 
+
+            let byte_count = metadata.len();
+
+            let stream = stream! {
+                let bufsize = 16384;
+                let cycles = byte_count / bufsize as u64 + 1;
+                let mut sent_bytes: u64 = 0;
+                for _ in 0..cycles {
+                    let mut buffer: Vec<u8> = vec![0; min(byte_count - sent_bytes, bufsize) as usize];
+                    let bytes_read = file.read_exact(&mut buffer).await.unwrap();
+                    sent_bytes += bytes_read as u64;
+                    yield Ok(buffer) as Result<Vec<u8>, warp::http::Error>;
+                }
+            };
+
             let response = warp::http::Response::builder()
-                .header("x-file-date", meta.to_string())
-                .body(contents)
+                .header("x-file-date", modified.to_string())
+                .header("Content-Length", byte_count.to_string())
+                .body(hyper::Body::wrap_stream(stream))
                 .unwrap();
             Ok(response)
         }
