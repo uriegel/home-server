@@ -20,7 +20,7 @@ signal-hook = "0.3"
 warp-reverse-proxy = "1.0.0"
 image = "0.25.5"
 futures-util = "0.3.31"
-async-stream = "0.3.6"
+async-stream = "0.3.6"  
 hyper = "0.14"
 
 # Pi 2/3/4 Added due to reqwest dependency problems when cross-compiling for RPi
