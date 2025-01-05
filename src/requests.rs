@@ -56,9 +56,7 @@ pub async fn get_media_list(sub_path: Tail, path: String)->Result<impl Reply, wa
 pub async fn get_video(sub_path: Tail, path: String, range: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
     let path = PathBuf::from(path).join(decode_path(sub_path.as_str()));
     let video = get_video_file(&path)?;
-    get_range_with_cb(range, &video.path, &video.media_type, |_| { 
-        media_access::i_am_alive();
-     }).await
+    get_range_with_cb(range, &video.path, &video.media_type, |_|media_access::i_am_alive()).await
 }
 
 pub async fn get_picture(sub_path: Tail, path: String) -> Result<impl warp::Reply, warp::Rejection> {

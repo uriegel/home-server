@@ -1,14 +1,14 @@
-use std::{cmp::min, fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
+use std::{fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
 
-use async_stream::stream;
 use chrono::DateTime;
 use futures_util::{Stream, StreamExt};
 use serde::Serialize;
-use tokio::{fs::File, io::{AsyncReadExt, AsyncWriteExt}};
+use tokio::{fs::File, io::AsyncWriteExt};
 use tokio_util::bytes::Buf;
-use warp::{filters::path::Tail, reply::Reply};
+use warp::{filters::path::Tail, reply::{Reply, Response}};
+use warp_utils::ResultExt;
 
-use crate::requests::{decode_path, reject};
+use crate::{requests::{decode_path, reject}, warp_utils::{self, get_response_stream}};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -59,39 +59,39 @@ pub async fn get_files(path: Tail)->Result<impl Reply, warp::Rejection> {
 }
 
 pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
-    let path = decode_path(format!("/{}", path.as_str()).as_str());
-    match File::open(&path).await {
-        Ok(mut file) => {
-            let metadata = file.metadata().await.unwrap();
-            let modified = metadata.modified()
-                                .ok()
-                                .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
-                                .map(|d|d.as_millis() as i64)
-                                .unwrap_or(0); 
-
-            let byte_count = metadata.len();
-
-            let stream = stream! {
-                let bufsize = 16384;
-                let cycles = byte_count / bufsize as u64 + 1;
-                let mut sent_bytes: u64 = 0;
-                for _ in 0..cycles {
-                    let mut buffer: Vec<u8> = vec![0; min(byte_count - sent_bytes, bufsize) as usize];
-                    let bytes_read = file.read_exact(&mut buffer).await.unwrap();
-                    sent_bytes += bytes_read as u64;
-                    yield Ok(buffer) as Result<Vec<u8>, warp::http::Error>;
-                }
-            };
-
-            let response = warp::http::Response::builder()
-                .header("x-file-date", modified.to_string())
-                .header("Content-Length", byte_count.to_string())
-                .body(hyper::Body::wrap_stream(stream))
-                .unwrap();
-            Ok(response)
-        }
-        Err(_) => Err(warp::reject::not_found())
+    async fn download_file(path: Tail)->Result<Response, warp_utils::error::Error> 
+    {
+        let path = decode_path(format!("/{}", path.as_str()).as_str());
+        let file = File::open(&path).await?;
+        download(file).await
     }
+    
+    download_file(path).await.into_response()
+}
+
+async fn download(file: File)->Result<Response, warp_utils::error::Error> {
+    let metadata = file.metadata().await?;
+    if metadata.is_dir() {
+        // TODO return warp_utils::error::Error::not_found()
+        return Ok(warp::http::Response::builder()
+            .status(404)
+            .body(hyper::Body::empty())
+            .unwrap());
+    }
+    let modified = metadata.modified()
+                        .ok()
+                        .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
+                        .map(|d|d.as_millis() as i64)
+                        .unwrap_or(0); 
+
+    let byte_count = metadata.len();
+    let stream = get_response_stream(file, byte_count);
+    let response = warp::http::Response::builder()
+        .header("x-file-date", modified.to_string())
+        .header("Content-Length", byte_count.to_string())
+        .body(hyper::Body::wrap_stream(stream))
+        .into_response();
+    Ok(response)
 }
 
 pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {
