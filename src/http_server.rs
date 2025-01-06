@@ -140,7 +140,7 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     let route_host = 
         warp::host::exact(&host_and_port); 
 
-        let acme_challenge = config.lets_encrypt_dir.join("acme-challenge");
+    let acme_challenge = config.lets_encrypt_dir.join("acme-challenge");
     let route_acme = 
         warp::path(".well-known")
         .and(warp::path("acme-challenge"))

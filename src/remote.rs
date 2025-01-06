@@ -8,7 +8,7 @@ use tokio_util::bytes::Buf;
 use warp::{filters::path::Tail, reply::{Reply, Response}};
 use warp_utils::ResultExt;
 
-use crate::{requests::{decode_path, reject}, warp_utils::{self, get_response_stream}};
+use crate::{requests::{decode_path, reject}, warp_utils::{self, get_file}};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -69,31 +69,6 @@ pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
     download_file(path).await.into_response()
 }
 
-async fn download(file: File)->Result<Response, warp_utils::error::Error> {
-    let metadata = file.metadata().await?;
-    if metadata.is_dir() {
-        // TODO return warp_utils::error::Error::not_found()
-        return Ok(warp::http::Response::builder()
-            .status(404)
-            .body(hyper::Body::empty())
-            .unwrap());
-    }
-    let modified = metadata.modified()
-                        .ok()
-                        .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
-                        .map(|d|d.as_millis() as i64)
-                        .unwrap_or(0); 
-
-    let byte_count = metadata.len();
-    let stream = get_response_stream(file, byte_count);
-    let response = warp::http::Response::builder()
-        .header("x-file-date", modified.to_string())
-        .header("Content-Length", byte_count.to_string())
-        .body(hyper::Body::wrap_stream(stream))
-        .into_response();
-    Ok(response)
-}
-
 pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {
     let path = decode_path(format!("/{}", path.as_str()).as_str());
     let metadata = fs::metadata(path).ok().map(|m|(
@@ -124,6 +99,16 @@ pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Bu
         .inspect(|m|{ let _ = file.set_modified(*m); });
 
     Ok("file uploaded")
+}
+
+async fn download(file: File)->Result<Response, warp_utils::error::Error> {
+    let metadata = file.metadata().await?;
+    let modified = metadata.modified()
+                        .ok()
+                        .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
+                        .map(|d|d.as_millis() as i64)
+                        .unwrap_or(0); 
+    get_file(file, Some(vec!(("x-file-date", &modified.to_string())))).await
 }
 
 // TODO delete file
