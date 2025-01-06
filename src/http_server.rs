@@ -4,8 +4,8 @@ use warp_range::filter_range;
 
 use crate::{
     config::Config, remote::{download_file, get_files, get_metadata, upload_file}, requests::{
-        access_media, disk_needed, get_media_list, get_picture, get_thumbnail, get_video
-    }, warp_utils::{add_headers, simple_file_send}
+        access_media, disk_needed, get_media_list, get_picture, get_thumbnail, get_video, simple_file_send
+    }, warp_utils::add_headers
 };
 
 pub fn start_http_server(rt: &Runtime, config: Config) {
@@ -183,5 +183,4 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
 
     println!("http server started on {}", config.port);        
 }
-
 

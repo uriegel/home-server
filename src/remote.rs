@@ -2,10 +2,11 @@ use std::{fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
 
 use chrono::DateTime;
 use futures_util::{Stream, StreamExt};
+use hyper::{Body, Response};
 use serde::Serialize;
-use tokio::{fs::File, io::AsyncWriteExt};
+use tokio::{fs::{metadata, File}, io::AsyncWriteExt};
 use tokio_util::bytes::Buf;
-use warp::{filters::path::Tail, reply::{Reply, Response}};
+use warp::{filters::path::Tail, reply::Reply};
 use warp_utils::ResultExt;
 
 use crate::{requests::{decode_path, reject}, warp_utils::{self, get_file}};
@@ -59,13 +60,16 @@ pub async fn get_files(path: Tail)->Result<impl Reply, warp::Rejection> {
 }
 
 pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
-    async fn download_file(path: Tail)->Result<Response, warp_utils::error::Error> 
-    {
+    async fn download_file(path: Tail)->Result<Response<Body>, warp_utils::error::Error> {
         let path = decode_path(format!("/{}", path.as_str()).as_str());
-        let file = File::open(&path).await?;
-        download(file).await
+        let metadata = metadata(&path).await?;
+        let modified = metadata.modified()
+                            .ok()
+                            .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
+                            .map(|d|d.as_millis() as i64)
+                            .unwrap_or(0); 
+        get_file(&path, Some(vec!(("x-file-date", &modified.to_string())))).await
     }
-    
     download_file(path).await.into_response()
 }
 
@@ -99,16 +103,6 @@ pub async fn upload_file(path: Tail, mut body: impl Stream<Item = Result<impl Bu
         .inspect(|m|{ let _ = file.set_modified(*m); });
 
     Ok("file uploaded")
-}
-
-async fn download(file: File)->Result<Response, warp_utils::error::Error> {
-    let metadata = file.metadata().await?;
-    let modified = metadata.modified()
-                        .ok()
-                        .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
-                        .map(|d|d.as_millis() as i64)
-                        .unwrap_or(0); 
-    get_file(file, Some(vec!(("x-file-date", &modified.to_string())))).await
 }
 
 // TODO delete file

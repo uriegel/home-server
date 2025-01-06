@@ -31,17 +31,9 @@ pub fn add_headers(mut response: Response)->Response {
 //         )
 //     }
 // }
-pub async fn simple_file_send(filename: String)->Result<impl Reply, warp::Rejection> {
-    async fn download_file(filename: String)->Result<Response, error::Error> 
-    {
-        let file = File::open(filename).await?;
-        get_file(file, None).await
-    }
-    
-    download_file(filename).await.into_response()
-}
 
-pub async fn get_file(file: File, headers: Option<Vec<(&str, &str)>>)->Result<Response, error::Error> {
+pub async fn get_file(filename: &str, headers: Option<Vec<(&str, &str)>>)->Result<Response, error::Error> {
+    let file = File::open(filename).await?;
     let metadata = file.metadata().await?;
     if metadata.is_dir() {
         // TODO return warp_utils::error::Error::not_found()
