@@ -7,7 +7,6 @@ use serde::Serialize;
 use tokio::{fs::{metadata, File}, io::AsyncWriteExt};
 use tokio_util::bytes::Buf;
 use warp::{filters::path::Tail, reply::Reply};
-use warp_utils::ResultExt;
 
 use crate::{requests::{decode_path, reject}, warp_utils::{self, get_file}};
 
@@ -70,7 +69,7 @@ pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
                             .unwrap_or(0); 
         get_file(&path, Some(vec!(("x-file-date", &modified.to_string())))).await
     }
-    download_file(path).await.into_response()
+    Ok(download_file(path).await?)
 }
 
 pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {

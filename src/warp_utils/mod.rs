@@ -4,7 +4,7 @@ use async_stream::try_stream;
 use chrono::Utc;
 use futures_util::Stream;
 use tokio::{fs::File, io::{AsyncRead, AsyncReadExt}};
-use warp::{http::header::HeaderValue, hyper::Body, reply::{Reply, Response}};
+use warp::{http::header::HeaderValue, reply::{Reply, Response}};
 
 pub mod error;
 
@@ -72,21 +72,21 @@ pub fn get_response_stream(mut stream: impl AsyncRead + Unpin, byte_count: u64) 
     }
 }
 
-pub trait ResultExt {
-    fn into_response(self)->Result<Response, warp::Rejection>;
-}
+// pub trait ResultExt {
+//     fn into_response(self)->Result<Response, warp::Rejection>;
+// }
 
-impl ResultExt for Result<Response, error::Error> {
-    fn into_response(self)->Result<Response, warp::Rejection> {
-        match self {
-            Ok(reply) => Ok(reply.into_response()),
-            Err(_e) => Ok(warp::http::Response::builder()
-                                .status(404)
-                                .body(Body::empty())
-                                .unwrap())
-        }
-    }
-}
+// impl ResultExt for Result<Response, error::Error> {
+//     fn into_response(self)->Result<Response, warp::Rejection> {
+//         match self {
+//             Ok(reply) => Ok(reply.into_response()),
+//             Err(_e) => Ok(warp::http::Response::builder()
+//                                 .status(404)
+//                                 .body(Body::empty())
+//                                 .unwrap())
+//         }
+//     }
+// }
 
     // TODO 
     // https://stackoverflow.com/questions/61013311/how-do-i-handle-errors-in-warp-using-both-rejection-and-the-question-mark-operat

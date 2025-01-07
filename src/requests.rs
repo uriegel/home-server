@@ -6,7 +6,7 @@ use tokio::{fs::File, io::AsyncReadExt};
 use warp::{filters::path::Tail, reply::Response, Reply};
 use warp_range::get_range_with_cb;
 
-use crate::{media_access, thumbnail::create_thumbnail, warp_utils::{get_file, ResultExt}};
+use crate::{media_access, thumbnail::create_thumbnail, warp_utils::get_file};
 
 struct VideoFile {
     path: String,
@@ -137,9 +137,8 @@ fn get_video_file(path: &PathBuf) -> Result<VideoFile, warp::Rejection> {
 }
 
 pub async fn simple_file_send(filename: String)->Result<impl Reply, warp::Rejection> {
-    get_file(&filename, None)
-        .await
-        .into_response()
+    Ok(get_file(&filename, None)
+        .await?)
 }
 
 struct FileDir {

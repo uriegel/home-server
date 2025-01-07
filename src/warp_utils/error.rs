@@ -9,3 +9,6 @@ impl From<std::io::Error> for Error {
         }
     }
 }
+
+impl warp::reject::Reject for Error {
+}
