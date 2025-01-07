@@ -16,25 +16,9 @@ pub fn add_headers(mut response: Response)->Response {
     response
 }
 
-// pub async fn simple_file_send(filename: String) -> Result<impl warp::Reply, warp::Rejection> {
-//     // Serve a file by asynchronously reading it by chunks using tokio-util crate.
-
-//     if let Ok(file) = tokio::fs::File::open(filename).await {
-//         let stream = tokio_util::codec::FramedRead::new(file, tokio_util::codec::BytesCodec::new());
-//         let body = Body::wrap_stream(stream); // Convert to Bytes
-//         return Ok(warp::http::Response::new(body));
-//     } else {
-//         Ok(warp::http::Response::builder()
-//             .status(404)
-//             .body(Body::empty())
-//             .unwrap()
-//         )
-//     }
-// }
-
-pub async fn get_file(filename: &str, headers: Option<Vec<(&str, &str)>>)->Result<Response, error::Error> {
-    let file = File::open(filename).await?;
-    let metadata = file.metadata().await?;
+pub async fn get_file(filename: &str, headers: Option<Vec<(&str, &str)>>)->Result<Response, warp::Rejection> {
+    let file = File::open(filename).await.map_err(error::Error::from_io)?;
+    let metadata = file.metadata().await.map_err(error::Error::from_io)?;
     if metadata.is_dir() {
         // TODO return warp_utils::error::Error::not_found()
         return Ok(warp::http::Response::builder()
@@ -52,10 +36,9 @@ pub async fn get_file(filename: &str, headers: Option<Vec<(&str, &str)>>)->Resul
                                             .fold(response_builder, |response_builder, header|response_builder.header(header.0, header.1)),
         None => response_builder 
     };
-    let response = response_builder
+    Ok(response_builder
         .body(hyper::Body::wrap_stream(stream))
-        .into_response();
-    Ok(response)
+        .into_response())
 }
 
 pub fn get_response_stream(mut stream: impl AsyncRead + Unpin, byte_count: u64) -> impl Stream<Item = tokio::io::Result<Vec<u8>>> {

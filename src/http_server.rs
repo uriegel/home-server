@@ -5,7 +5,7 @@ use warp_range::filter_range;
 use crate::{
     config::Config, remote::{download_file, get_files, get_metadata, upload_file}, requests::{
         access_media, disk_needed, get_media_list, get_picture, get_thumbnail, get_video, simple_file_send
-    }, warp_utils::{self, add_headers}
+    }, warp_utils::{add_headers, error::return_error}
 };
 
 pub fn start_http_server(rt: &Runtime, config: Config) {
@@ -173,7 +173,7 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
             )
         )
         .or(route_acme)
-        .or(route_static)
+        .or(route_static);
         .recover(return_error);    
 
     rt.spawn(async move {
@@ -185,15 +185,3 @@ pub fn start_http_server(rt: &Runtime, config: Config) {
     println!("http server started on {}", config.port);        
 }
 
-async fn return_error(e: warp::Rejection)->Result<impl warp::Reply, warp::Rejection> {
-    println!("Error: {:?}", e);
-
-    if let Some(e) = e.find::<warp_utils::error::Error>() {
-        println!("E-Error: {:?}", e);
-    }
-
-    Ok(warp::http::Response::builder()
-        .status(404)
-        .body(hyper::Body::empty())
-        .unwrap())
-}

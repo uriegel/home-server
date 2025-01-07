@@ -2,13 +2,12 @@ use std::{fs::{self, read_dir}, time::{SystemTime, UNIX_EPOCH}};
 
 use chrono::DateTime;
 use futures_util::{Stream, StreamExt};
-use hyper::{Body, Response};
 use serde::Serialize;
 use tokio::{fs::{metadata, File}, io::AsyncWriteExt};
 use tokio_util::bytes::Buf;
 use warp::{filters::path::Tail, reply::Reply};
 
-use crate::{requests::{decode_path, reject}, warp_utils::{self, get_file}};
+use crate::{requests::{decode_path, reject}, warp_utils::{error::Error, get_file}};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -59,17 +58,15 @@ pub async fn get_files(path: Tail)->Result<impl Reply, warp::Rejection> {
 }
 
 pub async fn download_file(path: Tail)->Result<impl Reply, warp::Rejection> {
-    async fn download_file(path: Tail)->Result<Response<Body>, warp_utils::error::Error> {
-        let path = decode_path(format!("/{}", path.as_str()).as_str());
-        let metadata = metadata(&path).await?;
-        let modified = metadata.modified()
-                            .ok()
-                            .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
-                            .map(|d|d.as_millis() as i64)
-                            .unwrap_or(0); 
-        get_file(&path, Some(vec!(("x-file-date", &modified.to_string())))).await
-    }
-    Ok(download_file(path).await?)
+    let path = decode_path(format!("/{}", path.as_str()).as_str());
+    let metadata = metadata(&path).await.map_err(Error::from_io)?;
+    let modified = metadata.modified()
+                        .ok()
+                        .and_then(|t|t.duration_since(UNIX_EPOCH).ok())
+                        .map(|d|d.as_millis() as i64)
+                        .unwrap_or(0); 
+    Ok(get_file(&path, Some(vec!(("x-file-date", &modified.to_string())))).await?)
+    // TODO warp::Rejection instead of warp_utils::error::Error
 }
 
 pub async fn get_metadata(path: Tail)->Result<impl Reply, warp::Rejection> {
