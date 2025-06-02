@@ -1,4 +1,5 @@
-﻿using WebServerLight;
+﻿using CsTools.Extensions;
+using WebServerLight;
 using WebServerLight.Routing;
 
 using static System.Console;
@@ -25,11 +26,11 @@ var server =
         //         .Add(SubpathRoute
         //                 .New("/json")
         //                 .Request(JsonPost)))
-        // .Route(SubpathRoute
-        //         .New("/media")
-        //         .Add(MethodRoute
-        //             .New(Method.Get)
-        //             .Request(GetMediaVideo)))
+        .Route(SubpathRoute
+                .New("/media")
+                .Add(MethodRoute
+                    .New(Method.Get)
+                    .Request(GetMedia)))
 
         .AddAllowedOrigin("http://localhost:5050")
         .UseRange()
@@ -38,3 +39,17 @@ var server =
 server.Start();
 ReadLine();
 server.Stop();
+
+// TODO read config from environment 
+
+async Task<bool> GetMedia(IRequest request)
+{
+    var info = new DirectoryInfo("/daten/Videos");
+    var json = new DirectoryContent(
+        [.. info.GetDirectories().Select(n => n.Name).OrderBy(n => n)],
+        [.. info.GetFiles().Select(n => n.Name).OrderBy(n => n)]
+    );
+    await request.SendJsonAsync(json);
+    return true;
+}
+record DirectoryContent(string[] Directories, string[] Files);
