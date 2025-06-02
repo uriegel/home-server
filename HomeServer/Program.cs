@@ -41,6 +41,7 @@ ReadLine();
 server.Stop();
 
 // TODO read config from environment 
+// TODO check on raspi
 
 async Task<bool> GetMedia(IRequest request)
 {
