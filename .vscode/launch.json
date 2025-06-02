@@ -5,20 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb",
+            "type": "coreclr",
             "request": "launch",
             "name": "Debug executable 'home-server'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=home-server",
-                    "--package=home-server"
-                ],
-                "filter": {
-                    "name": "home-server",
-                    "kind": "bin"
-                }
-            },
+            "requireExactSource": true, 
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/HomeServer/bin/Debug/net8.0/HomeServer.dll",
+            "stopAtEntry": false,
+            "justMyCode": false,
+            "enableStepFiltering": true,
+            "console": "integratedTerminal",
+            "args": [],
+            "cwd": "${workspaceFolder}/HomeServer",
             "env": {
                 "VIDEO_PATH": "/home/uwe/Videos",
                 "MUSIC_PATH": "/home/uwe/Musik",
@@ -29,9 +27,7 @@
                 "MEDIA_MOUNT_PATH": "/media/video",
                 "PICTURE_PATH": "/daten/Bilder/Fotos",
                 "USB_MEDIA_PORT": "4"
-            },            
-            "args": [],
-            "cwd": "${workspaceFolder}"
+            }            
         }
     ]
 }
