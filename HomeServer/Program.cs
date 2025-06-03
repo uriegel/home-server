@@ -1,4 +1,5 @@
-﻿using CsTools;
+﻿using System.Text;
+using CsTools;
 using CsTools.Extensions;
 using WebServerLight;
 using WebServerLight.Routing;
@@ -13,26 +14,56 @@ var port = (SERVER_PORT.GetEnvironmentVariable()?.ParseInt() ?? 80).SideEffect(n
 
 WriteLine(@$"Test site:  http://localhost:{port}");
 
+ManualResetEvent shutdownEvent = new(false);
+
+CancelKeyPress += (sender, eventArgs) =>
+{
+    eventArgs.Cancel = true;
+    shutdownEvent.Set();
+};
+
+AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) => shutdownEvent.Set();
+
 var server =
     ServerBuilder
         .New()
         .Http(port)
         .Route(PathRoute
-                .New("/media")
+                .New("/media/video")
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(GetMediaFile)
                     .Request(GetMedia)))
+        .Route(PathRoute
+                .New("/media/diskneeded")
+                .Add(MethodRoute
+                    .New(Method.Get)
+                    .Request(SendOK)))
+        .Route(PathRoute
+                .New("/media/accessdisk")
+                .Add(MethodRoute
+                    .New(Method.Get)
+                    .Request(SendOK)))
         .AddAllowedOrigin($"http://localhost:{port}")
         .UseRange()
         .Build();
     
 server.Start();
-ReadLine();
+shutdownEvent.WaitOne(); // Wait until SIGINT/SIGTERM
 server.Stop();
 
-// TODO read config from environment 
-// TODO check on raspi
+// TODO AccessDisk
+// TODO DiskNeeded
+
+async Task<bool> SendOK(IRequest request)
+{
+    var ms = new MemoryStream(Encoding.ASCII.GetBytes("OK"))
+    {
+        Position = 0
+    };
+    await request.SendAsync(ms, ms.Length, MimeTypes.TextPlain);
+    return true;
+}
 
 async Task<bool> GetMedia(IRequest request)
 {
