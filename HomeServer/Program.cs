@@ -5,19 +5,25 @@ using WebServerLight.Routing;
 
 using static System.Console;
 
-WriteLine(@"Test site:  http://localhost:5050");
+const string VIDEO_PATH = "VIDEO_PATH";
+const string SERVER_PORT = "SERVER_PORT";
+
+var videoPath = VIDEO_PATH.GetEnvironmentVariable().SideEffect(n => WriteLine($"VIDEO_PATH: {n}"));
+var port = (SERVER_PORT.GetEnvironmentVariable()?.ParseInt() ?? 80).SideEffect(n => WriteLine($"SERVER_PORT: {n}"));
+
+WriteLine(@$"Test site:  http://localhost:{port}");
 
 var server =
     ServerBuilder
         .New()
-        .Http(5050)
+        .Http(port)
         .Route(PathRoute
                 .New("/media")
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(GetMediaFile)
                     .Request(GetMedia)))
-        .AddAllowedOrigin("http://localhost:5050")
+        .AddAllowedOrigin($"http://localhost:{port}")
         .UseRange()
         .Build();
     
@@ -30,7 +36,7 @@ server.Stop();
 
 async Task<bool> GetMedia(IRequest request)
 {
-    var path = "/daten/Videos".AppendPath(request.SubPath);
+    var path = videoPath.AppendPath(request.SubPath);
     if (request.SubPath?.Contains('.') == true)
         return false;
     WriteLine($"GetMedia: {path}");
@@ -47,7 +53,7 @@ async Task<bool> GetMedia(IRequest request)
 
 async Task<bool> GetMediaFile(IRequest request)
 {
-    var path = "/daten/Videos".AppendPath(request.SubPath);
+    var path = videoPath.AppendPath(request.SubPath);
     if (request.SubPath?.Contains('.') != true || !File.Exists(path))
         return false;
     WriteLine($"GetMediaFile: {path}, {File.Exists(path)}");

@@ -18,7 +18,7 @@
             "args": [],
             "cwd": "${workspaceFolder}/HomeServer",
             "env": {
-                "VIDEO_PATH": "/home/uwe/Videos",
+                "VIDEO_PATH": "/daten/Videos",
                 "MUSIC_PATH": "/home/uwe/Musik",
                 "SERVER_PORT": "8080",
                 "SERVER_TLS_PORT": "4433",
