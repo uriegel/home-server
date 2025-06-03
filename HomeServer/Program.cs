@@ -1,4 +1,5 @@
-﻿using CsTools.Extensions;
+﻿using CsTools;
+using CsTools.Extensions;
 using WebServerLight;
 using WebServerLight.Routing;
 
@@ -10,28 +11,12 @@ var server =
     ServerBuilder
         .New()
         .Http(5050)
-        // .Route(MethodRoute
-        //         .New(Method.Get)
-        //         .Add(SubpathRoute
-        //                 .New("/image")
-        //                 .Request(GetImage))
-        //         .Add(SubpathRoute
-        //                 .New("/video")
-        //                 .Request(GetVideo)))
-        // .Route(MethodRoute
-        //         .New(Method.Post)
-        //         .Add(SubpathRoute
-        //                 .New("/json/cmd4")
-        //                 .Request(JsonPost4))
-        //         .Add(SubpathRoute
-        //                 .New("/json")
-        //                 .Request(JsonPost)))
-        .Route(SubpathRoute
+        .Route(PathRoute
                 .New("/media")
                 .Add(MethodRoute
                     .New(Method.Get)
+                    .Request(GetMediaFile)
                     .Request(GetMedia)))
-
         .AddAllowedOrigin("http://localhost:5050")
         .UseRange()
         .Build();
@@ -45,12 +30,34 @@ server.Stop();
 
 async Task<bool> GetMedia(IRequest request)
 {
-    var info = new DirectoryInfo("/daten/Videos");
+    var path = "/daten/Videos".AppendPath(request.SubPath);
+    if (request.SubPath?.Contains('.') == true)
+        return false;
+    WriteLine($"GetMedia: {path}");
+    var info = new DirectoryInfo(path);
+    if (!info.Exists)
+        return false;
     var json = new DirectoryContent(
         [.. info.GetDirectories().Select(n => n.Name).OrderBy(n => n)],
         [.. info.GetFiles().Select(n => n.Name).OrderBy(n => n)]
     );
     await request.SendJsonAsync(json);
     return true;
+}
+
+async Task<bool> GetMediaFile(IRequest request)
+{
+    var path = "/daten/Videos".AppendPath(request.SubPath);
+    if (request.SubPath?.Contains('.') != true || !File.Exists(path))
+        return false;
+    WriteLine($"GetMediaFile: {path}, {File.Exists(path)}");
+    using var video = File.OpenRead(path);
+    if (video != null)
+    {
+        await request.SendAsync(video, video.Length, MimeType.Get(".mp4") ?? MimeTypes.TextPlain);
+        return true;
+    }
+    else
+        return false;
 }
 record DirectoryContent(string[] Directories, string[] Files);
