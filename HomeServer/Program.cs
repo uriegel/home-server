@@ -28,6 +28,7 @@ var server =
     ServerBuilder
         .New()
         .Http(port)
+        .UseLetsEncrypt()
         .Route(PathRoute
                 .New("/media/video")
                 .Add(MethodRoute
@@ -57,11 +58,7 @@ server.Stop();
 
 async Task<bool> SendOK(IRequest request)
 {
-    var ms = new MemoryStream(Encoding.ASCII.GetBytes("OK"))
-    {
-        Position = 0
-    };
-    await request.SendAsync(ms, ms.Length, MimeTypes.TextPlain);
+    await request.SendText("OK");
     return true;
 }
 
