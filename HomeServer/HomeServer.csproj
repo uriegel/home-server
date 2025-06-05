@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WebServerLight" Version="0.0.20-beta-21" />
+    <PackageReference Include="WebServerLight" Version="0.0.22-beta-22" />
   </ItemGroup>
 
 </Project>

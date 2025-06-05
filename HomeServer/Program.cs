@@ -34,22 +34,29 @@ var server =
         .Https(httpsPort)
         .UseLetsEncrypt()
         .UseRange()
-        .Route(PathRoute
+        .Route(HttpRoute
+            .New()
+            .Add(PathRoute
                 .New("/media/video")
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(GetMediaFile)
                     .Request(GetMedia)))
-        .Route(PathRoute
-                .New("/media/diskneeded")
-                .Add(MethodRoute
-                    .New(Method.Get)
-                    .Request(SendOK)))
-        .Route(PathRoute
-                .New("/media/accessdisk")
-                .Add(MethodRoute
-                    .New(Method.Get)
-                    .Request(SendOK)))
+                .Add(PathRoute
+                    .New("/media/diskneeded")
+                    .Add(MethodRoute
+                        .New(Method.Get)
+                        .Request(SendOK)))
+                .Add(PathRoute
+                    .New("/media/accessdisk")
+                    .Add(MethodRoute
+                        .New(Method.Get)
+                        .Request(SendOK))))
+        .Route(HttpsRoute
+            .New()
+            .Add(MethodRoute
+                .New(Method.Get)
+                .Request(SendUnderConstruction)))
         .Build();
     
 server.Start();
@@ -62,6 +69,12 @@ server.Stop();
 async Task<bool> SendOK(IRequest request)
 {
     await request.SendText("OK");
+    return true;
+}
+
+async Task<bool> SendUnderConstruction(IRequest request)
+{
+    await request.SendText("Under construction...");
     return true;
 }
 
