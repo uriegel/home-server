@@ -8,11 +8,14 @@ using static System.Console;
 
 const string VIDEO_PATH = "VIDEO_PATH";
 const string SERVER_PORT = "SERVER_PORT";
+const string SERVER_TLS_PORT = "SERVER_TLS_PORT";
 
 var videoPath = VIDEO_PATH.GetEnvironmentVariable().SideEffect(n => WriteLine($"VIDEO_PATH: {n}"));
 var port = (SERVER_PORT.GetEnvironmentVariable()?.ParseInt() ?? 80).SideEffect(n => WriteLine($"SERVER_PORT: {n}"));
+var httpsPort = (SERVER_TLS_PORT.GetEnvironmentVariable()?.ParseInt() ?? 443).SideEffect(n => WriteLine($"SERVER_TLS_PORT: {n}"));
 
 WriteLine(@$"Test site:  http://localhost:{port}");
+WriteLine(@$"Test site:  https://localhost:{httpsPort}");
 
 ManualResetEvent shutdownEvent = new(false);
 
@@ -28,7 +31,9 @@ var server =
     ServerBuilder
         .New()
         .Http(port)
+        .Https(httpsPort)
         .UseLetsEncrypt()
+        .UseRange()
         .Route(PathRoute
                 .New("/media/video")
                 .Add(MethodRoute
@@ -45,8 +50,6 @@ var server =
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(SendOK)))
-        .AddAllowedOrigin($"http://localhost:{port}")
-        .UseRange()
         .Build();
     
 server.Start();
