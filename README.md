@@ -3,6 +3,8 @@ a home server for my Raspberry Pi 3
 
 ## Setup
 
+```sudo apt-get install libgtk-4-dev``` (for serving thumbnails)
+
 ### Cross compiling on Ubuntu/Linux Mint for 64bit
 
 Install Mint in Boxes
