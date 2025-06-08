@@ -3,38 +3,9 @@ a home server for my Raspberry Pi 3
 
 ## Setup
 
-```sudo apt-get install libgtk-4-dev``` (for serving thumbnails)
-
-### Cross compiling on Ubuntu/Linux Mint for 64bit
-
-Install Mint in Boxes
-
-Install rust
-
-On Ubuntu/Mint:
-
-```
-sudo apt install libssl-dev
-```
-On Fedora 41:
-
-```
-sudo dnf install pkg-config openssl-devel
-```
-
-``` 
-# Make sure GCC's linker for the target platform is installed on your
-# system
-sudo apt install gcc-aarch64-linux-gnu
-# Install the standard library for the target platform
-rustup target add aarch64-unknown-linux-gnu
-# Tell cargo to use the linker you just installed rather than the default
-export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc
-# Build!
-cargo build --release --target=aarch64-unknown-linux-gnu
-``` 
-
 ### External USB disk
+
+
 
 ```
 LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
@@ -50,6 +21,17 @@ mount drive:
 
 ```
 sudo mount -a
+
+```
+
+### Install .NET
+
+```
+sudo apt update
+
+```
+```
+sudo apt install dotnet-sdk-9.0
 ```
 
 ### Install as service
@@ -309,3 +291,33 @@ UUID=04F20EEDF20EE332   /media/video    ext4    defaults,nofail 0       1
 ```
 
 or use disk label:
+
+
+### Cross compiling on Ubuntu/Linux Mint for 64bit
+
+Install Mint in Boxes
+
+Install rust
+
+On Ubuntu/Mint:
+
+```
+sudo apt install libssl-dev
+```
+On Fedora 41:
+
+```
+sudo dnf install pkg-config openssl-devel
+```
+
+``` 
+# Make sure GCC's linker for the target platform is installed on your
+# system
+sudo apt install gcc-aarch64-linux-gnu
+# Install the standard library for the target platform
+rustup target add aarch64-unknown-linux-gnu
+# Tell cargo to use the linker you just installed rather than the default
+export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc
+# Build!
+cargo build --release --target=aarch64-unknown-linux-gnu
+``` 
