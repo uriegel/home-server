@@ -1,10 +1,9 @@
 # home-server
 a home server for my Raspberry Pi 3
 
-## Setup
+## Setup on Raspberry
 
 ### External USB disk
-
 
 
 ```
@@ -34,10 +33,19 @@ sudo apt update
 sudo apt install dotnet-sdk-9.0
 ```
 
+### Compile
+
+Copy HomeServer directory without bin and obj to Raspberry ~
+
+```
+cd HomeServer
+dotnet build -c Release
+```
+
 ### Install as service
 
 ```
-sudo nano /lib/systemd/system/home-server.service
+sudo nano /lib/systemd/system/homeserver.service
 ```
 
 ```
@@ -47,12 +55,10 @@ Documentation=https://github.com/uriegel/home-server/blob/master/README.md
 After=network.target
 
 [Service]
-#Environment=PATH=$PATH:/home/uwe/.dotnet
-#Environment=export DOTNET_ROOT=/home/uwe/.dotnet
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=4433
 Environment=FRITZ_HOST=fritz.domain.de
-Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-cert
+Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
 Environment=DOWNLOAD_PATH=/home/uwe/Upload
 Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
@@ -61,11 +67,11 @@ Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
 Environment=USB_MEDIA_PORT=5
 Type=simple
-ExecStart=/home/uwe/home-server/home-server
+ExecStart=/home/uwe/HomeServer/bin/Release/net9.0/HomeServer
 User=uwe
 Group=uwe
 Restart=on-failure
-WorkingDirectory=/home/uwe/home-server
+WorkingDirectory=/home/uwe/HomeServer
 
 [Install]
 WantedBy=multi-user.target
@@ -73,9 +79,9 @@ WantedBy=multi-user.target
 
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable home-server.service
-sudo systemctl start home-server
-sudo systemctl status home-server
+sudo systemctl enable homeserver.service
+sudo systemctl start homeserver
+sudo systemctl status homeserver
 ```
 
 ## Logging
