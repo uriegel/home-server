@@ -48,13 +48,7 @@ var server =
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(GetPictureFile)
-                    .Request(GetThumbnail)
                     .Request(GetMedia(picturePath))))
-            .Add(PathRoute
-                .New("/media/thumbnail")
-                .Add(MethodRoute
-                    .New(Method.Get)
-                    .Request(GetThumbnail)))
             .Add(PathRoute
                 .New("/media/diskneeded")
                 .Add(MethodRoute
@@ -136,22 +130,6 @@ async Task<bool> GetPictureFile(IRequest request)
         return false;
     WriteLine($"GetPictureFile: {path}, {File.Exists(path)}");
     using var pic = File.OpenRead(path);
-    if (pic != null)
-    {
-        await request.SendAsync(pic, pic.Length, MimeType.Get(path.GetFileExtension()) ?? MimeTypes.ImageJpeg);
-        return true;
-    }
-    else
-        return false;
-}
-
-async Task<bool> GetThumbnail(IRequest request)
-{
-    var path = picturePath.AppendPath(request.SubPath);
-    if (request.SubPath?.Contains('.') != true || !File.Exists(path))
-        return false;
-    WriteLine($"GetPictureFile: {path}, {File.Exists(path)}");
-    using var pic = Thumbnail.Get(path);
     if (pic != null)
     {
         await request.SendAsync(pic, pic.Length, MimeType.Get(path.GetFileExtension()) ?? MimeTypes.ImageJpeg);
