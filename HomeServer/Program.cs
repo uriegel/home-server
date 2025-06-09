@@ -29,7 +29,7 @@ CancelKeyPress += (sender, eventArgs) =>
 AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) => shutdownEvent.Set();
 
 var server =
-    ServerBuilder
+    WebServer
         .New()
         .Http(port)
         .Https(httpsPort)
