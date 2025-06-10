@@ -75,13 +75,13 @@ server.Stop();
 
 async Task<bool> SendOK(IRequest request)
 {
-    await request.SendText("OK");
+    await request.SendTextAsync("OK");
     return true;
 }
 
 async Task<bool> SendUnderConstruction(IRequest request)
 {
-    await request.SendText("Under construction...");
+    await request.SendTextAsync("Under construction...");
     return true;
 }
 
