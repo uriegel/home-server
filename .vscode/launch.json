@@ -1,33 +1,23 @@
 {
-    // Verwendet IntelliSense zum Ermitteln möglicher Attribute.
-    // Zeigen Sie auf vorhandene Attribute, um die zugehörigen Beschreibungen anzuzeigen.
-    // Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "coreclr",
+            "name": "Launch via NPM",
+            "type": "node",
             "request": "launch",
-            "name": "Debug executable 'home-server'",
-            "requireExactSource": true, 
+            "cwd": "${workspaceRoot}",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/HomeServer/bin/Debug/net8.0/HomeServer.dll",
-            "stopAtEntry": false,
-            "justMyCode": false,
-            "enableStepFiltering": true,
-            "console": "integratedTerminal",
-            "args": [],
-            "cwd": "${workspaceFolder}/HomeServer",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script", "run"
+            ],
             "env": {
-                "VIDEO_PATH": "/daten/Videos",
-                "MUSIC_PATH": "/home/uwe/Musik",
-                "SERVER_PORT": "8080",
-                "SERVER_TLS_PORT": "4433",
-                "INTRANET_HOST": "illmatic",
-                "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-cert",
-                "MEDIA_MOUNT_PATH": "/media/video",
-                "PICTURE_PATH": "/daten/Bilder/Fotos",
-                "USB_MEDIA_PORT": "4"
-            }            
+                "NODE_ENV": "development",
+                "PORT": "9865",
+                "VIDEO_PATH": "/home/uwe/Videos",
+                "MUSIC_PATH": "/run/media/uwe/Daten/Musik",
+                "RELATIVE_URL": "/media"
+            },
         }
     ]
 }

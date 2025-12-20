@@ -1,5 +1,2 @@
-obj
-bin
-/target
-Cargo.lock
-
+node_modules
+dist
