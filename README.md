@@ -3,6 +3,14 @@ a home server for my Raspberry Pi 3
 
 ## Setup on Raspberry
 
+### install noce
+
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+nvm install 24
+
+```
+
 ### External USB disk
 
 
