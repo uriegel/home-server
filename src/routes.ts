@@ -1,7 +1,8 @@
-import { Request, Router } from "express"
+import { Request, Response, Router } from "express"
 import { readdir, stat } from "fs/promises"
 import serveStatic from "serve-static"
 import path from "path"
+import { NextFunction } from "connect"
 
 export const router = Router()
 
@@ -10,8 +11,17 @@ const MUSIC_PATH = process.env.MUSIC_PATH || '/music'
 console.log("VIDEO_PATH", VIDEO_PATH)
 console.log("MUSIC_PATH", MUSIC_PATH)
 
-router.get('/video{/*splat}', async (req: Request<{ splat?: string[] }>, res, next) => {
-    const filePath = path.join(VIDEO_PATH, ...(req.params.splat ? req.params.splat : []))
+router.get('/video{/*splat}', (req, res, n) => serveFile(VIDEO_PATH, req, res, n))
+router.use('/video', serveStatic(VIDEO_PATH))
+
+router.get('/music{/*splat}', (req, res, n) => serveFile(MUSIC_PATH, req, res, n))
+router.use('/music', serveStatic(MUSIC_PATH))
+
+router.get('/diskneeded', async (_, res) => res.sendStatus(200))
+router.get('/accessdisk', async (_, res) => res.sendStatus(200))
+
+async function serveFile(directory: string, req: Request<{ splat?: string[] }>, res: Response<any, Record<any, string>>, next: NextFunction) {
+    const filePath = path.join(directory, ...(req.params.splat ? req.params.splat : []))
     if (await isDirectory(filePath)) {
 
         const items = await readdir(filePath, {
@@ -22,15 +32,9 @@ router.get('/video{/*splat}', async (req: Request<{ splat?: string[] }>, res, ne
             directories: dirs.map(n => n.name),
             files: files.map(n => n.name)
         })
-
-
     } else
         return next()
-})
-router.use('/video', serveStatic(VIDEO_PATH))
-
-router.get('/diskneeded', async (_, res) => res.sendStatus(200))
-router.get('/accessdisk', async (_, res) => res.sendStatus(200))
+}
 
 async function isDirectory(path: string) {
     return (await stat(path)).isDirectory()
