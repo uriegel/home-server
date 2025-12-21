@@ -3,71 +3,24 @@ a home server for my Raspberry Pi 3
 
 ## Setup on Raspberry
 
-### install noce
+### install node
 
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 nvm install 24
 
 ```
-
-### External USB disk
-
-
-```
-LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
-```
-
-Then enter
-
-```
-sudo mkdir /media/video
-```
-
-mount drive:
-
-```
-sudo mount -a
-
-```
-
-### Install .NET
-
-```
-sudo apt update
-
-```
-```
-sudo apt install dotnet-sdk-9.0
-```
-
-### Compile
-
-Copy HomeServer directory without bin and obj to Raspberry ~
-
-```
-cd HomeServer
-dotnet build -c Release
-```
-
 ### Install as service
 
 ```
-sudo nano /lib/systemd/system/homeserver.service
-```
-
-```
+  GNU nano 8.3                                  /lib/systemd/system/homeserver.service                                     M     
 [Unit]
 Description=Home Server for serving videos to AMAZON FirePlayer
 Documentation=https://github.com/uriegel/home-server/blob/master/README.md
 After=network.target
 
 [Service]
-Environment=SERVER_PORT=8080
-Environment=SERVER_TLS_PORT=4433
-Environment=FRITZ_HOST=fritz.domain.de
-Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
-Environment=DOWNLOAD_PATH=/home/uwe/Upload
+Environment=PORT=9865
 Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
@@ -75,14 +28,15 @@ Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
 Environment=USB_MEDIA_PORT=5
 Type=simple
-ExecStart=/home/uwe/HomeServer/bin/Release/net9.0/HomeServer
+ExecStart=/home/uwe/.nvm/versions/node/v24.11.0/bin/node /home/uwe/home-server
 User=uwe
 Group=uwe
 Restart=on-failure
-WorkingDirectory=/home/uwe/HomeServer
+WorkingDirectory=/home/uwe/home-server
 
 [Install]
 WantedBy=multi-user.target
+
 ```
 
 ```
@@ -105,36 +59,26 @@ sudo journalctl --vacuum-time=2weeks
 ```
 
 
+### External USB disk
 
-## Legacy
-
-
-### Cross compiling on Ubuntu for 32bit
-
-``` 
-# Make sure GCC's linker for the target platform is installed on your
-# system
-sudo apt install gcc-arm-linux-gnueabihf
-# Install the standard library for the target platform
-rustup target add armv7-unknown-linux-gnueabihf
-# Create a hello-world program
-cargo new helloworld-rust && cd helloworld-rust
-# Tell cargo to use the linker you just installed rather than the default
-export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=/usr/bin/arm-linux-gnueabihf-gcc
-# Build!
-cargo build --target=armv7-unknown-linux-gnueabihf --release
-``` 
-### Ubuntu 23.10 Server on Raspi
-```
-sudo apt update
-sudo apt upgrade
-```
-
-On Fedora 41:
 
 ```
-sudo dnf install pkg-config openssl-devel
+LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
 ```
+
+Then enter
+
+```
+sudo mkdir /media/video
+```
+
+mount drive:
+
+```
+sudo mount -a
+
+```
+
 
 
 ## uhubctl
