@@ -11,10 +11,11 @@
             "runtimeArgs": [
                 "run-script", "run"
             ],
+            "console": "integratedTerminal",
             "env": {
                 "NODE_ENV": "development",
                 "PORT": "9865",
-                "VIDEO_PATH": "/home/uwe/Videos",
+                "VIDEO_PATH": "/media/uwe/Daten/Videos",
                 "MUSIC_PATH": "/run/media/uwe/Daten/Musik",
                 "RELATIVE_URL": "/media"
             },
