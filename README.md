@@ -11,9 +11,10 @@ nvm install 24
 
 ```
 ### Install as service
-
 ```
-  GNU nano 8.3                                  /lib/systemd/system/homeserver.service                                     M     
+sudo nano /lib/systemd/system/homeserver.service
+```
+```
 [Unit]
 Description=Home Server for serving videos to AMAZON FirePlayer
 Documentation=https://github.com/uriegel/home-server/blob/master/README.md
@@ -78,107 +79,26 @@ mount drive:
 sudo mount -a
 
 ```
-
-
-
-## uhubctl
-
-Completely shutdown usb (with ethernet):
 ```
-echo '1-1' |sudo tee /sys/bus/usb/drivers/usb/unbind
-```
-
-Shutdown specific usb port:
-
-```
-sudo uhubctl -l 1-1 -p 2 -a 0
-sudo apt-get install libusb-1.0-0-dev
-git clone https://github.com/mvp/uhubctl
-cd uhubctl
-make
-sudo apt install make
-make
-cc
-sudo apt install gcc
-cc
-make
-ls
-sudo make install
-```
-
-Port 80 and port 443 on Linux:
-
-```sudo setcap CAP_NET_BIND_SERVICE=+eip /home/uwe/.dotnet/dotnet```
-
-Now the program is not debuggable any more. To remove:
-
-```setcap -r /home/uwe/.dotnet/dotnet```
-
-Send external disk to sleep after some time (20s):
-
-```
-sudo nano /etc/hdparm.conf
-```
-
-then edit this conf file:
-
-```
-/dev/disk/by-label/Videos {
-        apm = 3
-        spindown_time = 60
-}
-```
-
-Send external disk to sleep after 10 min (deprecated, because tlp prevents booting):
-
-Install ```tlp```:
-
-```
-sudo apt install tlp
-```
-
-Get disk ID for tlp:
-
-```
-sudo tlp diskid
+sudo apt install hd-idle
+sudo nano /etc/default/hd-idle
 ```
 
 ```
-sudo nano /etc/tlp.conf
-```
-```
-# Disk devices; separate multiple devices with spaces (default: sda).
-# Devices can be specified by disk ID also (lookup with: tlp diskid).
-DISK_DEVICES="ata-TOSHIBA_MQ01ABD100_238MSIE4S"
+# defaults file for hd-idle
 
-# Disk advanced power management level: 1..254, 255 (max saving, min, off).
-# Levels 1..127 may spin down the disk; 255 allowable on most drives.
-# Separate values for multiple disks with spaces. Use the special value 'keep'
-# to keep the hardware default for the particular disk.
-DISK_APM_LEVEL_ON_AC="127"
-DISK_APM_LEVEL_ON_BAT="127"
-
-# Hard disk spin down timeout:
-#   0:        spin down disabled
-#   1..240:   timeouts from 5s to 20min (in units of 5s)
-#   241..251: timeouts from 30min to 5.5 hours (in units of 30min)
-# See 'man hdparm' for details.
-# Separate values for multiple disks with spaces. Use the special value 'keep'
-# to keep the hardware default for the particular disk.
-DISK_SPINDOWN_TIMEOUT_ON_AC="120"
-DISK_SPINDOWN_TIMEOUT_ON_BAT="120"
-```
-```
-sudo systemctl enable tlp
-sudo systemctl start tlp
+# start hd-idle automatically?
+START_HD_IDLE=true
+HD_IDLE_OPTS="-i 600 -l /var/log/hd-idle.log"
 ```
 
-Not mandatory:
-
 ```
-cd /media
-ll
-sudo chmod 777 /media/video
+sudo systemctl enable hd-idle
+sudo systemctl restart hd-idle
+```
+To check disk status
+```
+sudo hdparm -C /dev/sda
 ```
 
 ### NginX
