@@ -92,3 +92,9 @@ sudo certbot --nginx -d uriegel.de
 
 systemctl status nginx
 ```
+
+Remove default web site
+
+```
+sudo rm /var/www/html/index.nginx-debian.html 
+```
