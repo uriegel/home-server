@@ -1,8 +1,7 @@
 import { Request, Response } from "express"
-import { readdir, stat } from "fs/promises"
+import { createWriteStream } from "fs"
+import { readdir, stat, utimes } from "fs/promises"
 import path from "path"
-import { NextFunction } from "connect"
-import { Dirent, statSync } from "fs"
 import "functional-extensions"
 import { AsyncEnumerable } from "functional-extensions"
 
@@ -14,7 +13,7 @@ type FileItem = {
     time: number
 }
 
-export async function getFiles(req: Request<{ splat?: string[] }>, res: Response<any, Record<any, string>>, next: NextFunction) {
+export async function getFiles(req: Request<{ splat?: string[] }>, res: Response<any, Record<any, string>>) {
     const filePath = path.join("/", ...(req.params.splat ? req.params.splat : []))
 
     const items = AsyncEnumerable.from(readdir(filePath, {
@@ -32,4 +31,23 @@ export async function getFiles(req: Request<{ splat?: string[] }>, res: Response
         })
 
     res.json(await items.await())
+}
+
+export function putFile(req: Request<{ splat?: string[] }>, res: Response<any, Record<any, string>>) {
+    const filePath = path.join("/", ...(req.params.splat ? req.params.splat : []))
+    const writeStream = createWriteStream(filePath)
+    req.pipe(writeStream)
+    writeStream.on('finish', async () => {
+        const date = req.header("x-file-date") 
+        if (date) {
+            const mtimeMs = Number(date)
+            if (!Number.isNaN(mtimeMs)) {
+                const mtime = new Date(mtimeMs)
+                // keep atime unchanged
+                await utimes(filePath, mtime, mtime)
+            }            
+        }
+        res.sendStatus(204)
+    })
+    writeStream.on('error', () => res.sendStatus(404))
 }

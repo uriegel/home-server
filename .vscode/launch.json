@@ -17,7 +17,8 @@
                 "PORT": "9865",
                 "VIDEO_PATH": "/media/uwe/Daten/Videos",
                 "MUSIC_PATH": "/media/uwe/Daten/Musik",
-                "PICTURE_PATH": "/media/uwe/Daten/Bilder/Fotos"
+                "PICTURE_PATH": "/media/uwe/Daten/Bilder/Fotos",
+                "APK_PATH": "/home/uwe/apk"
             },
         }
     ]
