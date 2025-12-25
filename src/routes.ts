@@ -1,8 +1,7 @@
-import { Request, Response, Router } from "express"
-import { readdir, stat } from "fs/promises"
+import { Router } from "express"
 import serveStatic from "serve-static"
-import path from "path"
-import { NextFunction } from "connect"
+import { serveFile } from "./fireplayer.js"
+import { getFiles } from "./commander-engine.js"
 
 export const router = Router()
 
@@ -22,25 +21,5 @@ router.use('/pics', serveStatic(PICTURE_PATH))
 router.get('/music{/*splat}', (req, res, n) => serveFile(MUSIC_PATH, req, res, n))
 router.use('/music', serveStatic(MUSIC_PATH))
 
-router.get('/diskneeded', async (_, res) => res.sendStatus(200))
-router.get('/accessdisk', async (_, res) => res.sendStatus(200))
+router.get('/getFiles{/*splat}', (req, res, n) => getFiles(req, res, n))
 
-async function serveFile(directory: string, req: Request<{ splat?: string[] }>, res: Response<any, Record<any, string>>, next: NextFunction) {
-    const filePath = path.join(directory, ...(req.params.splat ? req.params.splat : []))
-    if (await isDirectory(filePath)) {
-
-        const items = await readdir(filePath, {
-            withFileTypes: true
-        })
-        const [dirs, files] = items.partition(n => n.isDirectory())
-        res.json({
-            directories: dirs.map(n => n.name),
-            files: files.map(n => n.name)
-        })
-    } else
-        return next()
-}
-
-async function isDirectory(path: string) {
-    return (await stat(path)).isDirectory()
-}
