@@ -9,7 +9,12 @@ console.log("Server fährt hoch...")
 const PORT = process.env.PORT || 9865
 
 const app = express()
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:5173"
+}))
+app.use(cors({
+    origin: ["http://127.0.0.1:8888", "http://localhost:5173" ]
+}))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
 app.use(router)
 
@@ -24,3 +29,5 @@ function shutdown() {
 }
 
 
+// TODO add cors to fileplayer
+// TODO insert cors from environment
