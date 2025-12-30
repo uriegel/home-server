@@ -23,7 +23,7 @@ router.use('/pics', serveStatic(PICTURE_PATH))
 router.get('/music{/*splat}', (req, res, n) => serveFile(MUSIC_PATH, req, res, n))
 router.use('/music', serveStatic(MUSIC_PATH))
 
-router.get('/apk{/*splat}', (req, res, n) => serveFile(APK_PATH, req, res, n))
+router.use('/apk', serveStatic(APK_PATH))
 
 router.get('/getFiles{/*splat}', getFiles)
 router.put('/putFile{/*splat}', putFile)
