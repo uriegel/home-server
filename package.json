@@ -27,7 +27,7 @@
     "@types/morgan": "^1.9.10",
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "functional-extensions": "^2.8.0",
+    "functional-extensions": "^2.8.1",
     "morgan": "^1.10.1"
   }
 }
