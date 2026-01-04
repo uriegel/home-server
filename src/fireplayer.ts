@@ -22,3 +22,42 @@ export async function serveFile(directory: string, req: Request<{ splat?: string
 export async function isDirectory(path: string) {
     return (await stat(path)).isDirectory()
 }
+
+// export function imageResizeMiddleware(rootDir: string) {
+//     return async function (req: Request, res: Response, next: NextFunction) {
+//         const relPath = decodeURIComponent(req.path).replace(/^\/+/, "");
+//         const filePath = path.join(rootDir, relPath);
+
+//         const ext = path.extname(filePath).toLowerCase();
+//         if (![".jpg", ".jpeg", ".png"].includes(ext)) {
+//             return next();
+//         }
+
+//         const width = Number(req.query.w) || 1920
+//         const height = Number(req.query.h) || 1080
+//         if (!width && !height) {
+//             return next();
+//         }
+
+//         if (!filePath.startsWith(rootDir)) {
+//             return res.sendStatus(403);
+//         }
+
+//         try {
+//             res.type("image/jpeg");
+
+//             sharp(filePath)
+//                 .resize(width || null, height || null, {
+//                     fit: "inside",
+//                     withoutEnlargement: true
+//                 })
+//                 .jpeg({
+//                     quality: 90,
+//                     progressive: true
+//                 })
+//                 .pipe(res);
+//         } catch (err) {
+//             return next(err);
+//         }
+//     };
+// }
