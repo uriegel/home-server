@@ -10,7 +10,7 @@
             "name": "Debug executable 'home-server'",
             "requireExactSource": true, 
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/HomeServer/bin/Debug/net8.0/HomeServer.dll",
+            "program": "${workspaceFolder}/HomeServer/bin/Debug/net10.0/HomeServer.dll",
             "stopAtEntry": false,
             "justMyCode": false,
             "enableStepFiltering": true,
@@ -18,14 +18,14 @@
             "args": [],
             "cwd": "${workspaceFolder}/HomeServer",
             "env": {
-                "VIDEO_PATH": "/daten/Videos",
+                "VIDEO_PATH": "/media/uwe/Daten/Videos",
                 "MUSIC_PATH": "/home/uwe/Musik",
-                "SERVER_PORT": "8080",
+                "SERVER_PORT": "5050",
                 "SERVER_TLS_PORT": "4433",
                 "INTRANET_HOST": "illmatic",
                 "LETS_ENCRYPT_DIR": "/home/uwe/.config/letsencrypt-cert",
                 "MEDIA_MOUNT_PATH": "/media/video",
-                "PICTURE_PATH": "/daten/Bilder/Fotos",
+                "PICTURE_PATH": "/media/uwe/Daten/Bilder/Fotos",
                 "USB_MEDIA_PORT": "4"
             }            
         }

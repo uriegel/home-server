@@ -38,13 +38,13 @@ var server =
         .Route(HttpRoute
             .New()
             .Add(PathRoute
-                .New("/media/video")
+                .New("/video")
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(GetMediaFile)
                     .Request(GetMedia(videoPath))))
             .Add(PathRoute
-                .New("/media/pics")
+                .New("/pics")
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(GetPictureFile)
