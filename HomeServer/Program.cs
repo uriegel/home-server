@@ -34,6 +34,9 @@ var server =
         .Http(port)
         .Https(httpsPort)
         .UseLetsEncrypt()
+        .AddAllowedOrigin("http://127.0.0.1:8888")
+        .AddAllowedOrigin("http://localhost:5173")
+	    .AccessControlMaxAge(TimeSpan.FromMinutes(1))
         .UseRange()
         .Route(HttpRoute
             .New()

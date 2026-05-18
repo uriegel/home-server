@@ -8,12 +8,14 @@ a home server for my Raspberry Pi 3
 
 ```
 LABEL=Videos   /media/video    ext4    defaults,nofail 0       1
+LABEL=stick   /media/stick    ext4    defaults  0       1
 ```
 
 Then enter
 
 ```
 sudo mkdir /media/video
+sudo mkdir /media/stick
 ```
 
 mount drive:
@@ -30,7 +32,7 @@ sudo apt update
 
 ```
 ```
-sudo apt install dotnet-sdk-9.0
+sudo apt install dotnet-sdk-10.0
 ```
 
 ### Compile
