@@ -98,7 +98,28 @@ sudo journalctl --rotate
 sudo journalctl --vacuum-time=2weeks
 ```
 
+### External USB disk
+```
+sudo apt install hd-idle
+sudo nano /etc/default/hd-idle
+```
 
+```
+# defaults file for hd-idle
+
+# start hd-idle automatically?
+START_HD_IDLE=true
+HD_IDLE_OPTS="-i 600 -l /var/log/hd-idle.log"
+```
+
+```
+sudo systemctl enable hd-idle
+sudo systemctl restart hd-idle
+```
+To check disk status
+```
+sudo hdparm -C /dev/sda
+```
 
 ## Legacy
 
