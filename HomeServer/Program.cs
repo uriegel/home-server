@@ -73,9 +73,6 @@ server.Start();
 shutdownEvent.WaitOne(); // Wait until SIGINT/SIGTERM
 server.Stop();
 
-// TODO AccessDisk
-// TODO DiskNeeded
-
 async Task<bool> SendOK(IRequest request)
 {
     await request.SendTextAsync("OK");
