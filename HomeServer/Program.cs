@@ -62,10 +62,9 @@ var server =
                 .Add(MethodRoute
                     .New(Method.Get)
                     .Request(SendOK))))
-        .Route(HttpsRoute
-            .New()
+        .SecureRoute("uriegel.de", SecureRoute.New()
             .Add(MethodRoute
-                .New(Method.Get)
+            .New(Method.Get)       
                 .Request(SendUnderConstruction)))
         .Build();
     
@@ -76,12 +75,6 @@ server.Stop();
 async Task<bool> SendOK(IRequest request)
 {
     await request.SendTextAsync("OK");
-    return true;
-}
-
-async Task<bool> SendUnderConstruction(IRequest request)
-{
-    await request.SendTextAsync("Under construction...");
     return true;
 }
 
@@ -137,6 +130,12 @@ async Task<bool> GetPictureFile(IRequest request)
     }
     else
         return false;
+}
+
+async Task<bool> SendUnderConstruction(IRequest request)
+{
+    await request.SendTextAsync("Under construction...");
+    return true;
 }
 
 record DirectoryContent(string[] Directories, string[] Files);

@@ -60,16 +60,13 @@ After=network.target
 Environment=SERVER_PORT=8080
 Environment=SERVER_TLS_PORT=4433
 Environment=FRITZ_HOST=fritz.domain.de
-Environment=LETS_ENCRYPT_DIR=/home/uwe/.config/letsencrypt-uweb
 Environment=DOWNLOAD_PATH=/home/uwe/Upload
-Environment=INTRANET_HOST=roxy
 Environment=VIDEO_PATH=/media/video/videos
 Environment=MUSIC_PATH=/media/video/Musik
 Environment=PICTURE_PATH=/media/video/Fotos
 Environment=MEDIA_MOUNT_PATH=/media/video
-Environment=USB_MEDIA_PORT=5
 Type=simple
-ExecStart=/home/uwe/HomeServer/bin/Release/net9.0/HomeServer
+ExecStart=/home/uwe/HomeServer/bin/Release/net10.0/HomeServer
 User=uwe
 Group=uwe
 Restart=on-failure
